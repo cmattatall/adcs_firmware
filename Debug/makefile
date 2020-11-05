@@ -8,6 +8,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./json.obj" \
 "./main.obj" \
 "./spi.obj" \
 "../lnk_msp430f5529.cmd" \
@@ -154,8 +155,8 @@ ADCS_Firmware.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "main.obj" "spi.obj" 
-	-$(RM) "main.d" "spi.d" 
+	-$(RM) "json.obj" "main.obj" "spi.obj" 
+	-$(RM) "json.d" "main.d" "spi.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
