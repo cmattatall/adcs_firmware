@@ -84,16 +84,19 @@ char *json_toktypename(jsontype_t type)
         [JSON_ARRAY]     = "JSON_ARRAY",
         [JSON_STRING]    = "JSON_STRING",
     };
+    char * retval = NULL;
     switch (type)
     {
         case JSON_PRIMITIVE:
         case JSON_OBJECT:
         case JSON_ARRAY:
         case JSON_STRING:
-            return jsontok_type_names[type];
-        default:
-            return NULL;
+        {
+            retval = (char*)jsontok_type_names[type];
+        }
+        break;
     }
+    return retval;
 }
 
 
@@ -104,29 +107,26 @@ char *json_jsonerr_messages(jsonerr_t err)
         [1] = "Invalid character inside JSON string",
         [2] = "The string is not a full JSON packet, more bytes expected",
     };
+    char *retval = NULL;
     switch (err)
     {
         case JSON_ERROR_NOMEM:
         {
-            return jsonerr_messages[0];
+            retval =  (char*)jsonerr_messages[0];
         }
         break;
         case JSON_ERROR_INVAL:
         {
-            return jsonerr_messages[1];
+            retval =  (char*)jsonerr_messages[1];
         }
         break;
         case JSON_ERROR_PART:
         {
-            return jsonerr_messages[2];
-        }
-        break;
-        default:
-        {
-            return NULL;
+            retval =  (char*)jsonerr_messages[2];
         }
         break;
     }
+    return retval;
 }
 
 uint_least16_t json_toklen(const jsontok_t *tok)
@@ -136,12 +136,9 @@ uint_least16_t json_toklen(const jsontok_t *tok)
     {
         uint_least64_t tokstart = tok->start;
         uint_least64_t tokend   = tok->end;
-        if (tokend >= 0 && tokstart >= 0)
+        if (tokend - tokstart < UINT16_MAX)
         {
-            if (tokend - tokstart < UINT16_MAX)
-            {
-                len = tokend - tokstart;
-            }
+            len = tokend - tokstart;
         }
     }
     return len;
@@ -218,6 +215,7 @@ bool json_tokncmp(const char *str, const jsontok_t *tok, uint_least16_t n)
             result = false;
         }
     }
+    return result;
 }
 
 
@@ -460,10 +458,7 @@ static jsonerr_t json_parse_primitive(json_parser *parser, const char *js,
             case ',':
             case ']':
             case '}':
-            {
                 goto found;
-            }
-            break;
         }
         if (js[parser->pos] < JSON_ASCII_CHAR_LOWEST_VALUE ||
             js[parser->pos] >= JSON_ASCII_CHAR_HIGHEST_VALUE)
@@ -576,11 +571,8 @@ static jsonerr_t json_parse_string(json_parser *parser, const char *js,
                 break;
                 /* Unexpected symbol */
                 default:
-                {
                     parser->pos = start;
                     return JSON_ERROR_INVAL;
-                }
-                break;
             }
         }
     }

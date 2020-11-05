@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "spi.h"
+#include "json.h"
 
 
 #define TESTMSG "Hello World\r\n"

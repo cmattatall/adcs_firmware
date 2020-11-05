@@ -1,7 +1,7 @@
 ******************************************************************************
                   MSP430 Linker Unix v20.2.1                   
 ******************************************************************************
->> Linked Thu Nov  5 11:14:16 2020
+>> Linked Thu Nov  5 12:18:44 2020
 
 OUTPUT FILE NAME:   <ADCS_Firmware.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 00004488

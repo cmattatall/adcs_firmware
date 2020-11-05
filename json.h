@@ -226,6 +226,16 @@ bool isValidJson(const jsontok_t *tokens, uint_least8_t tcnt);
  */
 char *json_toktypename(jsontype_t type);
 
+
+/**
+ * @brief Utility wrapper for printing a string corresponding to a jsonerr_t
+ *
+ * @param err the error code
+ * @return char* the error message
+ */
+char *json_jsonerr_messages(jsonerr_t err);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -17,6 +17,10 @@ main.obj: /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/ma
 main.obj: /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_stdint.h
 main.obj: /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/sys/_stdint.h
 main.obj: ../spi.h
+main.obj: ../json.h
+main.obj: /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stddef.h
+main.obj: /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdbool.h
+main.obj: /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/limits.h
 
 ../main.c: 
 /opt/ti/ccs1011/ccs/ccs_base/msp430/include/msp430.h: 
@@ -35,3 +39,7 @@ main.obj: ../spi.h
 /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/machine/_stdint.h: 
 /opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/sys/_stdint.h: 
 ../spi.h: 
+../json.h: 
+/opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stddef.h: 
+/opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/stdbool.h: 
+/opt/ti/ccs1011/ccs/tools/compiler/ti-cgt-msp430_20.2.1.LTS/include/limits.h: 
