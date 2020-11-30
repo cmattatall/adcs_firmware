@@ -1,1 +1,0 @@
-"./json.obj" "./main.obj" "./spi.obj" "../lnk_msp430f5529.cmd" -llibmath.a -llibc.a 

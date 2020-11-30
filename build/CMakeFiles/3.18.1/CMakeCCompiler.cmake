@@ -71,7 +71,7 @@ endif()
 
 
 
-set(CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES "")
+set(CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES "/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/lib/gcc/msp430-elf/9.2.0/include;/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/lib/gcc/msp430-elf/9.2.0/include-fixed;/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/msp430-elf/include")
 set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "")
 set(CMAKE_C_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")

@@ -36,9 +36,6 @@ default_target: all
 .SUFFIXES: .hpux_make_needs_suffix_list
 
 
-# Produce verbose output by default.
-VERBOSE = 1
-
 # Command-line flag to silence nested $(MAKE).
 $(VERBOSE)MAKESILENT = -s
 
@@ -96,12 +93,12 @@ clean: CMakeFiles/adcs_firmware.dir/clean
 CMakeFiles/adcs_firmware.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=1,2 "Built target adcs_firmware"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=1,2,3,4 "Built target adcs_firmware"
 .PHONY : CMakeFiles/adcs_firmware.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/adcs_firmware.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/adcs_firmware.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 0
 .PHONY : CMakeFiles/adcs_firmware.dir/rule

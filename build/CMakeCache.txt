@@ -71,7 +71,7 @@ CMAKE_C_COMPILER_AR:FILEPATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0
 CMAKE_C_COMPILER_RANLIB:FILEPATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc-ranlib
 
 //Flags used by the C compiler during all build types.
-CMAKE_C_FLAGS:STRING=-ffunction-sections -fdata-sections -mmcu=msp430f5529 -DF_CPU=8000000 -I
+CMAKE_C_FLAGS:STRING=-ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529
 
 //Flags used by the C compiler during DEBUG builds.
 CMAKE_C_FLAGS_DEBUG:STRING=-g
@@ -89,7 +89,7 @@ CMAKE_C_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 CMAKE_DLLTOOL:FILEPATH=CMAKE_DLLTOOL-NOTFOUND
 
 //Flags used by the linker during all build types.
-CMAKE_EXE_LINKER_FLAGS:STRING=-Wl, -mmcu=msp430f5529
+CMAKE_EXE_LINKER_FLAGS:STRING=-Wl,--relax,--gc-sections,-I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc
 
 //Flags used by the linker during DEBUG builds.
 CMAKE_EXE_LINKER_FLAGS_DEBUG:STRING=
@@ -209,8 +209,8 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 //Path to a program.
 CMAKE_STRIP:FILEPATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-strip
 
-//No help, variable specified on the command line.
-CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=msp430_cmake_toolchain.cmake
+//The CMake toolchain file
+CMAKE_TOOLCHAIN_FILE:FILEPATH=/home/carl/workspace_v10/ADCS_Firmware/msp430_cmake_toolchain.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -273,7 +273,7 @@ CMAKE_CPACK_COMMAND:INTERNAL=/usr/local/bin/cpack
 //Path to ctest program executable.
 CMAKE_CTEST_COMMAND:INTERNAL=/usr/local/bin/ctest
 //Initial flags for C++ compiler
-CMAKE_CXX_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections -fno-rtti -fno-exceptions -mmcu=msp430f5529 -DF_CPU=8000000
+CMAKE_CXX_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections -fno-rtti -fno-exceptions  -DF_CPU=8000000 -mmcu=msp430f5529
 //ADVANCED property for variable: CMAKE_C_COMPILER
 CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_AR
@@ -285,7 +285,7 @@ CMAKE_C_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_FLAGS_DEBUG
 CMAKE_C_FLAGS_DEBUG-ADVANCED:INTERNAL=1
 //Initial flags for C compiler
-CMAKE_C_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections -mmcu=msp430f5529 -DF_CPU=8000000 -I
+CMAKE_C_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529
 //ADVANCED property for variable: CMAKE_C_FLAGS_MINSIZEREL
 CMAKE_C_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_FLAGS_RELEASE
@@ -302,8 +302,9 @@ CMAKE_EXECUTABLE_FORMAT:INTERNAL=ELF
 CMAKE_EXE_LINKER_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_DEBUG
 CMAKE_EXE_LINKER_FLAGS_DEBUG-ADVANCED:INTERNAL=1
-//Initial options for linker.
-CMAKE_EXE_LINKER_FLAGS_INIT:INTERNAL=-Wl, -mmcu=msp430f5529
+//Initial options for linker the VERY first time a CMake build
+// tree is configured
+CMAKE_EXE_LINKER_FLAGS_INIT:INTERNAL=-Wl,--relax,--gc-sections,-I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_MINSIZEREL
 CMAKE_EXE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_RELEASE

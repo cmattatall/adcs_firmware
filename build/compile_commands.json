@@ -1,7 +1,17 @@
 [
 {
   "directory": "/home/carl/workspace_v10/ADCS_Firmware/build",
-  "command": "/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc -D__MSP430F5529__ -I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc -ffunction-sections -fdata-sections -mmcu=msp430f5529 -DF_CPU=8000000 -I -o CMakeFiles/adcs_firmware.dir/test_compile.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/test_compile.c",
-  "file": "/home/carl/workspace_v10/ADCS_Firmware/test_compile.c"
+  "command": "/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf  -I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc -I/home/carl/workspace_v10/ADCS_Firmware/inc -ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529 -o CMakeFiles/adcs_firmware.dir/src/json.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/json.c",
+  "file": "/home/carl/workspace_v10/ADCS_Firmware/src/json.c"
+},
+{
+  "directory": "/home/carl/workspace_v10/ADCS_Firmware/build",
+  "command": "/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf  -I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc -I/home/carl/workspace_v10/ADCS_Firmware/inc -ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529 -o CMakeFiles/adcs_firmware.dir/src/main.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/main.c",
+  "file": "/home/carl/workspace_v10/ADCS_Firmware/src/main.c"
+},
+{
+  "directory": "/home/carl/workspace_v10/ADCS_Firmware/build",
+  "command": "/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf  -I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc -I/home/carl/workspace_v10/ADCS_Firmware/inc -ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529 -o CMakeFiles/adcs_firmware.dir/src/spi.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/spi.c",
+  "file": "/home/carl/workspace_v10/ADCS_Firmware/src/spi.c"
 }
 ]

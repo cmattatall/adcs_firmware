@@ -40,9 +40,6 @@ default_target: all
 .SUFFIXES: .hpux_make_needs_suffix_list
 
 
-# Produce verbose output by default.
-VERBOSE = 1
-
 # Command-line flag to silence nested $(MAKE).
 $(VERBOSE)MAKESILENT = -s
 
@@ -145,32 +142,86 @@ adcs_firmware/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/build
 .PHONY : adcs_firmware/fast
 
-test_compile.obj: test_compile.c.obj
+src/json.obj: src/json.c.obj
 
-.PHONY : test_compile.obj
+.PHONY : src/json.obj
 
 # target to build an object file
-test_compile.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/test_compile.c.obj
-.PHONY : test_compile.c.obj
+src/json.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/json.c.obj
+.PHONY : src/json.c.obj
 
-test_compile.i: test_compile.c.i
+src/json.i: src/json.c.i
 
-.PHONY : test_compile.i
+.PHONY : src/json.i
 
 # target to preprocess a source file
-test_compile.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/test_compile.c.i
-.PHONY : test_compile.c.i
+src/json.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/json.c.i
+.PHONY : src/json.c.i
 
-test_compile.s: test_compile.c.s
+src/json.s: src/json.c.s
 
-.PHONY : test_compile.s
+.PHONY : src/json.s
 
 # target to generate assembly for a file
-test_compile.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/test_compile.c.s
-.PHONY : test_compile.c.s
+src/json.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/json.c.s
+.PHONY : src/json.c.s
+
+src/main.obj: src/main.c.obj
+
+.PHONY : src/main.obj
+
+# target to build an object file
+src/main.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/main.c.obj
+.PHONY : src/main.c.obj
+
+src/main.i: src/main.c.i
+
+.PHONY : src/main.i
+
+# target to preprocess a source file
+src/main.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/main.c.i
+.PHONY : src/main.c.i
+
+src/main.s: src/main.c.s
+
+.PHONY : src/main.s
+
+# target to generate assembly for a file
+src/main.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/main.c.s
+.PHONY : src/main.c.s
+
+src/spi.obj: src/spi.c.obj
+
+.PHONY : src/spi.obj
+
+# target to build an object file
+src/spi.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/spi.c.obj
+.PHONY : src/spi.c.obj
+
+src/spi.i: src/spi.c.i
+
+.PHONY : src/spi.i
+
+# target to preprocess a source file
+src/spi.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/spi.c.i
+.PHONY : src/spi.c.i
+
+src/spi.s: src/spi.c.s
+
+.PHONY : src/spi.s
+
+# target to generate assembly for a file
+src/spi.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/spi.c.s
+.PHONY : src/spi.c.s
 
 # Help Target
 help:
@@ -181,9 +232,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... adcs_firmware"
-	@echo "... test_compile.obj"
-	@echo "... test_compile.i"
-	@echo "... test_compile.s"
+	@echo "... src/json.obj"
+	@echo "... src/json.i"
+	@echo "... src/json.s"
+	@echo "... src/main.obj"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
+	@echo "... src/spi.obj"
+	@echo "... src/spi.i"
+	@echo "... src/spi.s"
 .PHONY : help
 
 
