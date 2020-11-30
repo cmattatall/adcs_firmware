@@ -51,6 +51,14 @@ void SPI0_init(volatile int **receive_signal_watcher,
     /* Re-enable peripheral */
     UCB0CTL1 &= ~UCSWRST; /* Lock the peripheral control register config */
 
+
+#if defined(SPI0_LOOPBACK)
+#warning SPI0 is configured in LOOPBACK mode
+    UCB0STAT |= UCLISTEN;
+#else
+    UCB0STAT &= ~UCLISTEN;
+#endif /* #if defined(SPI0_LOOPBACK) */
+
     /* Enable receive complete interrupt */
     UCB0IE |= UCRXIE;
 

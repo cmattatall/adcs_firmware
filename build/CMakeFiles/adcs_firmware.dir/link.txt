@@ -1,0 +1,1 @@
+/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc -ffunction-sections -fdata-sections -mmcu=msp430f5529 -DF_CPU=8000000 -I -Wl, -mmcu=msp430f5529 CMakeFiles/adcs_firmware.dir/test_compile.c.obj -o adcs_firmware 

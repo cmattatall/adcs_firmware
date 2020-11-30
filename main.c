@@ -19,7 +19,6 @@ void main(void)
 	SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
 
 
-
 	while(1)
 	{
 	    /* Transmit if we can */

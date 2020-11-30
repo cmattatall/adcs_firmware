@@ -1,0 +1,3 @@
+/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/rebuild_cache.dir
+/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/adcs_firmware.dir
+/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/edit_cache.dir
