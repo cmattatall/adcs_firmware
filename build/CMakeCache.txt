@@ -71,7 +71,7 @@ CMAKE_C_COMPILER_AR:FILEPATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0
 CMAKE_C_COMPILER_RANLIB:FILEPATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc-ranlib
 
 //Flags used by the C compiler during all build types.
-CMAKE_C_FLAGS:STRING=-ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529
+CMAKE_C_FLAGS:STRING=-ffunction-sections -fdata-sections
 
 //Flags used by the C compiler during DEBUG builds.
 CMAKE_C_FLAGS_DEBUG:STRING=-g
@@ -89,7 +89,7 @@ CMAKE_C_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 CMAKE_DLLTOOL:FILEPATH=CMAKE_DLLTOOL-NOTFOUND
 
 //Flags used by the linker during all build types.
-CMAKE_EXE_LINKER_FLAGS:STRING=-Wl,--relax,--gc-sections,-I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc,-L/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc
+CMAKE_EXE_LINKER_FLAGS:STRING=-Wl,--relax,--gc-sections
 
 //Flags used by the linker during DEBUG builds.
 CMAKE_EXE_LINKER_FLAGS_DEBUG:STRING=
@@ -267,7 +267,7 @@ CMAKE_CPACK_COMMAND:INTERNAL=/usr/local/bin/cpack
 //Path to ctest program executable.
 CMAKE_CTEST_COMMAND:INTERNAL=/usr/local/bin/ctest
 //Initial flags for C++ compiler
-CMAKE_CXX_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529 -fno-rtti -fno-exceptions
+CMAKE_CXX_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections -fno-rtti -fno-exceptions
 //ADVANCED property for variable: CMAKE_C_COMPILER
 CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_AR
@@ -279,7 +279,7 @@ CMAKE_C_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_FLAGS_DEBUG
 CMAKE_C_FLAGS_DEBUG-ADVANCED:INTERNAL=1
 //Initial flags for C compiler
-CMAKE_C_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections -DF_CPU=8000000 -mmcu=msp430f5529
+CMAKE_C_FLAGS_INIT:INTERNAL=-ffunction-sections -fdata-sections
 //ADVANCED property for variable: CMAKE_C_FLAGS_MINSIZEREL
 CMAKE_C_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_FLAGS_RELEASE
@@ -298,7 +298,7 @@ CMAKE_EXE_LINKER_FLAGS-ADVANCED:INTERNAL=1
 CMAKE_EXE_LINKER_FLAGS_DEBUG-ADVANCED:INTERNAL=1
 //Initial options for linker the VERY first time a CMake build
 // tree is configured
-CMAKE_EXE_LINKER_FLAGS_INIT:INTERNAL=-Wl,--relax,--gc-sections,-I/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc,-L/opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc
+CMAKE_EXE_LINKER_FLAGS_INIT:INTERNAL=-Wl,--relax,--gc-sections
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_MINSIZEREL
 CMAKE_EXE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_RELEASE

@@ -2,8 +2,6 @@
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
 
 set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
-set(MSP430_MCU "msp430f5529")
-set(MSP430_MCU_FREQ "8000000")
 
 macro(msp430_check_define_macro var)
     if(NOT ${var})
@@ -11,12 +9,10 @@ macro(msp430_check_define_macro var)
     endif(NOT ${var})
 endmacro(msp430_check_define_macro var)
 
-
 macro(msp430_check_defines_macro)
     msp430_check_define_macro(MSP430_MCU)
     msp430_check_define_macro(MSP430_MCU_FREQ)
 endmacro(msp430_check_defines_macro)
-
 
 if(NOT CODE_COMPOSER_INSTALL_PATH)
     message(FATAL_ERROR "CODE_COMPOSER_INSTALL_PATH NOT DEFINED. PLEASE DEFINE VIA CLI OR IN TOOLCHAIN FILE")
@@ -28,11 +24,15 @@ if(UNIX AND NOT APPLE)
     set(TOOLCHAIN_ROOT ${CCS_PATH}//tools/compiler/msp430-gcc-9.2.0.50_linux64/)
     set(BIN_HINTS "${TOOLCHAIN_ROOT}/bin")
 elseif(WIN32)
-    # @todo
+    message(FATAL_ERROR "WIN32 SUPPORT HAS NOT BEEN ADDED YET. IT IS ON CARL'S TODO LIST")
 elseif(APPLE)
-    # @todo
+    message(FATAL_ERROR "APPLE SUPPORT HAS NOT BEEN ADDED YET. IT IS ON CARL'S TODO LIST")
 else()
     message(FATAL_ERROR "Unsupported platform ${CMAKE_HOST_SYSTEM_NAME}")
+endif()
+
+if(NOT DEFINED BIN_HINTS)
+    message(FATAL_ERROR "MSP430 SEARCH PATH HINTS ARE NOT DEFINED. PLEASE DEFINED THEM VIA THE CLI OR IN THE CMAKE TOOLCHAIN FILE FOR YOUR PLATFORM")
 endif()
 
 set(CMAKE_SYSTEM_NAME Generic)
@@ -50,10 +50,6 @@ set(CMAKE_OBJDUMP_NAME ${TOOLCHAIN_PREFIX}-objdump)
 set(CMAKE_SIZE_NAME ${TOOLCHAIN_PREFIX}-size)
 set(CMAKE_GDB_NAME ${TOOLCHAIN_PREFIX}-gdb) 
 
-if(NOT DEFINED BIN_HINTS)
-    message(FATAL_ERROR "MSP430 SEARCH PATH HINTS ARE NOT DEFINED. PLEASE DEFINED THEM VIA THE CLI OR IN THE CMAKE TOOLCHAIN FILE FOR YOUR PLATFORM")
-endif()
-
 set(CMAKE_SYSROOT ${TOOLCHAIN_ROOT}/${TOOLCHAIN_PREFIX})
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
@@ -67,7 +63,6 @@ find_program(CMAKE_OBJDUMP ${CMAKE_OBJDUMP_NAME} HINTS ${BIN_HINTS} REQUIRED)
 find_program(CMAKE_SIZE ${CMAKE_SIZE_NAME} HINTS ${BIN_HINTS} REQUIRED)
 
 set(MCU_HEADER_DIR "${CCS_PATH}/ccs_base/msp430/include_gcc")
-include_directories(${MCU_HEADER_DIR})
 
 set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
 #set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections -DF_CPU=${MSP430_MCU_FREQ} -mmcu=${MSP430_MCU}")
@@ -80,17 +75,17 @@ set(CMAKE_CXX_FLAGS_INIT
      CACHE INTERNAL "Initial flags for C++ compiler")
 
 set(CMAKE_EXE_LINKER_FLAGS_INIT
-    "-Wl,--relax,--gc-sections,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}"
+    "-Wl,--relax,--gc-sections"
     CACHE INTERNAL "Initial options for linker the VERY first time a CMake build tree is configured")
     
 include(CheckLinkerFlag)
 
-
-
-function(msp430_add_executable excutable)
+function(msp430_add_executable executable)
     msp430_check_defines_macro()
-    add_executable(${${executable}})
-    target_sources(${${executable}} PRIVATE ${ARGN})
-    target_compile_definitions(${${executable}} PRIVATE "F_CPU=${MSP430_MCU_FREQ}")
-    target_compile_options(${${executable}} PRIVATE "-mmcu=${MSP430_MCU}")
-endfunction(msp430_add_executable excutable)
+    add_executable(${executable})
+    target_sources(${executable} PRIVATE ${ARGN})
+    target_compile_definitions(${executable} PRIVATE "F_CPU=${MSP430_MCU_FREQ}")
+    target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
+    target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
+    target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
+endfunction(msp430_add_executable executable)

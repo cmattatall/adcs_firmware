@@ -4,8 +4,11 @@ project(adcs_firmware LANGUAGES C ASM)
 
 set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
 
+set(MSP430_MCU "msp430f5529")
+set(MSP430_MCU_FREQ "8000000")
 
-add_executable(${BUILD_TARGET})
+msp430_add_executable(${BUILD_TARGET})
+
 file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 target_sources(${BUILD_TARGET} PRIVATE "${sources}")
 
