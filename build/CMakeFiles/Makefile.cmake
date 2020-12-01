@@ -11,7 +11,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.18.1/CMakeASMCompiler.cmake"
   "CMakeFiles/3.18.1/CMakeCCompiler.cmake"
   "CMakeFiles/3.18.1/CMakeSystem.cmake"
-  "../msp430_cmake_toolchain.cmake"
+  "../toolchain.cmake"
   "/usr/local/share/cmake-3.18/Modules/CMakeASMCompiler.cmake.in"
   "/usr/local/share/cmake-3.18/Modules/CMakeASMInformation.cmake"
   "/usr/local/share/cmake-3.18/Modules/CMakeCCompiler.cmake.in"

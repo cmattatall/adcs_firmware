@@ -2,19 +2,13 @@
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
 
 set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
-set(MSP430_MCU "msp430f5529")
-set(MSP430_MCU_FREQ "8000000")
+set(MCU "msp430f5529")
+set(MCU_FREQ "8000000")
 
 if(NOT CODE_COMPOSER_INSTALL_PATH)
     message(FATAL_ERROR "CODE_COMPOSER_INSTALL_PATH NOT DEFINED. PLEASE DEFINE VIA CLI OR IN TOOLCHAIN FILE")
 else()
     set(CCS_PATH "${CODE_COMPOSER_INSTALL_PATH}" CACHE STRING "Installation path for the code composer studio root folder")
-endif()
-
-if(NOT DEFINED MSP430_MCU)
-    message(FATAL_ERROR "MSP430_MCU NOT DEFINED")
-else()
-    set(MCU "${MSP430_MCU}" CACHE STRING "MPN of the msp430 microcontroller")
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -27,17 +21,6 @@ elseif(APPLE)
 else()
     message(FATAL_ERROR "Unsupported platform ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
-
-if(NOT DEFINED MSP430_MCU_FREQ)
-    message(FATAL_ERROR "MSP430_MCU_FREQ NOT DEFINED")
-else()
-    set(MCU_FREQ "${MSP430_MCU_FREQ}" CACHE STRING "Frequency in Hz of the msp430 microcontroller")
-endif()
-
-macro(listToOptionString list_string)
-    string(REPLACE ";" "\ " list_as_string "${${list_string}}")
-    set(${list_string} ${list_as_string})
-endmacro(listToOptionString list)
 
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR MSP430)
@@ -73,16 +56,18 @@ find_program(CMAKE_SIZE ${CMAKE_SIZE_NAME} HINTS ${BIN_HINTS} REQUIRED)
 set(MCU_HEADER_DIR "${CCS_PATH}/ccs_base/msp430/include_gcc")
 include_directories(${MCU_HEADER_DIR})
 
+set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections -DF_CPU=${MCU_FREQ} -mmcu=${MCU}")
 
-set(CMAKE_C_FLAGS_INIT "-ffunction-sections -fdata-sections -DF_CPU=${MCU_FREQ}"
+set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
      CACHE INTERNAL "Initial flags for C compiler")
 
 set(CMAKE_CXX_FLAGS_INIT 
-    "-ffunction-sections -fdata-sections -fno-rtti -fno-exceptions  -DF_CPU=${MCU_FREQ}" 
+    "${CMAKE_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
      CACHE INTERNAL "Initial flags for C++ compiler")
 
 set(CMAKE_EXE_LINKER_FLAGS_INIT
-    "-Wl,--relax,--gc-sections,-I${MCU_HEADER_DIR}"
+    "-Wl,--relax,--gc-sections,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}"
     CACHE INTERNAL "Initial options for linker the VERY first time a CMake build tree is configured")
     
 include(CheckLinkerFlag)
+
