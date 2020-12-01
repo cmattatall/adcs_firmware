@@ -65,7 +65,6 @@ find_program(CMAKE_SIZE ${CMAKE_SIZE_NAME} HINTS ${BIN_HINTS} REQUIRED)
 set(MCU_HEADER_DIR "${CCS_PATH}/ccs_base/msp430/include_gcc")
 
 set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
-#set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections -DF_CPU=${MSP430_MCU_FREQ} -mmcu=${MSP430_MCU}")
 
 set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
      CACHE INTERNAL "Initial flags for C compiler")
