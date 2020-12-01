@@ -2,8 +2,21 @@
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
 
 set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
-set(MCU "msp430f5529")
-set(MCU_FREQ "8000000")
+set(MSP430_MCU "msp430f5529")
+set(MSP430_MCU_FREQ "8000000")
+
+macro(msp430_check_define_macro var)
+    if(NOT ${var})
+        message(FATAL_ERROR "${${var}} NOT DEFINED. Please define it before invoking ${CMAKE_CURRENT_FUNCTION}")
+    endif(NOT ${var})
+endmacro(msp430_check_define_macro var)
+
+
+macro(msp430_check_defines_macro)
+    msp430_check_define_macro(MSP430_MCU)
+    msp430_check_define_macro(MSP430_MCU_FREQ)
+endmacro(msp430_check_defines_macro)
+
 
 if(NOT CODE_COMPOSER_INSTALL_PATH)
     message(FATAL_ERROR "CODE_COMPOSER_INSTALL_PATH NOT DEFINED. PLEASE DEFINE VIA CLI OR IN TOOLCHAIN FILE")
@@ -56,7 +69,8 @@ find_program(CMAKE_SIZE ${CMAKE_SIZE_NAME} HINTS ${BIN_HINTS} REQUIRED)
 set(MCU_HEADER_DIR "${CCS_PATH}/ccs_base/msp430/include_gcc")
 include_directories(${MCU_HEADER_DIR})
 
-set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections -DF_CPU=${MCU_FREQ} -mmcu=${MCU}")
+set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
+#set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections -DF_CPU=${MSP430_MCU_FREQ} -mmcu=${MSP430_MCU}")
 
 set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
      CACHE INTERNAL "Initial flags for C compiler")
@@ -71,3 +85,12 @@ set(CMAKE_EXE_LINKER_FLAGS_INIT
     
 include(CheckLinkerFlag)
 
+
+
+function(msp430_add_executable excutable)
+    msp430_check_defines_macro()
+    add_executable(${${executable}})
+    target_sources(${${executable}} PRIVATE ${ARGN})
+    target_compile_definitions(${${executable}} PRIVATE "F_CPU=${MSP430_MCU_FREQ}")
+    target_compile_options(${${executable}} PRIVATE "-mmcu=${MSP430_MCU}")
+endfunction(msp430_add_executable excutable)
