@@ -13,6 +13,7 @@ set(CMAKE_C_COMPILER_ID "GNU")
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_C
   "F_CPU=8000000"
+  "__MSP430F5529__"
   )
 
 # The include file search paths:

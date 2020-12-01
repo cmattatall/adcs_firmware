@@ -18,7 +18,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
               --build-generator "${CMAKE_GENERATOR}"
               --test-command "${CMAKE_CTEST_COMMAND}"       
     )
-
 endif()
 
 

@@ -79,41 +79,41 @@ include CMakeFiles/adcs_firmware.dir/flags.make
 CMakeFiles/adcs_firmware.dir/src/json.c.obj: CMakeFiles/adcs_firmware.dir/flags.make
 CMakeFiles/adcs_firmware.dir/src/json.c.obj: ../src/json.c
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/adcs_firmware.dir/src/json.c.obj"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/adcs_firmware.dir/src/json.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/json.c
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/adcs_firmware.dir/src/json.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/json.c
 
 CMakeFiles/adcs_firmware.dir/src/json.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/adcs_firmware.dir/src/json.c.i"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/carl/workspace_v10/ADCS_Firmware/src/json.c > CMakeFiles/adcs_firmware.dir/src/json.c.i
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/carl/workspace_v10/ADCS_Firmware/src/json.c > CMakeFiles/adcs_firmware.dir/src/json.c.i
 
 CMakeFiles/adcs_firmware.dir/src/json.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/adcs_firmware.dir/src/json.c.s"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/carl/workspace_v10/ADCS_Firmware/src/json.c -o CMakeFiles/adcs_firmware.dir/src/json.c.s
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/carl/workspace_v10/ADCS_Firmware/src/json.c -o CMakeFiles/adcs_firmware.dir/src/json.c.s
 
 CMakeFiles/adcs_firmware.dir/src/main.c.obj: CMakeFiles/adcs_firmware.dir/flags.make
 CMakeFiles/adcs_firmware.dir/src/main.c.obj: ../src/main.c
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/adcs_firmware.dir/src/main.c.obj"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/adcs_firmware.dir/src/main.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/main.c
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/adcs_firmware.dir/src/main.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/main.c
 
 CMakeFiles/adcs_firmware.dir/src/main.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/adcs_firmware.dir/src/main.c.i"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/carl/workspace_v10/ADCS_Firmware/src/main.c > CMakeFiles/adcs_firmware.dir/src/main.c.i
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/carl/workspace_v10/ADCS_Firmware/src/main.c > CMakeFiles/adcs_firmware.dir/src/main.c.i
 
 CMakeFiles/adcs_firmware.dir/src/main.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/adcs_firmware.dir/src/main.c.s"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/carl/workspace_v10/ADCS_Firmware/src/main.c -o CMakeFiles/adcs_firmware.dir/src/main.c.s
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/carl/workspace_v10/ADCS_Firmware/src/main.c -o CMakeFiles/adcs_firmware.dir/src/main.c.s
 
 CMakeFiles/adcs_firmware.dir/src/spi.c.obj: CMakeFiles/adcs_firmware.dir/flags.make
 CMakeFiles/adcs_firmware.dir/src/spi.c.obj: ../src/spi.c
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/adcs_firmware.dir/src/spi.c.obj"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/adcs_firmware.dir/src/spi.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/spi.c
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/adcs_firmware.dir/src/spi.c.obj -c /home/carl/workspace_v10/ADCS_Firmware/src/spi.c
 
 CMakeFiles/adcs_firmware.dir/src/spi.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/adcs_firmware.dir/src/spi.c.i"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/carl/workspace_v10/ADCS_Firmware/src/spi.c > CMakeFiles/adcs_firmware.dir/src/spi.c.i
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/carl/workspace_v10/ADCS_Firmware/src/spi.c > CMakeFiles/adcs_firmware.dir/src/spi.c.i
 
 CMakeFiles/adcs_firmware.dir/src/spi.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/adcs_firmware.dir/src/spi.c.s"
-	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/carl/workspace_v10/ADCS_Firmware/src/spi.c -o CMakeFiles/adcs_firmware.dir/src/spi.c.s
+	/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/carl/workspace_v10/ADCS_Firmware/src/spi.c -o CMakeFiles/adcs_firmware.dir/src/spi.c.s
 
 # Object files for target adcs_firmware
 adcs_firmware_OBJECTS = \

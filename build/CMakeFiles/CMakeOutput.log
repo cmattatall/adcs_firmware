@@ -34,18 +34,18 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_878be/fast && /usr/bin/make  -f CMakeFiles/cmTC_878be.dir/build.make CMakeFiles/cmTC_878be.dir/build
+Run Build Command(s):/usr/bin/make cmTC_6acde/fast && /usr/bin/make  -f CMakeFiles/cmTC_6acde.dir/build.make CMakeFiles/cmTC_6acde.dir/build
 make[1]: Entering directory '/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj
-/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf   -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj -c /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c
+Building C object CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj
+/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf   -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj -c /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c
 Using built-in specs.
 COLLECT_GCC=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc
 Target: msp430-elf
 Configured with: ../../gcc/configure --target=msp430-elf --enable-languages=c,c++ --disable-nls --enable-initfini-array --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu --enable-target-optspace --enable-newlib-nano-formatted-io --with-pkgversion='Mitto Systems Limited - msp430-gcc 9.2.0.50'
 Thread model: single
 gcc version 9.2.0 (Mitto Systems Limited - msp430-gcc 9.2.0.50) 
-COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj' '-c'
- /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/msp430-elf/9.2.0/cc1 -quiet -v -iprefix /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/ -isysroot /opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -auxbase-strip CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj -version -ffunction-sections -fdata-sections -o /tmp/ccysszGS.s
+COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj' '-c'
+ /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/msp430-elf/9.2.0/cc1 -quiet -v -iprefix /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/ -isysroot /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -auxbase-strip CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj -version -ffunction-sections -fdata-sections -o /tmp/cclarTfG.s
 GNU C17 (Mitto Systems Limited - msp430-gcc 9.2.0.50) version 9.2.0 (msp430-elf)
 	compiled by GNU C version 4.8.5 20150623 (Red Hat 4.8.5-39), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
 
@@ -66,16 +66,16 @@ GNU C17 (Mitto Systems Limited - msp430-gcc 9.2.0.50) version 9.2.0 (msp430-elf)
 
 GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 Compiler executable checksum: a9de3b5cf4d519eee7ac220b5a72a3ac
-COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj' '-c'
- /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/bin/as --traditional-format -mP -gdwarf-sections -o CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj /tmp/ccysszGS.s
+COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj' '-c'
+ /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/bin/as --traditional-format -mP -gdwarf-sections -o CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj /tmp/cclarTfG.s
 COMPILER_PATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/msp430-elf/9.2.0/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/bin/
-LIBRARY_PATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/lib/:/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf/lib/
-COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj' '-c'
-Linking C static library libcmTC_878be.a
-/usr/local/bin/cmake -P CMakeFiles/cmTC_878be.dir/cmake_clean_target.cmake
-/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_878be.dir/link.txt --verbose=1
-/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ar qc libcmTC_878be.a CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj
-/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ranlib libcmTC_878be.a
+LIBRARY_PATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/lib/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf/lib/
+COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj' '-c'
+Linking C static library libcmTC_6acde.a
+/usr/local/bin/cmake -P CMakeFiles/cmTC_6acde.dir/cmake_clean_target.cmake
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6acde.dir/link.txt --verbose=1
+/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ar qc libcmTC_6acde.a CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj
+/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ranlib libcmTC_6acde.a
 make[1]: Leaving directory '/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/CMakeTmp'
 
 
@@ -97,18 +97,18 @@ Parsed C implicit link information from above output:
   link line regex: [^( *|.*[/\])(msp430-elf-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
   ignore line: [Change Dir: /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command(s):/usr/bin/make cmTC_878be/fast && /usr/bin/make  -f CMakeFiles/cmTC_878be.dir/build.make CMakeFiles/cmTC_878be.dir/build]
+  ignore line: [Run Build Command(s):/usr/bin/make cmTC_6acde/fast && /usr/bin/make  -f CMakeFiles/cmTC_6acde.dir/build.make CMakeFiles/cmTC_6acde.dir/build]
   ignore line: [make[1]: Entering directory '/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/CMakeTmp']
-  ignore line: [Building C object CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj]
-  ignore line: [/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf   -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj -c /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c]
+  ignore line: [Building C object CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf   -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj -c /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c]
   ignore line: [Using built-in specs.]
   ignore line: [COLLECT_GCC=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc]
   ignore line: [Target: msp430-elf]
   ignore line: [Configured with: ../../gcc/configure --target=msp430-elf --enable-languages=c c++ --disable-nls --enable-initfini-array --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu --enable-target-optspace --enable-newlib-nano-formatted-io --with-pkgversion='Mitto Systems Limited - msp430-gcc 9.2.0.50']
   ignore line: [Thread model: single]
   ignore line: [gcc version 9.2.0 (Mitto Systems Limited - msp430-gcc 9.2.0.50) ]
-  ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj' '-c']
-  ignore line: [ /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/msp430-elf/9.2.0/cc1 -quiet -v -iprefix /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/ -isysroot /opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -auxbase-strip CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj -version -ffunction-sections -fdata-sections -o /tmp/ccysszGS.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj' '-c']
+  ignore line: [ /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/msp430-elf/9.2.0/cc1 -quiet -v -iprefix /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/ -isysroot /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf /usr/local/share/cmake-3.18/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -auxbase-strip CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj -version -ffunction-sections -fdata-sections -o /tmp/cclarTfG.s]
   ignore line: [GNU C17 (Mitto Systems Limited - msp430-gcc 9.2.0.50) version 9.2.0 (msp430-elf)]
   ignore line: [	compiled by GNU C version 4.8.5 20150623 (Red Hat 4.8.5-39)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
   ignore line: []
@@ -129,16 +129,16 @@ Parsed C implicit link information from above output:
   ignore line: []
   ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
   ignore line: [Compiler executable checksum: a9de3b5cf4d519eee7ac220b5a72a3ac]
-  ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj' '-c']
-  ignore line: [ /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/bin/as --traditional-format -mP -gdwarf-sections -o CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj /tmp/ccysszGS.s]
+  ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj' '-c']
+  ignore line: [ /opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/bin/as --traditional-format -mP -gdwarf-sections -o CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj /tmp/cclarTfG.s]
   ignore line: [COMPILER_PATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/msp430-elf/9.2.0/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../libexec/gcc/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/bin/]
-  ignore line: [LIBRARY_PATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/lib/:/opt/ti/ccs1011/ccs//tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf/lib/]
-  ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj' '-c']
-  ignore line: [Linking C static library libcmTC_878be.a]
-  ignore line: [/usr/local/bin/cmake -P CMakeFiles/cmTC_878be.dir/cmake_clean_target.cmake]
-  ignore line: [/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_878be.dir/link.txt --verbose=1]
-  ignore line: [/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ar qc libcmTC_878be.a CMakeFiles/cmTC_878be.dir/CMakeCCompilerABI.c.obj]
-  ignore line: [/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ranlib libcmTC_878be.a]
+  ignore line: [LIBRARY_PATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/../lib/gcc/msp430-elf/9.2.0/../../../../msp430-elf/lib/:/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64//msp430-elf/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj' '-c']
+  ignore line: [Linking C static library libcmTC_6acde.a]
+  ignore line: [/usr/local/bin/cmake -P CMakeFiles/cmTC_6acde.dir/cmake_clean_target.cmake]
+  ignore line: [/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6acde.dir/link.txt --verbose=1]
+  ignore line: [/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ar qc libcmTC_6acde.a CMakeFiles/cmTC_6acde.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ranlib libcmTC_6acde.a]
   ignore line: [make[1]: Leaving directory '/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/CMakeTmp']
   ignore line: []
   ignore line: []
