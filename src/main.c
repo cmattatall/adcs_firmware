@@ -2,8 +2,7 @@
 #include <stdint.h>
 
 #include "spi.h"
-#include "json.h"
-
+#include "jtok.h"
 
 #define TESTMSG "Hello World\r\n"
 
@@ -17,7 +16,6 @@ void main(void)
     WDTCTL = WDTPW | WDTHOLD; // stop watchdog timer
     __bis_SR_register(GIE);   // Enable interrupts globally
     SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
-
 
     while (1)
     {

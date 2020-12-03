@@ -150,6 +150,21 @@ CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 //Value Computed by CMake
 CMAKE_PROJECT_NAME:STATIC=adcs_firmware
 
+//Value Computed by CMake
+CMAKE_PROJECT_VERSION:STATIC=1.0
+
+//Value Computed by CMake
+CMAKE_PROJECT_VERSION_MAJOR:STATIC=1
+
+//Value Computed by CMake
+CMAKE_PROJECT_VERSION_MINOR:STATIC=0
+
+//Value Computed by CMake
+CMAKE_PROJECT_VERSION_PATCH:STATIC=
+
+//Value Computed by CMake
+CMAKE_PROJECT_VERSION_TWEAK:STATIC=
+
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ranlib
 
@@ -217,6 +232,12 @@ CMAKE_TOOLCHAIN_FILE:FILEPATH=/home/carl/workspace_v10/ADCS_Firmware/toolchain.c
 // during the make.  This is useful for debugging only. With Visual
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
+
+//Value Computed by CMake
+JTOK_BINARY_DIR:STATIC=/home/carl/workspace_v10/ADCS_Firmware/build/JTOK
+
+//Value Computed by CMake
+JTOK_SOURCE_DIR:STATIC=/home/carl/workspace_v10/ADCS_Firmware/JTOK
 
 //No help, variable specified on the command line.
 TARGET_MCU:UNINITIALIZED=ON
@@ -338,7 +359,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=2
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

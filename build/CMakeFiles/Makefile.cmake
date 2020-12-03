@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
   "../CMakeLists.txt"
+  "../JTOK/CMakeLists.txt"
   "CMakeFiles/3.18.1/CMakeASMCompiler.cmake"
   "CMakeFiles/3.18.1/CMakeCCompiler.cmake"
   "CMakeFiles/3.18.1/CMakeSystem.cmake"
@@ -97,9 +98,11 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/3.18.1/CMakeASMCompiler.cmake"
   "CMakeFiles/3.18.1/CMakeCCompiler.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "JTOK/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/adcs_firmware.dir/DependInfo.cmake"
+  "JTOK/CMakeFiles/JTOK.dir/DependInfo.cmake"
   )

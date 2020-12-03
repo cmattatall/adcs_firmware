@@ -1,5 +1,4 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/adcs_firmware.dir/src/json.c.obj"
   "CMakeFiles/adcs_firmware.dir/src/main.c.obj"
   "CMakeFiles/adcs_firmware.dir/src/spi.c.obj"
   "adcs_firmware"

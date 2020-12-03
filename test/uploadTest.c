@@ -1,3 +1,14 @@
+/**
+ * @file uploadTest.c
+ * @author Carl Mattatall (cmattatall2@gmail.com)
+ * @brief The purpose of this file is a simple dual-LED blink example to
+ * test a given msp430f5529 launchpad board for programability
+ * @version 0.1
+ * @date 2020-12-01
+ *
+ * @copyright Copyright (c) 2020 DSS LORIS project
+ */
+
 #include <msp430.h>
 
 int main()

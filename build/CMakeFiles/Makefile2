@@ -73,32 +73,52 @@ CMAKE_BINARY_DIR = /home/carl/workspace_v10/ADCS_Firmware/build
 
 # The main recursive "all" target.
 all: CMakeFiles/adcs_firmware.dir/all
+all: JTOK/all
 
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: JTOK/preinstall
 
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/adcs_firmware.dir/clean
+clean: JTOK/clean
 
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory JTOK
+
+# Recursive "all" directory target.
+JTOK/all: JTOK/CMakeFiles/JTOK.dir/all
+
+.PHONY : JTOK/all
+
+# Recursive "preinstall" directory target.
+JTOK/preinstall:
+
+.PHONY : JTOK/preinstall
+
+# Recursive "clean" directory target.
+JTOK/clean: JTOK/CMakeFiles/JTOK.dir/clean
+
+.PHONY : JTOK/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/adcs_firmware.dir
 
 # All Build rule for target.
-CMakeFiles/adcs_firmware.dir/all:
+CMakeFiles/adcs_firmware.dir/all: JTOK/CMakeFiles/JTOK.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=1,2,3,4 "Built target adcs_firmware"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=3,4,5 "Built target adcs_firmware"
 .PHONY : CMakeFiles/adcs_firmware.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/adcs_firmware.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/adcs_firmware.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 0
 .PHONY : CMakeFiles/adcs_firmware.dir/rule
@@ -112,6 +132,33 @@ adcs_firmware: CMakeFiles/adcs_firmware.dir/rule
 CMakeFiles/adcs_firmware.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/clean
 .PHONY : CMakeFiles/adcs_firmware.dir/clean
+
+#=============================================================================
+# Target rules for target JTOK/CMakeFiles/JTOK.dir
+
+# All Build rule for target.
+JTOK/CMakeFiles/JTOK.dir/all:
+	$(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/depend
+	$(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles --progress-num=1,2 "Built target JTOK"
+.PHONY : JTOK/CMakeFiles/JTOK.dir/all
+
+# Build rule for subdir invocation for target.
+JTOK/CMakeFiles/JTOK.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JTOK/CMakeFiles/JTOK.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 0
+.PHONY : JTOK/CMakeFiles/JTOK.dir/rule
+
+# Convenience name for target.
+JTOK: JTOK/CMakeFiles/JTOK.dir/rule
+
+.PHONY : JTOK
+
+# clean rule for target.
+JTOK/CMakeFiles/JTOK.dir/clean:
+	$(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/clean
+.PHONY : JTOK/CMakeFiles/JTOK.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

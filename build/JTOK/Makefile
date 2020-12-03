@@ -99,14 +99,14 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles /home/carl/workspace_v10/ADCS_Firmware/build//CMakeFiles/progress.marks
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles /home/carl/workspace_v10/ADCS_Firmware/build/JTOK//CMakeFiles/progress.marks
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JTOK/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JTOK/clean
 .PHONY : clean
 
 # The main clean target
@@ -116,98 +116,60 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JTOK/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JTOK/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named adcs_firmware
+# Convenience name for target.
+JTOK/CMakeFiles/JTOK.dir/rule:
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JTOK/CMakeFiles/JTOK.dir/rule
+.PHONY : JTOK/CMakeFiles/JTOK.dir/rule
 
-# Build rule for target.
-adcs_firmware: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 adcs_firmware
-.PHONY : adcs_firmware
+# Convenience name for target.
+JTOK: JTOK/CMakeFiles/JTOK.dir/rule
 
-# fast build rule for target.
-adcs_firmware/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/build
-.PHONY : adcs_firmware/fast
-
-#=============================================================================
-# Target rules for targets named JTOK
-
-# Build rule for target.
-JTOK: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 JTOK
 .PHONY : JTOK
 
 # fast build rule for target.
 JTOK/fast:
-	$(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/build
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/build
 .PHONY : JTOK/fast
 
-src/main.obj: src/main.c.obj
+src/jtok.obj: src/jtok.c.obj
 
-.PHONY : src/main.obj
-
-# target to build an object file
-src/main.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/main.c.obj
-.PHONY : src/main.c.obj
-
-src/main.i: src/main.c.i
-
-.PHONY : src/main.i
-
-# target to preprocess a source file
-src/main.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/main.c.i
-.PHONY : src/main.c.i
-
-src/main.s: src/main.c.s
-
-.PHONY : src/main.s
-
-# target to generate assembly for a file
-src/main.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/main.c.s
-.PHONY : src/main.c.s
-
-src/spi.obj: src/spi.c.obj
-
-.PHONY : src/spi.obj
+.PHONY : src/jtok.obj
 
 # target to build an object file
-src/spi.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/spi.c.obj
-.PHONY : src/spi.c.obj
+src/jtok.c.obj:
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/src/jtok.c.obj
+.PHONY : src/jtok.c.obj
 
-src/spi.i: src/spi.c.i
+src/jtok.i: src/jtok.c.i
 
-.PHONY : src/spi.i
+.PHONY : src/jtok.i
 
 # target to preprocess a source file
-src/spi.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/spi.c.i
-.PHONY : src/spi.c.i
+src/jtok.c.i:
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/src/jtok.c.i
+.PHONY : src/jtok.c.i
 
-src/spi.s: src/spi.c.s
+src/jtok.s: src/jtok.c.s
 
-.PHONY : src/spi.s
+.PHONY : src/jtok.s
 
 # target to generate assembly for a file
-src/spi.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/spi.c.s
-.PHONY : src/spi.c.s
+src/jtok.c.s:
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/src/jtok.c.s
+.PHONY : src/jtok.c.s
 
 # Help Target
 help:
@@ -218,13 +180,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... JTOK"
-	@echo "... adcs_firmware"
-	@echo "... src/main.obj"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
-	@echo "... src/spi.obj"
-	@echo "... src/spi.i"
-	@echo "... src/spi.s"
+	@echo "... src/jtok.obj"
+	@echo "... src/jtok.i"
+	@echo "... src/jtok.s"
 .PHONY : help
 
 
@@ -236,6 +194,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/carl/workspace_v10/ADCS_Firmware/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-../inc/json.h
+../JTOK/inc/jtok.h
 stddef.h
 -
 stdint.h
@@ -20,16 +20,6 @@ limits.h
 stdint.h
 -
 
-/home/carl/workspace_v10/ADCS_Firmware/src/json.c
-stdlib.h
--
-string.h
--
-ctype.h
--
-json.h
-/home/carl/workspace_v10/ADCS_Firmware/src/json.h
-
 /home/carl/workspace_v10/ADCS_Firmware/src/main.c
 msp430.h
 -
@@ -37,8 +27,8 @@ stdint.h
 -
 spi.h
 /home/carl/workspace_v10/ADCS_Firmware/src/spi.h
-json.h
-/home/carl/workspace_v10/ADCS_Firmware/src/json.h
+jtok.h
+/home/carl/workspace_v10/ADCS_Firmware/src/jtok.h
 
 /home/carl/workspace_v10/ADCS_Firmware/src/spi.c
 msp430.h
