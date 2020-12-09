@@ -1,2 +1,0 @@
-/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ar qc libJTOK.a CMakeFiles/JTOK.dir/src/jtok.c.obj
-/opt/ti/ccs1011/ccs/tools/compiler/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-ranlib libJTOK.a
