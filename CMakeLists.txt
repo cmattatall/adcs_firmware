@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(adcs_firmware LANGUAGES C ASM)
 
-execute_process(COMMAND "git submodule update --remote --recursive --init --force")
+execute_process(COMMAND "git submodule update --force --remote --recursive --init ")
 add_subdirectory(JTOK)
 
 set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
