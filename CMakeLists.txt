@@ -11,7 +11,6 @@ set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
 #target defs
 set(MSP430_MCU "msp430f5529")
 set(MSP430_MCU_FREQ "8000000")
-
 msp430_add_executable(${BUILD_TARGET})
 
 #headers and sources
@@ -27,5 +26,3 @@ list(REMOVE_DUPLICATES include_dirs)
 target_sources(${BUILD_TARGET} PRIVATE "${sources}")
 target_include_directories(${BUILD_TARGET} PUBLIC "${include_dirs}")
 target_link_libraries(${BUILD_TARGET} PUBLIC JTOK)
-
-

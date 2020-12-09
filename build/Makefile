@@ -155,6 +155,33 @@ JTOK/fast:
 	$(MAKE) $(MAKESILENT) -f JTOK/CMakeFiles/JTOK.dir/build.make JTOK/CMakeFiles/JTOK.dir/build
 .PHONY : JTOK/fast
 
+src/jsons.obj: src/jsons.c.obj
+
+.PHONY : src/jsons.obj
+
+# target to build an object file
+src/jsons.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/jsons.c.obj
+.PHONY : src/jsons.c.obj
+
+src/jsons.i: src/jsons.c.i
+
+.PHONY : src/jsons.i
+
+# target to preprocess a source file
+src/jsons.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/jsons.c.i
+.PHONY : src/jsons.c.i
+
+src/jsons.s: src/jsons.c.s
+
+.PHONY : src/jsons.s
+
+# target to generate assembly for a file
+src/jsons.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/jsons.c.s
+.PHONY : src/jsons.c.s
+
 src/main.obj: src/main.c.obj
 
 .PHONY : src/main.obj
@@ -181,6 +208,33 @@ src/main.s: src/main.c.s
 src/main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/main.c.s
 .PHONY : src/main.c.s
+
+src/obc_interface.obj: src/obc_interface.c.obj
+
+.PHONY : src/obc_interface.obj
+
+# target to build an object file
+src/obc_interface.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/obc_interface.c.obj
+.PHONY : src/obc_interface.c.obj
+
+src/obc_interface.i: src/obc_interface.c.i
+
+.PHONY : src/obc_interface.i
+
+# target to preprocess a source file
+src/obc_interface.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/obc_interface.c.i
+.PHONY : src/obc_interface.c.i
+
+src/obc_interface.s: src/obc_interface.c.s
+
+.PHONY : src/obc_interface.s
+
+# target to generate assembly for a file
+src/obc_interface.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/obc_interface.c.s
+.PHONY : src/obc_interface.c.s
 
 src/spi.obj: src/spi.c.obj
 
@@ -209,6 +263,33 @@ src/spi.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/spi.c.s
 .PHONY : src/spi.c.s
 
+src/uart.obj: src/uart.c.obj
+
+.PHONY : src/uart.obj
+
+# target to build an object file
+src/uart.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/uart.c.obj
+.PHONY : src/uart.c.obj
+
+src/uart.i: src/uart.c.i
+
+.PHONY : src/uart.i
+
+# target to preprocess a source file
+src/uart.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/uart.c.i
+.PHONY : src/uart.c.i
+
+src/uart.s: src/uart.c.s
+
+.PHONY : src/uart.s
+
+# target to generate assembly for a file
+src/uart.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/adcs_firmware.dir/build.make CMakeFiles/adcs_firmware.dir/src/uart.c.s
+.PHONY : src/uart.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -219,12 +300,21 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... JTOK"
 	@echo "... adcs_firmware"
+	@echo "... src/jsons.obj"
+	@echo "... src/jsons.i"
+	@echo "... src/jsons.s"
 	@echo "... src/main.obj"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/obc_interface.obj"
+	@echo "... src/obc_interface.i"
+	@echo "... src/obc_interface.s"
 	@echo "... src/spi.obj"
 	@echo "... src/spi.i"
 	@echo "... src/spi.s"
+	@echo "... src/uart.obj"
+	@echo "... src/uart.i"
+	@echo "... src/uart.s"
 .PHONY : help
 
 

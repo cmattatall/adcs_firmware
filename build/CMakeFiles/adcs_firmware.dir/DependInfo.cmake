@@ -4,8 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
+  "/home/carl/workspace_v10/ADCS_Firmware/src/jsons.c" "/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/adcs_firmware.dir/src/jsons.c.obj"
   "/home/carl/workspace_v10/ADCS_Firmware/src/main.c" "/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/adcs_firmware.dir/src/main.c.obj"
+  "/home/carl/workspace_v10/ADCS_Firmware/src/obc_interface.c" "/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/adcs_firmware.dir/src/obc_interface.c.obj"
   "/home/carl/workspace_v10/ADCS_Firmware/src/spi.c" "/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/adcs_firmware.dir/src/spi.c.obj"
+  "/home/carl/workspace_v10/ADCS_Firmware/src/uart.c" "/home/carl/workspace_v10/ADCS_Firmware/build/CMakeFiles/adcs_firmware.dir/src/uart.c.obj"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

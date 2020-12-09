@@ -19,6 +19,7 @@
 #include "spi.h"
 
 
+
 static uint8_t *         rx_outptr;
 static volatile uint8_t *rx_inptr;
 static uint8_t           rx_ringbuf[SPI_APPLICATION_BUFFER_SIZE];
