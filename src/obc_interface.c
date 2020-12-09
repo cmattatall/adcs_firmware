@@ -28,6 +28,11 @@ typedef struct
     int (*tx)(uint8_t *, uint_least16_t);
 } OBC_IF_fops;
 
+/**
+ * @brief CALLED FROM ISR CONTEXT
+ *
+ * @param byte byte to plce into next spot of buffer (received from OBC)
+ */
 static void OBC_IF_receive_byte(uint8_t byte);
 
 static uint8_t  ringbuf[2000];

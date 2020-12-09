@@ -12,23 +12,22 @@
 static uint8_t       user_spi_rx_buf[200];
 static volatile int *SPI0_RX_signal_watcher;
 static volatile int *SPI0_TX_signal_watcher;
+static uint8_t       json_buffer[500];
 
+static void periph_init(void);
 
-static uint8_t json_buffer[500];
 
 void main(void)
 {
 
-    WDTCTL = WDTPW | WDTHOLD; // stop watchdog timer
-    SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
-    OBC_IF_config(uart_init, uart_deinit, uart_transmit);
-
-    //__bis_SR_register(LPM0_bits + GIE); // Enter LPM0, interrupts enabled
-    __bis_SR_register(GIE); // Enable interrupts globally
+#if defined(DEBUG)
+    WDTCTL = WDTPW | WDTHOLD;           /* stop watchdog timer */
+#endif                                  /* #if defined(DEBUG) */
+    periph_init();                      /* peripheral initialization */
+    __bis_SR_register(LPM0_bits + GIE); /* Enter LPM0, interrupts enabled */
     while (1)
     {
-        /* Transmit if we can */
-        if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET)
+        if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET) /* Transmit if we can */
         {
             unsigned int bytes_loaded =
                 SPI0_transmit_IT(TESTMSG, sizeof(TESTMSG));
@@ -43,29 +42,34 @@ void main(void)
 
         if (OBC_IF_data_received_flag)
         {
+            /* get command json string from OBC interface */
             OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
-            int parse_status = json_parse(json_buffer, sizeof(json_buffer));
 
-            /* JTOK uses negative retvals for error codes */
-            if (parse_status < 0)
+            /* Parse command json string */
+            int parse_status = json_parse(json_buffer, sizeof(json_buffer));
+            if (JSON_PARSE_ERROR(parse_status))
             {
                 uint8_t error_message[] = "{\"error\" : \"json format\"}";
                 OBC_IF_tx(error_message, sizeof(error_message));
             }
-
-            /* Positive retval means parse was
-             * successful but we didn't know
-             * what to do with it
-             *
-             * (unknown or unsupported command)
-             */
-            else if (parse_status > 0)
+            else if (JSON_PARSE_UNK(parse_status))
             {
                 uint8_t message[] = "{\"ADCS\" : \"unknown command\"}";
                 OBC_IF_tx(message, sizeof(message));
+            }
+            else
+            {
+                /* successful, don't do anything */
             }
 
             OBC_IF_data_received_flag = false;
         }
     }
+}
+
+
+static void periph_init(void)
+{
+    SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
+    OBC_IF_config(uart_init, uart_deinit, uart_transmit);
 }

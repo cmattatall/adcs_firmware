@@ -18,15 +18,15 @@
 
 typedef struct
 {
-    pwm_value_t x_val;
-    pwm_value_t y_val;
-    pwm_value_t z_val;
+    pwm_t x_val;
+    pwm_t y_val;
+    pwm_t z_val;
 
 } reaction_wheel_struct_thingy_type;
 
 static reaction_wheel_struct_thingy_type pwm_struct_thing;
 
-int set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_value_t value)
+int set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
 {
     switch (wheel)
     {
@@ -52,9 +52,9 @@ int set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_value_t value)
     }
 }
 
-pwm_value_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel)
+pwm_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel)
 {
-    pwm_value_t value = 0;
+    pwm_t value = 0;
     switch (wheel)
     {
         case REACTION_WHEEL_x:

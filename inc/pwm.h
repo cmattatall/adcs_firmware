@@ -9,7 +9,7 @@ extern "C"
 
 #include <stdint.h>
 
-typedef uint16_t pwm_value_t;
+typedef uint16_t pwm_t;
 
 #ifdef __cplusplus
 /* clang-format off */

@@ -17,10 +17,10 @@ typedef enum
     REACTION_WHEEL_z,
 } REACTION_WHEEL_t;
 
-int set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_value_t value);
+int set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
 
 
-pwm_value_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel);
+pwm_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel);
 
 #ifdef __cplusplus
 /* clang-format off */
