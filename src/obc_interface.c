@@ -21,7 +21,6 @@
 uint8_t txBufIdx;
 uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];
 
-
 typedef struct
 {
     void (*init)(void (*rx_func)(uint8_t));

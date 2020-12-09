@@ -16,9 +16,8 @@ extern "C"
 #define OBC_MSG_DELIM '!' /* for now we can just use ! */
 
 #define OBC_TX_BUFFER_SIZE 500
-extern uint8_t txBufIdx;
-extern uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];
-
+extern uint8_t       txBufIdx;
+extern uint8_t       obcTxBuf[2][OBC_TX_BUFFER_SIZE];
 extern volatile bool OBC_IF_data_received_flag;
 
 /**

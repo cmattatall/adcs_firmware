@@ -3,9 +3,12 @@
 
 CMakeFiles/adcs_firmware.dir/src/jsons.c.obj: ../JTOK/inc/jtok.h
 CMakeFiles/adcs_firmware.dir/src/jsons.c.obj: ../inc/jsons.h
+CMakeFiles/adcs_firmware.dir/src/jsons.c.obj: ../inc/obc_interface.h
+CMakeFiles/adcs_firmware.dir/src/jsons.c.obj: ../inc/utils.h
+CMakeFiles/adcs_firmware.dir/src/jsons.c.obj: ../inc/version.h
 CMakeFiles/adcs_firmware.dir/src/jsons.c.obj: ../src/jsons.c
 
-CMakeFiles/adcs_firmware.dir/src/main.c.obj: ../JTOK/inc/jtok.h
+CMakeFiles/adcs_firmware.dir/src/main.c.obj: ../inc/jsons.h
 CMakeFiles/adcs_firmware.dir/src/main.c.obj: ../inc/obc_interface.h
 CMakeFiles/adcs_firmware.dir/src/main.c.obj: ../inc/spi.h
 CMakeFiles/adcs_firmware.dir/src/main.c.obj: ../inc/uart.h

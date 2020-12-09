@@ -17,8 +17,14 @@ limits.h
 -
 
 ../inc/jsons.h
+stdint.h
+-
 
 ../inc/obc_interface.h
+stdio.h
+-
+string.h
+-
 stdint.h
 -
 limits.h
@@ -34,11 +40,29 @@ stdint.h
 
 ../inc/utils.h
 
+../inc/version.h
+
 /home/carl/workspace_v10/ADCS_Firmware/src/jsons.c
+stdint.h
+-
+limits.h
+-
+stdlib.h
+-
+string.h
+-
+stdio.h
+-
 jtok.h
 /home/carl/workspace_v10/ADCS_Firmware/src/jtok.h
 jsons.h
 /home/carl/workspace_v10/ADCS_Firmware/src/jsons.h
+utils.h
+/home/carl/workspace_v10/ADCS_Firmware/src/utils.h
+obc_interface.h
+/home/carl/workspace_v10/ADCS_Firmware/src/obc_interface.h
+version.h
+/home/carl/workspace_v10/ADCS_Firmware/src/version.h
 
 /home/carl/workspace_v10/ADCS_Firmware/src/main.c
 msp430.h
@@ -47,20 +71,22 @@ stdint.h
 -
 spi.h
 /home/carl/workspace_v10/ADCS_Firmware/src/spi.h
-jtok.h
-/home/carl/workspace_v10/ADCS_Firmware/src/jtok.h
 obc_interface.h
 /home/carl/workspace_v10/ADCS_Firmware/src/obc_interface.h
 uart.h
 /home/carl/workspace_v10/ADCS_Firmware/src/uart.h
+jsons.h
+/home/carl/workspace_v10/ADCS_Firmware/src/jsons.h
 
 /home/carl/workspace_v10/ADCS_Firmware/src/obc_interface.c
+stdint.h
+-
+limits.h
+-
 obc_interface.h
 /home/carl/workspace_v10/ADCS_Firmware/src/obc_interface.h
 utils.h
 /home/carl/workspace_v10/ADCS_Firmware/src/utils.h
-string.h
--
 
 /home/carl/workspace_v10/ADCS_Firmware/src/spi.c
 msp430.h

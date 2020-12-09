@@ -16,23 +16,17 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "jsons.h"
-
 #define JTOK_STANDALONE_TOKENS
 #include "jtok.h"
-
+#include "jsons.h"
 #include "utils.h"
-
 #include "obc_interface.h"
-
 #include "version.h"
-
 
 #define JSON_TKN_CNT 250
 
 static jtoktok_t     tkns[JSON_TKN_CNT];
 static jtok_parser_t parser;
-
 
 int json_parse(uint8_t *json, uint_least16_t json_len)
 {
@@ -64,6 +58,7 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
         }
         else
         {
+            json_parse_status = 1;
         }
     }
     return json_parse_status;

@@ -37,6 +37,8 @@ void main(void)
         if (*SPI0_RX_signal_watcher == SPI_SIGNAL_SET)
         {
             SPI0_receive_payload(user_spi_rx_buf, sizeof(user_spi_rx_buf));
+
+            /** @todo DO STUFF WITH THE SPI DATA */
         }
 
         if (OBC_IF_data_received_flag)

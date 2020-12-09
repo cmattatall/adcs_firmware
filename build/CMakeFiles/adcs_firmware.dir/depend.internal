@@ -4,9 +4,12 @@
 CMakeFiles/adcs_firmware.dir/src/jsons.c.obj
  ../JTOK/inc/jtok.h
  ../inc/jsons.h
+ ../inc/obc_interface.h
+ ../inc/utils.h
+ ../inc/version.h
  /home/carl/workspace_v10/ADCS_Firmware/src/jsons.c
 CMakeFiles/adcs_firmware.dir/src/main.c.obj
- ../JTOK/inc/jtok.h
+ ../inc/jsons.h
  ../inc/obc_interface.h
  ../inc/spi.h
  ../inc/uart.h
