@@ -1,5 +1,5 @@
-#ifndef __JSONS_H__
-#define __JSONS_H__
+#ifndef __VERSION_H__
+#define __VERSION_H__
 #ifdef __cplusplus
 /* clang-format off */
 extern "C"
@@ -7,13 +7,13 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-#include <stdint.h>
-
-int json_parse(uint8_t *json, uint_least16_t json_len);
+#define HW_VERSION "0.1"
+#define FW_VERSION "0.2"
+#define DEV_NAME "ADCS Sensor Board"
 
 #ifdef __cplusplus
 /* clang-format off */
 }
 /* clang-format on */
 #endif /* End C linkage */
-#endif /* __JSONS_H__ */
+#endif /* __VERSION_H__ */

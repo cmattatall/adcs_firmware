@@ -2,15 +2,19 @@
 #include <stdint.h>
 
 #include "spi.h"
-#include "jtok.h"
 #include "obc_interface.h"
 #include "uart.h"
+
+#include "jsons.h"
 
 #define TESTMSG "Hello World\r\n"
 
 static uint8_t       user_spi_rx_buf[200];
 static volatile int *SPI0_RX_signal_watcher;
 static volatile int *SPI0_TX_signal_watcher;
+
+
+static uint8_t json_buffer[500];
 
 void main(void)
 {
@@ -37,14 +41,28 @@ void main(void)
 
         if (OBC_IF_data_received_flag)
         {
-            /** @todo
+            OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
+            int parse_status = json_parse(json_buffer, sizeof(json_buffer));
+
+            /* JTOK uses negative retvals for error codes */
+            if (parse_status < 0)
+            {
+                uint8_t error_message[] = "{\"error\" : \"json format\"}";
+                OBC_IF_tx(error_message, sizeof(error_message));
+            }
+
+            /* Positive retval means parse was
+             * successful but we didn't know
+             * what to do with it
              *
-             *  - GET DATA
-             *
-             *  - PARSE DATA
-             *
-             *  - DO STUFF WITH THE DATA
+             * (unknown or unsupported command)
              */
+            else if (parse_status > 0)
+            {
+                uint8_t message[] = "{\"ADCS\" : \"unknown command\"}";
+                OBC_IF_tx(message, sizeof(message));
+            }
+
             OBC_IF_data_received_flag = false;
         }
     }

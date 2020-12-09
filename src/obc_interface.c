@@ -12,10 +12,15 @@
  * @todo
  */
 
+#include <stdint.h>
+#include <limits.h>
+
 #include "obc_interface.h"
 #include "utils.h"
 
-#include <string.h>
+uint8_t txBufIdx;
+uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];
+
 
 typedef struct
 {
@@ -70,7 +75,7 @@ void OBC_IF_clear_config(void)
 static void OBC_IF_receive_byte(uint8_t byte)
 {
     *inPtr = byte;
-    if (*inPtr == OBC_INTERFACE_RECEIVE_DELIMITER)
+    if (*inPtr == OBC_MSG_DELIM)
     {
         OBC_IF_data_received_flag = true;
     }
@@ -95,7 +100,7 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
     do
     {
         buf[i] = *outPtr;
-        if (buf[i] == OBC_INTERFACE_RECEIVE_DELIMITER)
+        if (buf[i] == OBC_MSG_DELIM)
         {
             found_delim = true;
         }
