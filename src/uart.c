@@ -11,23 +11,38 @@
  * @todo
  */
 #include <msp430.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h> /* memcpy */
 #include "uart.h"
 
-void uart_init(void)
+#include "utils.h"
+
+
+static volatile bool tx_cplt = false;
+
+
+static void (*uart_receive_byte)(uint8_t);
+
+/** @note PLEASE READ https://www.ti.com/lit/ug/slau144j/slau144j.pdf
+ * PAGE 424 before touching this function
+ */
+void uart_init(void (*receive_byte_func)(uint8_t))
 {
-    /** @todo initialize the UART peripheral with
-     *  - CONFIGURE RCC CLOCK MUX TO peripheral (very first thing)
-     *  -
-     *  - baudrate
-     *  - parity
-     *  - # stopbits
-     *
-     *  - configure interrupt mask bits
-     *  - unmask interrupt
-     */
+    WDTCTL = WDTPW + WDTHOLD;               // Stop WDT
+    P3SEL  = BIT3 + BIT4;                   // P3.4,5 = USCI_A0 TXD/RXD
+    UCA0CTL1 |= UCSWRST;                    // **Put state machine in reset**
+    UCA0CTL1 |= UCSSEL_2;                   // SMCLK
+    UCA0BR0  = 6;                           // 1MHz 9600 (see User's Guide)
+    UCA0BR1  = 0;                           // 1MHz 9600
+    UCA0MCTL = UCBRS_0 + UCBRF_13 + UCOS16; // Modln UCBRSx=0, UCBRFx=0,
+                                            // over sampling
+    UCA0CTL1 &= ~UCSWRST;                   // **Initialize USCI state machine**
+    UCA0IE |= UCRXIE;                       // Enable USCI_A0 RX interrupt
+
+    CONFIG_ASSERT(receive_byte_func != NULL);
+    uart_receive_byte = receive_byte_func;
 }
 
 void uart_deinit(void)
@@ -40,42 +55,63 @@ void uart_deinit(void)
      *  - RESET CONFIGURATION OF USCI_A0 to defaults
      *  - DISABLE CLOCK MUX to peripheral (optional - improves power savings)
      */
+
+    if (uart_receive_byte != NULL)
+    {
+        uart_receive_byte = NULL;
+    }
 }
 
 
 int uart_transmit(uint8_t *buf, uint_least16_t buflen)
 {
-#if defined(DEBUG)
-    if (buf == NULL)
+    CONFIG_ASSERT(buf != NULL);
+    tx_cplt         = true;
+    uint_fast16_t i = 0;
+    do
     {
-        while (1)
+        if (tx_cplt)
         {
-            /* hang */
+            i++;
+            tx_cplt = false;
         }
-    }
-#endif /* #if defined(DEBUG) */
-
-    /** @todo IMPLEMENT */
+        UCA0TXBUF = buf[i]; /* load into transmit buffer after */
+    } while (i <= buflen);
 }
 
 
-int uart_receive(uint8_t *buf, uint_least16_t buflen)
+/* clang-format off */
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector = USCI_A0_VECTOR
+__interrupt
+#elif defined(__GNUC__)
+#else
+#error Compiler not supported!
+#endif
+void USCI_A0_ISR(void)
+/* clang-format on */
 {
-#if defined(DEBUG)
-    if (buf == NULL)
+    switch (UCA0IV)
     {
-        while (1)
+        case 0: /* no interrupt */
         {
-            /* hang */
         }
+        break;
+        case 2: /* RX interrupt  */
+        {
+            uart_receive_byte(UCA0RXBUF);
+        }
+        break;
+        case 4: /* TX interrupt */
+        {
+            CONFIG_ASSERT(tx_cplt != true);
+            tx_cplt = true;
+        }
+        break;
+        default: /* not sure what happened here */
+        {
+            CONFIG_ASSERT(0);
+        }
+        break;
     }
-#endif /* #if defined(DEBUG) */
-
-    /** @todo IMPLEMENT */
-}
-
-
-__attribute__((interrupt(USCI_A0_VECTOR))) void USCI_A0_ISR(void)
-{
-    /** @todo IMPLEMENT */
 }

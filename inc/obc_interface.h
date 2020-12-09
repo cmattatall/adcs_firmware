@@ -13,31 +13,42 @@ extern "C"
 
 #define OBC_INTERFACE_RECEIVE_DELIMITER '!' /* for now we can just use ! */
 
-extern volatile bool OBC_if_data_received_flag;
+extern volatile bool OBC_IF_data_received_flag;
 
 /**
  * @brief Configure OBC interface for communication via dependency injection
  *
- * @param init peripheral initialization function
+ * @param init peripheral initialization function. Accepts
  * @param deinit peripheral deinitialization function
- * @param rx receive function. CALLED AUTOMATICALLY FROM ISR CONTEXT
  * @param tx transmit function.
  * @return int return code. returns 0 upon success. non-zero indicates error.
- *
- * @note rx must be reentrant
  */
-int OBC_if_config(void (*init)(void), void (*deinit)(void),
-                  int (*rx)(uint8_t *, uint_least16_t),
+int OBC_IF_config(void (*init)(void (*rx_func)(uint8_t)), void (*deinit)(void),
                   int (*tx)(uint8_t *, uint_least16_t));
 
 /**
- * @brief Clear
- *
+ * @brief Clear OBC interface driver configuration
  */
-void OBC_if_clear_config(void);
+void OBC_IF_clear_config(void);
+
+/**
+ * @brief Transmit bytes to OBC
+ * @param buf buffer to transmit
+ * @param buflen max lenght of buffer to transmit
+ * @return int number of bytes transmitted successfully
+ */
+int OBC_IF_tx(uint8_t *buf, uint_least16_t buflen);
 
 
-int OBC_if_tx(uint8_t *buf, uint_least16_t buflen);
+/**
+ * @brief
+ *
+ * @param buf
+ * @param buflen
+ * @return int
+ */
+int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen);
+
 
 #ifdef __cplusplus
 /* clang-format off */

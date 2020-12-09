@@ -16,6 +16,8 @@ stdbool.h
 limits.h
 -
 
+../inc/jsons.h
+
 ../inc/obc_interface.h
 stdint.h
 -
@@ -30,7 +32,13 @@ stdint.h
 
 ../inc/uart.h
 
+../inc/utils.h
+
 /home/carl/workspace_v10/ADCS_Firmware/src/jsons.c
+jtok.h
+/home/carl/workspace_v10/ADCS_Firmware/src/jtok.h
+jsons.h
+/home/carl/workspace_v10/ADCS_Firmware/src/jsons.h
 
 /home/carl/workspace_v10/ADCS_Firmware/src/main.c
 msp430.h
@@ -49,6 +57,8 @@ uart.h
 /home/carl/workspace_v10/ADCS_Firmware/src/obc_interface.c
 obc_interface.h
 /home/carl/workspace_v10/ADCS_Firmware/src/obc_interface.h
+utils.h
+/home/carl/workspace_v10/ADCS_Firmware/src/utils.h
 string.h
 -
 
@@ -67,6 +77,8 @@ spi.h
 /home/carl/workspace_v10/ADCS_Firmware/src/uart.c
 msp430.h
 -
+stdbool.h
+-
 stdlib.h
 -
 stdint.h
@@ -75,6 +87,8 @@ string.h
 -
 uart.h
 /home/carl/workspace_v10/ADCS_Firmware/src/uart.h
+utils.h
+/home/carl/workspace_v10/ADCS_Firmware/src/utils.h
 
 /opt/ti/ccs1011/ccs/ccs_base/msp430/include_gcc/cc430f5123.h
 iomacros.h

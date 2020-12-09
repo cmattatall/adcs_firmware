@@ -19,7 +19,6 @@
 #include "spi.h"
 
 
-
 static uint8_t *         rx_outptr;
 static volatile uint8_t *rx_inptr;
 static uint8_t           rx_ringbuf[SPI_APPLICATION_BUFFER_SIZE];
@@ -98,8 +97,8 @@ void SPI0_init(volatile int **receive_signal_watcher,
 
 int SPI0_receive_payload(uint8_t *userbuf, uint16_t len)
 {
-    unsigned int i           = 0;
-    unsigned int delim_found = 0;
+    uint_fast16_t i           = 0;
+    uint_fast16_t delim_found = 0;
     do
     {
         userbuf[i] = *rx_outptr;
@@ -143,7 +142,7 @@ unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
         /* Clear flag var */
         tx_complete_signal = SPI_SIGNAL_CLR;
 
-        unsigned int copy_len = len;
+        uint_fast16_t copy_len = len;
 
         /* Only load as much as we can fit */
         if (len > sizeof(tx_fifo))
@@ -163,7 +162,17 @@ unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 }
 
 
-__attribute__((interrupt(USCI_B0_VECTOR))) void USCI_B0_ISR(void)
+/* clang-format off */
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector = USCI_B0_VECTOR
+__interrupt
+#elif defined(__GNUC__)
+__attribute__((interrupt(USCI_B0_VECTOR)))
+#else
+#error Compiler not supported!
+#endif
+void USCI_B0_ISR(void)
+/* clang-format on */
 {
     /* If receive interrupt is pending*/
     if (UCB0IV & 0X02)
@@ -184,7 +193,7 @@ __attribute__((interrupt(USCI_B0_VECTOR))) void USCI_B0_ISR(void)
         }
     }
 
-    /* TX interrupt. indicates when TXBUF is can be written */
+    /* TX interrupt. indicates when TXBUF can be written */
     else if (UCB0IV & 0X04)
     {
         if (!(UCB0STAT & UCBUSY))

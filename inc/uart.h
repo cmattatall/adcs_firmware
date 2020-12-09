@@ -7,11 +7,11 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-void uart_init(void);
-void uart_deinit(void);
 
-int uart_transmit(uint8_t *buf, uint_least16_t buflen);
-int uart_receive(uint8_t *buf, uint_least16_t buflen);
+void uart_init(void (*receive_byte_func)(uint8_t));
+void uart_deinit(void);
+int  uart_transmit(uint8_t *buf, uint_least16_t buflen);
+
 
 #ifdef __cplusplus
 /* clang-format off */

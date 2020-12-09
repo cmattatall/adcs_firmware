@@ -16,10 +16,11 @@ void main(void)
 {
 
     WDTCTL = WDTPW | WDTHOLD; // stop watchdog timer
-    __bis_SR_register(GIE);   // Enable interrupts globally
     SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
-    OBC_if_config(uart_init, uart_deinit, uart_receive, uart_transmit);
+    OBC_IF_config(uart_init, uart_deinit, uart_transmit);
 
+    //__bis_SR_register(LPM0_bits + GIE); // Enter LPM0, interrupts enabled
+    __bis_SR_register(GIE); // Enable interrupts globally
     while (1)
     {
         /* Transmit if we can */
@@ -34,7 +35,7 @@ void main(void)
             SPI0_receive_payload(user_spi_rx_buf, sizeof(user_spi_rx_buf));
         }
 
-        if (OBC_if_data_received_flag)
+        if (OBC_IF_data_received_flag)
         {
             /** @todo
              *
@@ -44,7 +45,7 @@ void main(void)
              *
              *  - DO STUFF WITH THE DATA
              */
-            OBC_if_data_received_flag = false;
+            OBC_IF_data_received_flag = false;
         }
     }
 }
