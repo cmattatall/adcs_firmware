@@ -23,12 +23,15 @@
 #include "obc_interface.h"
 #include "version.h"
 
+#include "reaction_wheels.h"
+
 #define BASE_10 10
 #define JSON_TKN_CNT 250
 
 
 static jtoktok_t     tkns[JSON_TKN_CNT];
 static jtok_parser_t parser;
+static uint8_t       token_value_holder[50];
 
 typedef uint_fast16_t token_index_t;
 typedef void *(*generic_function)(void *);
@@ -59,13 +62,6 @@ static generic_function send_firmware_json(void *args)
 }
 
 
-unsigned int pwm_rw_x_value = 500;
-
-typedef uint16_t pwm_value_t;
-
-
-static uint8_t token_value_holder[50];
-
 static generic_function handle_pwm_rw_x(void *args)
 {
     token_index_t *t = (token_index_t *)args;
@@ -77,7 +73,8 @@ static generic_function handle_pwm_rw_x(void *args)
 #warning THIS IS AN EXAMPLE CODE SEGMENT
 
         /* using a var called tmp so code fits in 1 line */
-        OBC_printf("{\"pwm_rw_x\" : \"%s\"}%c", pwm_rw_x_value, OBC_MSG_DELIM);
+        pwm_value_t current_x_pwm = get_reaction_wheel_pwm(REACTION_WHEEL_x);
+        OBC_printf("{\"pwm_rw_x\" : \"%s\"}%c", current_x_pwm, OBC_MSG_DELIM);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -101,7 +98,7 @@ static generic_function handle_pwm_rw_x(void *args)
             }
             else
             {
-                pwm_rw_x_value = new_value;
+                set_reaction_wheel_pwm(REACTION_WHEEL_x, new_value);
             }
             memset(token_value_holder, 0, sizeof(token_value_holder));
         }
