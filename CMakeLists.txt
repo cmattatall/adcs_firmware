@@ -1,15 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(adcs_firmware LANGUAGES C ASM)
 
-
-execute_process(COMMAND "git clone https://github.com/cmattatall/JTOK.git")
-
-if(NOT EXISTS JTOK)
-    execute_process(COMMAND "git clone https://github.com/cmattatall/JTOK.git")
-else()
-    message("JTOK subdirectory exists")
-endif()
-
+execute_process(COMMAND "git submodule update --remote --recursive --init --force")
 add_subdirectory(JTOK)
 
 set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
