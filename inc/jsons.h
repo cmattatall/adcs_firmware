@@ -9,9 +9,9 @@ extern "C"
 
 #include <stdint.h>
 
-#define JSON_PARSE_SUCCESS(code) (code == 0)
-#define JSON_PARSE_ERROR(code) (code < 0)
-#define JSON_PARSE_UNK(code) (code > 0)
+#define JSON_PARSE_SUCCESS(code) ((code) == 0)
+#define JSON_PARSE_ERROR(code) ((code) < 0)
+#define JSON_PARSE_UNK(code) ((code) > 0)
 
 /**
  * @brief Parse a json and execute commands based on the key : value pairs
