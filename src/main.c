@@ -27,6 +27,7 @@ void main(void)
 #endif             /* #if defined(DEBUG) */
     periph_init(); /* peripheral initialization */
     enable_interrupts();
+
     while (1)
     {
         if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET) /* Transmit if we can */

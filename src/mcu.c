@@ -25,6 +25,6 @@ void enable_interrupts(void)
 #if defined(TARGET_MCU)
     __bis_SR_register(LPM0_bits + GIE); /* Enter LPM0, interrupts enabled */
 #else
-    log_trace("enabled interrupts\n!");
+    log_trace("enabled interrupts\n");
 #endif /* #if defined(TARGET_MCU) */
 }

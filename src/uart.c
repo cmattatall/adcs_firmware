@@ -72,6 +72,11 @@ void uart_deinit(void)
     {
         uart_receive_byte = NULL;
     }
+
+#if !defined(TARGET_MCU)
+    pthread_join(uart_emu_pthread, NULL);
+#endif /* #if defined(TARGET_MCU) */
+
     log_trace("deinitialized uart\n");
 }
 
@@ -148,8 +153,6 @@ static void uart_emu_start(void)
     int ret;
     ret = pthread_create(&uart_emu_pthread, NULL, uart_emu_thread_func, NULL);
     CONFIG_ASSERT(ret == 0);
-
-    pthread_join(uart_emu_pthread, NULL);
 }
 
 
@@ -157,10 +160,11 @@ static void *uart_emu_thread_func(void *args)
 {
     int fd = 0; /* 0 for stdin */
     fcntl(fd, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
-    char tmp;
+    char       tmp;
+    const char bcnt = sizeof(tmp);
     while (1)
     {
-        while (read(fd, &tmp, 1))
+        if (bcnt == read(fd, &tmp, bcnt))
         {
             uart_receive_byte(tmp);
         }
