@@ -9,6 +9,8 @@
  *
  * @note
  */
+#include "platform.h"
+
 #include <stdint.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -17,9 +19,8 @@
 
 #define JTOK_STANDALONE_TOKENS
 #include "jtok.h"
-#include "jsons.h"
-#include "utils.h"
 #include "obc_interface.h"
+#include "jsons.h"
 #include "version.h"
 
 #include "reaction_wheels.h"
@@ -32,19 +33,18 @@ static jtok_parser_t parser;
 static uint8_t       value_holder[50];
 
 typedef uint_fast16_t token_index_t;
-typedef void *(*generic_function)(void *);
 
 typedef struct
 {
-    char             key[50];
-    generic_function handler;
+    char key[50];
+    void *(*handler)(void *);
 } json_parse_table_item;
 
 
 /* PUT FUNCTION PROTOTYPES HERE */
-static generic_function send_hardware_json(void *args);
-static generic_function send_firmware_json(void *args);
-static generic_function handle_pwm_rw_x(void *args);
+static void *send_hardware_json(void *args);
+static void *send_firmware_json(void *args);
+static void *handle_pwm_rw_x(void *args);
 
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
@@ -107,18 +107,18 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
 }
 
 
-static generic_function send_firmware_json(void *args)
+static void *send_firmware_json(void *args)
 {
-    OBC_printf("{\"fwVersion\" : \"%s\"}%c", FW_VERSION, OBC_MSG_DELIM);
+    OBC_printf("{\"fwVersion\" : \"%s\"}", FW_VERSION);
 }
 
-static generic_function send_hardware_json(void *args)
+static void *send_hardware_json(void *args)
 {
-    OBC_printf("{\"hwVersion\" : \"%s\"}%c", HW_VERSION, OBC_MSG_DELIM);
+    OBC_printf("{\"hwVersion\" : \"%s\"}", HW_VERSION);
 }
 
 
-static generic_function handle_pwm_rw_x(void *args)
+static void *handle_pwm_rw_x(void *args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(t < JSON_TKN_CNT);
@@ -127,7 +127,7 @@ static generic_function handle_pwm_rw_x(void *args)
     if (jtok_tokcmp("read", &tkns[*t]))
     {
         pwm_t current_x_pwm = get_reaction_wheel_pwm(REACTION_WHEEL_x);
-        OBC_printf("{\"pwm_rw_x\" : \"%s\"}%c", current_x_pwm, OBC_MSG_DELIM);
+        OBC_printf("{\"pwm_rw_x\" : \"%d\"}", current_x_pwm);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {

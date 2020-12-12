@@ -16,7 +16,7 @@
 #include <limits.h>
 
 #include "obc_interface.h"
-#include "utils.h"
+#include "platform.h"
 
 uint8_t txBufIdx;
 uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];

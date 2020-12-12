@@ -11,13 +11,16 @@
  * @todo
  */
 
-#include <msp430.h>
+/** @todo THIS SECTION REALLLLLY NEEDS TO BE WRAPPED INTO A SEPARATE
+ * THING compiler.h header or something */
+
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h> /* memcpy */
 
+#include "platform.h"
 #include "spi.h"
-
 
 static uint8_t *         rx_outptr;
 static volatile uint8_t *rx_inptr;
@@ -34,6 +37,26 @@ static volatile int          tx_complete_signal = SPI_SIGNAL_CLR;
 void SPI0_init(volatile int **receive_signal_watcher,
                volatile int **transmit_signal_watcher)
 {
+    /* Configure receive interface */
+    rx_inptr           = rx_ringbuf;
+    rx_outptr          = rx_ringbuf;
+    tx_complete_signal = SPI_SIGNAL_CLR;
+    if (receive_signal_watcher != NULL)
+    {
+        *receive_signal_watcher = &rx_complete_signal;
+    }
+
+
+    /* Configure transmit interface */
+    tx_complete_signal = SPI_SIGNAL_SET;
+    tx_count           = 0;
+    tx_bytes_loaded    = 0;
+    if (transmit_signal_watcher != NULL)
+    {
+        *transmit_signal_watcher = &tx_complete_signal;
+    }
+
+#if defined(TARGET_MCU)
     UCB0CTL1 |= UCSWRST; /* unlock ie: "reset" peripheral */
 
     /* Configure control registers */
@@ -50,7 +73,6 @@ void SPI0_init(volatile int **receive_signal_watcher,
 
     /* Re-enable peripheral */
     UCB0CTL1 &= ~UCSWRST; /* Lock the peripheral control register config */
-
 
 #if defined(SPI0_LOOPBACK)
 #warning SPI0 is configured in LOOPBACK mode
@@ -72,28 +94,10 @@ void SPI0_init(volatile int **receive_signal_watcher,
     P3DIR &= ~BIT1;
 
     P2OUT &= ~BIT2; // Make CS Low
-
-
-    /* Configure receive interface */
-    rx_inptr           = rx_ringbuf;
-    rx_outptr          = rx_ringbuf;
-    tx_complete_signal = SPI_SIGNAL_CLR;
-    if (receive_signal_watcher != NULL)
-    {
-        *receive_signal_watcher = &rx_complete_signal;
-    }
-
-
-    /* Configure transmit interface */
-    tx_complete_signal = SPI_SIGNAL_SET;
-    tx_count           = 0;
-    tx_bytes_loaded    = 0;
-    if (transmit_signal_watcher != NULL)
-    {
-        *transmit_signal_watcher = &tx_complete_signal;
-    }
+#else
+    log_trace("SPI 0 initialized!\n");
+#endif /* #if defined(TARGET_MCU) */
 }
-
 
 int SPI0_receive_payload(uint8_t *userbuf, uint16_t len)
 {
@@ -154,14 +158,20 @@ unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
         tx_count        = 0;
         tx_bytes_loaded = copy_len;
 
+#if defined(TARGET_MCU)
         /* Load first byte and let ISR do the rest */
         UCB0TXBUF = tx_fifo[tx_count];
         UCB0IE |= UCTXIE;
+#else
+
+
+#endif                   /* #if defined(TARGET_MCU) */
         return copy_len; /* return number of bytes loaded into FIFO */
     }
 }
 
 
+#if defined(TARGET_MCU)
 /* clang-format off */
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector = USCI_B0_VECTOR
@@ -222,3 +232,7 @@ void USCI_B0_ISR(void)
         }
     }
 }
+#else
+
+
+#endif /* #if defined(TARGET_MCU) */

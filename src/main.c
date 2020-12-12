@@ -1,9 +1,10 @@
-#include <msp430.h>
 #include <stdint.h>
 
 #include "spi.h"
 #include "obc_interface.h"
 #include "uart.h"
+#include "watchdog.h"
+#include "mcu.h"
 
 #include "jsons.h"
 
@@ -16,15 +17,16 @@ static uint8_t       json_buffer[500];
 
 static void periph_init(void);
 
-
 void main(void)
 {
 
 #if defined(DEBUG)
-    WDTCTL = WDTPW | WDTHOLD;           /* stop watchdog timer */
-#endif                                  /* #if defined(DEBUG) */
-    periph_init();                      /* peripheral initialization */
-    __bis_SR_register(LPM0_bits + GIE); /* Enter LPM0, interrupts enabled */
+    watchdog_stop();
+#else
+    watchdog_start();
+#endif             /* #if defined(DEBUG) */
+    periph_init(); /* peripheral initialization */
+    enable_interrupts();
     while (1)
     {
         if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET) /* Transmit if we can */

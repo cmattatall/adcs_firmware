@@ -15,6 +15,7 @@ extern "C"
 
 #define OBC_MSG_DELIM '!' /* for now we can just use ! */
 
+
 #define OBC_TX_BUFFER_SIZE 500
 extern uint8_t       txBufIdx;
 extern uint8_t       obcTxBuf[2][OBC_TX_BUFFER_SIZE];
@@ -56,17 +57,21 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen);
 
 
 /* Printf wrapper for transmit to make life a bit easier */
-#define OBC_printf(...)                                                        \
+#define __OBC_tx_wrapper(fmt, ...)                                             \
     do                                                                         \
     {                                                                          \
         memset(obcTxBuf[txBufIdx], 0, sizeof(obcTxBuf[txBufIdx]));             \
-        snprintf(obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]), __VA_ARGS__); \
+        snprintf(obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]), fmt,          \
+                 ##__VA_ARGS__);                                               \
         if (++txBufIdx > 1)                                                    \
         {                                                                      \
             txBufIdx = 0;                                                      \
         }                                                                      \
         OBC_IF_tx(obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));             \
     } while (0)
+
+#define OBC_printf(fmt, ...)                                                   \
+    __OBC_tx_wrapper(fmt "%c", ##__VA_ARGS__, OBC_MSG_DELIM)
 
 #ifdef __cplusplus
 /* clang-format off */

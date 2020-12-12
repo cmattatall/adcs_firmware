@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 
-#set(CMAKE_CROSSCOMPILING ON)
-
-set(CMAKE_CROSSCOMPILING OFF)
+###################################################################
+##              USER CONFIGURED 
+###################################################################
+# - when cross compiling is off, we build to run on our host system
+# 
+# - when cross compiling is on, we build for target device
+###################################################################
+set(CMAKE_CROSSCOMPILING ON)
 
 
 project(adcs_firmware LANGUAGES C ASM)
@@ -11,11 +16,10 @@ execute_process(COMMAND "git submodule update --force --remote --recursive --ini
 add_subdirectory(JTOK)
 set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
 
-#target defs
-set(MSP430_MCU "msp430f5529")
-set(MSP430_MCU_FREQ "8000000")
 
 if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+    set(MSP430_MCU "msp430f5529")
+    set(MSP430_MCU_FREQ "8000000")
     msp430_add_executable(${BUILD_TARGET})
 else()
     add_executable(${BUILD_TARGET})
