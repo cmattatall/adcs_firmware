@@ -8,7 +8,6 @@ cmake_minimum_required(VERSION 3.16)
 # - when cross compiling is on, we build for target device
 ###################################################################
 set(CMAKE_CROSSCOMPILING OFF)
-
 project(adcs_firmware LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 execute_process(COMMAND "git submodule update --force --remote --recursive")
@@ -24,6 +23,7 @@ else()
     find_package(Threads REQUIRED)
     if(CMAKE_USE_PTHREADS_INIT)
         target_link_libraries(${BUILD_TARGET} PUBLIC pthread)
+        target_compile_options(${BUILD_TARGET} PUBLIC "-lpthread")
     else()
         message(FATAL_ERROR "pthread is the only supported library for native platform firmware test")
     endif()
