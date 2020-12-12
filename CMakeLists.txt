@@ -9,10 +9,9 @@ cmake_minimum_required(VERSION 3.16)
 ###################################################################
 set(CMAKE_CROSSCOMPILING OFF)
 
-
 project(adcs_firmware LANGUAGES C ASM)
 
-execute_process(COMMAND "git submodule update --force --remote --recursive --init ")
+execute_process(COMMAND "git submodule update --force --remote --recursive")
 add_subdirectory(JTOK)
 set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
 
@@ -23,6 +22,12 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
     msp430_add_executable(${BUILD_TARGET})
 else()
     add_executable(${BUILD_TARGET})
+    find_package(Threads REQUIRED)
+    if(CMAKE_USE_PTHREADS_INIT)
+        target_link_libraries(${BUILD_TARGET} PUBLIC pthread)
+    else()
+        message(FATAL_ERROR "pthread is the only supported library for native platform firmware test")
+    endif()
 endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
 
 #headers and sources
