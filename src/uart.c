@@ -25,9 +25,8 @@ static void (*uart_receive_byte)(uint8_t);
 
 #if !defined(TARGET_MCU)
 static pthread_t uart_emu_pthread;
-
-static void *uart_emu_thread_func(void *args);
-static void  uart_emu_start(void);
+static void *    uart_emu_thread_func(void *args);
+static void      uart_emu_start(void);
 #endif /* #if defined(TARGET_MCU) */
 
 
@@ -159,14 +158,21 @@ static void uart_emu_start(void)
 static void *uart_emu_thread_func(void *args)
 {
     int fd = 0; /* 0 for stdin */
-    fcntl(fd, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
-    char       tmp;
-    const char bcnt = sizeof(tmp);
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+    char tmp;
+    int  bcnt = 0;
     while (1)
     {
-        if (bcnt == read(fd, &tmp, bcnt))
+/** @todo GET THIS WORKING LATER. I CANNOT GET THIS DAMN THING TO ACTUALLY READ
+ * CONCURRENTLY FROM STDIN */
+#if !defined(TARGET_MCU)
+#warning THIS ISN'T WORKING RIGHT NOW. 
+#endif /* #if !defined(TARGET_MCU) */
+        read(fd, &tmp, 1);
+        if (bcnt)
         {
             uart_receive_byte(tmp);
+            bcnt = 0;
         }
     }
 }
