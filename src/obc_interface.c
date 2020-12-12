@@ -11,12 +11,11 @@
  * @note
  * @todo
  */
-
 #include <stdint.h>
 #include <limits.h>
+#include "platform.h"
 
 #include "obc_interface.h"
-#include "platform.h"
 
 uint8_t txBufIdx;
 uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];
@@ -124,4 +123,10 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
         status = 1;
     }
     return status;
+}
+
+
+int OBC_IF_tx(uint8_t *buf, uint_least16_t buflen)
+{
+    ops.tx(buf, buflen);
 }

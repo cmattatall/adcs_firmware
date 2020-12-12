@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.16)
 # 
 # - when cross compiling is on, we build for target device
 ###################################################################
-set(CMAKE_CROSSCOMPILING ON)
+set(CMAKE_CROSSCOMPILING OFF)
 
 
 project(adcs_firmware LANGUAGES C ASM)
