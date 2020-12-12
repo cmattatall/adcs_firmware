@@ -20,15 +20,12 @@
 
 
 static volatile bool tx_cplt = false;
-
-
 static void (*uart_receive_byte)(uint8_t);
 
-
-#if defined(TARGET_MCU)
-
-#else
-static pthread_t uart_thread;
+#if !defined(TARGET_MCU)
+static pthread_t uart_emu_pthread;
+static void *    uart_emu_thread_func(void *args);
+static void      uart_emu_start(void);
 #endif /* #if defined(TARGET_MCU) */
 
 
@@ -50,11 +47,9 @@ void uart_init(void (*receive_byte_func)(uint8_t))
     UCA0CTL1 &= ~UCSWRST;                   // **Initialize USCI state machine**
     UCA0IE |= UCRXIE;                       // Enable USCI_A0 RX interrupt
 #else
-    /** @todo TERMINAL EMULATOR */
-
-
-    log_trace("initialized uart\n");
+    uart_emu_start();
 #endif /* #if defined(TARGET_MCU) */
+    log_trace("initialized uart\n");
 
     CONFIG_ASSERT(receive_byte_func != NULL);
     uart_receive_byte = receive_byte_func;
@@ -75,7 +70,6 @@ void uart_deinit(void)
     {
         uart_receive_byte = NULL;
     }
-
     log_trace("deinitialized uart\n");
 }
 
@@ -143,5 +137,21 @@ void USCI_A0_ISR(void)
 }
 #else
 
+
+#endif /* #if defined(TARGET_MCU) */
+
+
+#if !defined(TARGET_MCU)
+
+
+static void uart_emu_start(void)
+{
+    pthread_create(&uart_emu_pthread, NULL, uart_emu_thread_func, NULL);
+    pthread_join(uart_emu_pthread, NULL);
+}
+
+
+static void *uart_emu_thread_func(void *args)
+{}
 
 #endif /* #if defined(TARGET_MCU) */

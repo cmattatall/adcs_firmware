@@ -37,6 +37,7 @@ extern "C"
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 #elif __unix__ // all unices not caught above
 // Unix
 #elif defined(_POSIX_VERSION)
