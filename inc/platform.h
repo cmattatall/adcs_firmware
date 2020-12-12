@@ -36,8 +36,10 @@ extern "C"
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <signal.h>
+
+#define _XOPEN_SOURCE 600
+#include <pthread.h>
 #elif __unix__ // all unices not caught above
 // Unix
 #elif defined(_POSIX_VERSION)

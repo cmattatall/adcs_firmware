@@ -18,14 +18,16 @@
 
 #include "platform.h"
 
+#include <pthread.h>
 
 static volatile bool tx_cplt = false;
 static void (*uart_receive_byte)(uint8_t);
 
 #if !defined(TARGET_MCU)
 static pthread_t uart_emu_pthread;
-static void *    uart_emu_thread_func(void *args);
-static void      uart_emu_start(void);
+
+static void *uart_emu_thread_func(void *args);
+static void  uart_emu_start(void);
 #endif /* #if defined(TARGET_MCU) */
 
 
@@ -153,8 +155,15 @@ static void uart_emu_start(void)
 
 static void *uart_emu_thread_func(void *args)
 {
+    int fd = 0; /* 0 for stdin */
+    fcntl(fd, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
+    char tmp;
     while (1)
     {
+        while (read(fd, &tmp, 1))
+        {
+            uart_receive_byte(tmp);
+        }
     }
 }
 
