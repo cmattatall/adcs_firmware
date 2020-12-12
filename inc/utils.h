@@ -8,6 +8,7 @@ extern "C"
 #endif /* Start C linkage */
 
 
+#if defined(TARGET_MCU)
 #if defined(DEBUG) && !defined(NDEBUG)
 #define CONFIG_ASSERT(x)                                                       \
     do                                                                         \
@@ -22,6 +23,15 @@ extern "C"
 #else
 #define CONFIG_ASSERT(x) ; /* literally let compiler elide the check */
 #endif                     /* #if defined(DEBUG)  && !defined(NDEBUG) */
+#else                      /* TARGET_MCU NOT DEFINED */
+#if defined(DEBUG) && !defined(NDEBUG)
+#include <assert.h>
+#define CONFIG_ASSERT(x) assert((x))
+#else
+#define CONFIG_ASSERT(x) ; /* literally let compiler elide the check */
+#endif                     /* #if defined(DEBUG)  && !defined(NDEBUG) */
+
+#endif /* #if defined(TARGET_MCU) */
 
 
 #ifdef __cplusplus
