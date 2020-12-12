@@ -10,11 +10,10 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CROSSCOMPILING OFF)
 
 project(adcs_firmware LANGUAGES C ASM)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 execute_process(COMMAND "git submodule update --force --remote --recursive")
 add_subdirectory(JTOK)
 set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
-
 
 if(CMAKE_CROSSCOMPILING STREQUAL "ON")
     set(MSP430_MCU "msp430f5529")

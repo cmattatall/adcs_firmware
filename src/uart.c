@@ -24,6 +24,14 @@ static volatile bool tx_cplt = false;
 
 static void (*uart_receive_byte)(uint8_t);
 
+
+#if defined(TARGET_MCU)
+
+#else
+static pthread_t uart_thread;
+#endif /* #if defined(TARGET_MCU) */
+
+
 /** @note PLEASE READ https://www.ti.com/lit/ug/slau144j/slau144j.pdf
  * PAGE 424 before touching this function
  */
@@ -43,6 +51,8 @@ void uart_init(void (*receive_byte_func)(uint8_t))
     UCA0IE |= UCRXIE;                       // Enable USCI_A0 RX interrupt
 #else
     /** @todo TERMINAL EMULATOR */
+
+
     log_trace("initialized uart\n");
 #endif /* #if defined(TARGET_MCU) */
 
