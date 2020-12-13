@@ -15,6 +15,11 @@ if(NOT CMAKE_BUILD_TYPE)
 	add_compile_options("-Wall")
 endif()
 
+
+# for some reason, you have to manually run this command. I haven't got it working yet
+# FOR THE FIRST TIME, DO 
+# $git submodule update --force --remote --recursive --init
+# NOTICE THE --init on the end.
 execute_process(COMMAND "git submodule update --force --remote --recursive")
 add_subdirectory(JTOK)
 set(BUILD_TARGET ${CMAKE_PROJECT_NAME})
