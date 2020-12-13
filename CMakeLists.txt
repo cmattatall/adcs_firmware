@@ -12,6 +12,7 @@ project(adcs_firmware LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
+	add_compile_options("-Wall")
 endif()
 
 execute_process(COMMAND "git submodule update --force --remote --recursive")

@@ -50,6 +50,7 @@ int set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
             CONFIG_ASSERT(0);
         }
     }
+    return 0;
 }
 
 pwm_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel)

@@ -25,7 +25,7 @@ static void (*uart_receive_byte)(uint8_t);
 
 #if !defined(TARGET_MCU)
 static pthread_t uart_emu_pthread;
-static void *    uart_emu_thread_func(void *args);
+static void *    uart_emulator(void *args);
 static void      uart_emu_start(void);
 #endif /* #if defined(TARGET_MCU) */
 
@@ -102,6 +102,7 @@ int uart_transmit(uint8_t *buf, uint_least16_t buflen)
 
 
     } while (i <= buflen);
+    return i;
 }
 
 
@@ -150,31 +151,27 @@ void USCI_A0_ISR(void)
 static void uart_emu_start(void)
 {
     int ret;
-    ret = pthread_create(&uart_emu_pthread, NULL, uart_emu_thread_func, NULL);
+    ret = pthread_create(&uart_emu_pthread, NULL, uart_emulator, NULL);
     CONFIG_ASSERT(ret == 0);
 }
 
 
-static void *uart_emu_thread_func(void *args)
+static void *uart_emulator(void *args)
 {
-    int fd = 0; /* 0 for stdin */
-    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+    struct termios new_tio;
+    tcgetattr(STDIN_FILENO, &new_tio);
+    new_tio.c_lflag &= (~ICANON & ~ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
     char tmp;
-    int  bcnt = 0;
-    while (1)
+    do
     {
-/** @todo GET THIS WORKING LATER. I CANNOT GET THIS DAMN THING TO ACTUALLY READ
- * CONCURRENTLY FROM STDIN */
-#if !defined(TARGET_MCU)
-#warning THIS ISN'T WORKING RIGHT NOW. 
-#endif /* #if !defined(TARGET_MCU) */
-        read(fd, &tmp, 1);
-        if (bcnt)
+        tmp = getchar();
+        if (tmp != EOF)
         {
             uart_receive_byte(tmp);
-            bcnt = 0;
         }
-    }
+    } while (tmp != 'q'); /* q for quit */
+    return NULL;
 }
 
 #endif /* #if defined(TARGET_MCU) */

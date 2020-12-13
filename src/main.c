@@ -8,7 +8,7 @@
 
 #include "jsons.h"
 
-#define TESTMSG "Hello World\r\n"
+#define TESTMSG (uint8_t *)"Hello World\r\n"
 
 static uint8_t       user_spi_rx_buf[200];
 static volatile int *SPI0_RX_signal_watcher;
@@ -17,7 +17,7 @@ static uint8_t       json_buffer[500];
 
 static void periph_init(void);
 
-void main(void)
+int main(void)
 {
 
 #if defined(DEBUG)
@@ -32,8 +32,8 @@ void main(void)
     {
         if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET) /* Transmit if we can */
         {
-            unsigned int bytes_loaded =
-                SPI0_transmit_IT(TESTMSG, sizeof(TESTMSG));
+            // unsigned int bytes_loaded =
+            SPI0_transmit_IT(TESTMSG, sizeof(TESTMSG));
         }
 
         if (*SPI0_RX_signal_watcher == SPI_SIGNAL_SET)
@@ -43,7 +43,7 @@ void main(void)
             /** @todo DO STUFF WITH THE SPI DATA */
         }
 
-        if (OBC_IF_data_received_flag)
+        if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
             /* get command json string from OBC interface */
             OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
@@ -65,7 +65,7 @@ void main(void)
                 /* successful, don't do anything */
             }
 
-            OBC_IF_data_received_flag = false;
+            OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
     }
 }
