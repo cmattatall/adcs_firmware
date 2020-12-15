@@ -22,18 +22,42 @@
 #include <string.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdint.h>
 #include <termios.h>
 
 #include "targets.h"
+#include "obc_emulator.h"
 #include "obc_interface.h"
+
 
 static void *OBC_EMU(void *args);
 
 static pthread_t OBC_EMU_pthread;
 
+int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen)
+{
+    CONFIG_ASSERT(buf != NULL);
+    char *tmp = malloc(buflen + 1);
+    snprintf(tmp, buflen + 1, "%s%c", buf, '\0');
+    int bytes_transmitted = printf("%s", tmp);
+    free(tmp);
+    return bytes_transmitted;
+}
+
 
 void OBC_EMU_start(void)
 {
+    /* Configure terminal to read raw, unbuffered input */
+    struct termios new_tio;
+    tcgetattr(STDIN_FILENO, &new_tio);
+    new_tio.c_lflag &= (~ICANON & ~ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
+
+    char msg[] = "OBC UART EMULATOR. \nTYPE INTO THE TERMINAL TO SEND RAW "
+                 "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
+    OBC_EMU_tx((uint8_t *)msg, (uint_least16_t)sizeof(msg));
+
+    /* Start listener thread */
     int ret;
     ret = pthread_create(&OBC_EMU_pthread, NULL, OBC_EMU, NULL);
     CONFIG_ASSERT(ret == 0);
@@ -41,10 +65,6 @@ void OBC_EMU_start(void)
 
 static void *OBC_EMU(void *args)
 {
-    struct termios new_tio;
-    tcgetattr(STDIN_FILENO, &new_tio);
-    new_tio.c_lflag &= (~ICANON & ~ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
     char tmp;
     do
     {
@@ -54,12 +74,6 @@ static void *OBC_EMU(void *args)
             OBC_IF_receive_byte(tmp);
         }
     } while (tmp != 'q'); /* q for quit */
+
     return NULL;
-}
-
-
-int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen)
-{
-    CONFIG_ASSERT(buf != NULL);
-    return printf("%.*s", buflen, buf);
 }

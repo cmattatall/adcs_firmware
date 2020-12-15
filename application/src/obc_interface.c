@@ -44,7 +44,6 @@ static uint8_t inPtr_read(void);
 static void    inPtr_advance(void);
 static void    OBC_IF_receive_byte_internal(uint8_t byte);
 
-
 static volatile uint8_t  ringbuf[2000];
 static volatile uint8_t *inPtr;  /* Read in pointer */
 static volatile uint8_t *outPtr; /* Read out pointer */
@@ -72,7 +71,7 @@ int OBC_IF_config(void (*init)(void (*rx_func)(uint8_t)), void (*deinit)(void),
         ops.init(OBC_IF_receive_byte_internal);
     }
 
-    if (tx == NULL)
+    if (ops.tx == NULL)
     {
         status = 1;
     }
@@ -167,7 +166,17 @@ int OBC_IF_tx(uint8_t *buf, uint_least16_t buflen)
 
 bool OBC_IF_dataRxFlag_read(void)
 {
-    return OBC_IF_data_received_flag;
+    bool flag_state;
+#if !defined(TARGET_MCU)
+    pthread_mutex_lock(&rx_flag_lock);
+#endif /* #if defined(TARGET_MCU) */
+
+    flag_state = OBC_IF_data_received_flag;
+
+#if !defined(TARGET_MCU)
+    pthread_mutex_unlock(&rx_flag_lock);
+#endif /* #if defined(TARGET_MCU) */
+    return flag_state;
 }
 
 void OBC_IF_dataRxFlag_write(bool data_state)
@@ -190,7 +199,7 @@ static void OBC_IF_receive_byte_internal(uint8_t byte)
     if (inPtr_read() == OBC_MSG_DELIM)
     {
         inPtr_write('\0');
-        OBC_IF_dataRxFlag_write(true);
+        OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_SET);
     }
     inPtr_advance();
 }
