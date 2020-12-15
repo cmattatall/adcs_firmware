@@ -12,9 +12,12 @@ project(adcs_firmware LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
-	add_compile_options("-Wall")
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options("-Wall")
+    add_compile_options("-Wshadow")
+endif()
 
 # for some reason, you have to manually run this command. I haven't got it working yet
 # FOR THE FIRST TIME, DO 
@@ -40,8 +43,8 @@ else()
 endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
 
 #headers and sources
-file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
-file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
+file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/application/src/*.c")
+file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/application/inc/*.h")
 foreach(hdr ${headers})
     get_filename_component(hdr_dir ${hdr} DIRECTORY)
     list(APPEND include_dirs ${hdr_dir})
@@ -52,3 +55,7 @@ list(REMOVE_DUPLICATES include_dirs)
 target_sources(${BUILD_TARGET} PRIVATE "${sources}")
 target_include_directories(${BUILD_TARGET} PUBLIC "${include_dirs}")
 target_link_libraries(${BUILD_TARGET} PUBLIC JTOK)
+
+
+add_subdirectory(drivers)
+target_link_libraries(${BUILD_TARGET} PUBLIC MSP430F5529_DRIVERS)

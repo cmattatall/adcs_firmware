@@ -6,42 +6,34 @@
 #include "spi.h"
 #include "uart.h"
 #include "watchdog.h"
-
+#include "mcu.h"
 #else
 
 
 #endif /* #if defined(TARGET_MCU) */
 
 #include "obc_interface.h"
-#include "mcu.h"
-
 #include "jsons.h"
 
 #define TESTMSG (uint8_t *)"Hello World\r\n"
 
-static uint8_t       user_spi_rx_buf[200];
-static volatile int *SPI0_RX_signal_watcher;
-static volatile int *SPI0_TX_signal_watcher;
-static uint8_t       json_buffer[500];
+static uint8_t json_buffer[500];
 
 static void periph_init(void);
 
 int main(void)
 {
 
-#if defined(DEBUG)
-    watchdog_stop();
-#else
-    watchdog_start();
-#endif             /* #if defined(DEBUG) */
+
     periph_init(); /* peripheral initialization */
-    enable_interrupts();
 
     while (1)
     {
 
 #if defined(TARGET_MCU)
-
+        static uint8_t       user_spi_rx_buf[200];
+        static volatile int *SPI0_RX_signal_watcher;
+        static volatile int *SPI0_TX_signal_watcher;
         /** @todo I've put the SPI stuff inside an IFDEF block for now.
          *        but in the future, need to wrap the SPI stuff in an interface
          *        API for the actual hardware it is controlling.
@@ -95,10 +87,16 @@ int main(void)
 static void periph_init(void)
 {
 #if defined(TARGET_MCU)
+#if defined(DEBUG)
+    watchdog_stop();
+#else
+    watchdog_start();
+#endif /* #if defined(DEBUG) */
 
     SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
     OBC_IF_config(uart_init, uart_deinit, uart_transmit);
 
+    enable_interrupts(); /* This should be the very last thing that occurs */
 #else
 
 
