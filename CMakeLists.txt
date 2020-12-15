@@ -14,6 +14,12 @@ set(MCU_FREQ "8000000")    #set this as the HSE input freq in Hz
 
 ################################################################################
 project(ADCS_firmware LANGUAGES C ASM)
+message("") 
+message("PROJECT : ${CMAKE_PROJECT_NAME}")
+message("TARGET : ${CMAKE_SYSTEM_NAME}")
+message("PROCESSOR : ${CMAKE_SYSTEM_PROCESSOR}")
+message("") 
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
