@@ -283,7 +283,7 @@ int OBC_IF_printf(const char *restrict fmt, ...)
     vsnprintf((char *)obcTxBuf, sizeof(obcTxBuf[txBufIdx]), fmt, args);
     size_t msg_len =
         strnlen((char *)obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));
-    OBC_IF_tx(obcTxBuf[txBufIdx], msg_len);
+    bytes_transmitted = OBC_IF_tx(obcTxBuf[txBufIdx], msg_len);
     txBufIdx++;
     if (txBufIdx > 1)
     {
