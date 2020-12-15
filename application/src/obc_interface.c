@@ -287,6 +287,16 @@ int OBC_IF_printf(const char *restrict fmt, ...)
     /** @note why the fuck do I even have to add this. I shouldn't have to add
      * it. In fact, according to POSIX spec for termios I shouldn't even have
      * to WORRY about it...
+     *
+     * The entire reason this is here is so that the god damn newline gets
+     * appended to the format string because aparently, POSIX shells can't
+     * fucking detect EOL signals consistently...
+     *
+     * I've spend HOURS finding the problem and then fixing it.
+     *
+     * IF YOU TOUCH THIS PART I WILL ROLL OVER IN MY GRAVE...
+     *
+     * - Carl
      */
     char fmt_str[250] = {'\0'};
     CONFIG_ASSERT(strnlen(fmt, sizeof(fmt_str)) <= sizeof(fmt_str));
