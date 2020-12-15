@@ -1,9 +1,18 @@
 #include <stdint.h>
 
+#if defined(TARGET_MCU)
+
+
 #include "spi.h"
-#include "obc_interface.h"
 #include "uart.h"
 #include "watchdog.h"
+
+#else
+
+
+#endif /* #if defined(TARGET_MCU) */
+
+#include "obc_interface.h"
 #include "mcu.h"
 
 #include "jsons.h"
@@ -30,6 +39,15 @@ int main(void)
 
     while (1)
     {
+
+#if defined(TARGET_MCU)
+
+        /** @todo I've put the SPI stuff inside an IFDEF block for now.
+         *        but in the future, need to wrap the SPI stuff in an interface
+         *        API for the actual hardware it is controlling.
+         *        - Carl
+         */
+
         if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET) /* Transmit if we can */
         {
             // unsigned int bytes_loaded =
@@ -42,6 +60,9 @@ int main(void)
 
             /** @todo DO STUFF WITH THE SPI DATA */
         }
+
+#endif /* #if defined(TARGET_MCU) */
+
 
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
@@ -73,6 +94,13 @@ int main(void)
 
 static void periph_init(void)
 {
+#if defined(TARGET_MCU)
+
     SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
     OBC_IF_config(uart_init, uart_deinit, uart_transmit);
+
+#else
+
+
+#endif /* #if defined(TARGET_MCU) */
 }

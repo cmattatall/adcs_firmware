@@ -14,20 +14,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h> /* memcpy */
-#include "uart.h"
 
 #include "platform.h"
 
-#include <pthread.h>
+#if defined(TARGET_MCU)
+#include "uart.h"
 
 static volatile bool tx_cplt = false;
 static void (*uart_receive_byte)(uint8_t);
-
-#if !defined(TARGET_MCU)
-static pthread_t uart_emu_pthread;
-static void *    uart_emulator(void *args);
-static void      uart_emu_start(void);
-#endif /* #if defined(TARGET_MCU) */
 
 
 /** @note PLEASE READ https://www.ti.com/lit/ug/slau144j/slau144j.pdf
@@ -35,8 +29,6 @@ static void      uart_emu_start(void);
  */
 void uart_init(void (*receive_byte_func)(uint8_t))
 {
-#if defined(TARGET_MCU)
-
     WDTCTL = WDTPW + WDTHOLD;               // Stop WDT
     P3SEL  = BIT3 + BIT4;                   // P3.4,5 = USCI_A0 TXD/RXD
     UCA0CTL1 |= UCSWRST;                    // **Put state machine in reset**
@@ -47,11 +39,7 @@ void uart_init(void (*receive_byte_func)(uint8_t))
                                             // over sampling
     UCA0CTL1 &= ~UCSWRST;                   // **Initialize USCI state machine**
     UCA0IE |= UCRXIE;                       // Enable USCI_A0 RX interrupt
-#else
-    uart_emu_start();
-#endif /* #if defined(TARGET_MCU) */
     log_trace("initialized uart\n");
-
     CONFIG_ASSERT(receive_byte_func != NULL);
     uart_receive_byte = receive_byte_func;
 }
@@ -72,10 +60,6 @@ void uart_deinit(void)
         uart_receive_byte = NULL;
     }
 
-#if !defined(TARGET_MCU)
-    pthread_join(uart_emu_pthread, NULL);
-#endif /* #if defined(TARGET_MCU) */
-
     log_trace("deinitialized uart\n");
 }
 
@@ -92,21 +76,12 @@ int uart_transmit(uint8_t *buf, uint_least16_t buflen)
             i++;
             tx_cplt = false;
         }
-
-#if defined(TARGET_MCU)
         UCA0TXBUF = buf[i]; /* load into transmit buffer after */
-#else
-
-
-#endif /* #if defined(TARGET_MCU) */
-
-
     } while (i <= buflen);
     return i;
 }
 
 
-#if defined(TARGET_MCU)
 /* clang-format off */
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector = USCI_A0_VECTOR
@@ -141,37 +116,6 @@ void USCI_A0_ISR(void)
         }
         break;
     }
-}
-#endif /* #if defined(TARGET_MCU) */
-
-
-#if !defined(TARGET_MCU)
-
-
-static void uart_emu_start(void)
-{
-    int ret;
-    ret = pthread_create(&uart_emu_pthread, NULL, uart_emulator, NULL);
-    CONFIG_ASSERT(ret == 0);
-}
-
-
-static void *uart_emulator(void *args)
-{
-    struct termios new_tio;
-    tcgetattr(STDIN_FILENO, &new_tio);
-    new_tio.c_lflag &= (~ICANON & ~ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
-    char tmp;
-    do
-    {
-        tmp = getchar();
-        if (tmp != EOF)
-        {
-            uart_receive_byte(tmp);
-        }
-    } while (tmp != 'q'); /* q for quit */
-    return NULL;
 }
 
 #endif /* #if defined(TARGET_MCU) */
