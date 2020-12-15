@@ -9,7 +9,7 @@
  *
  * @note
  */
-#include "platform.h"
+#include "targets.h"
 
 
 #include <stdint.h>
@@ -31,7 +31,7 @@
 
 static jtoktok_t     tkns[JSON_TKN_CNT];
 static jtok_parser_t parser;
-static uint8_t       value_holder[50];
+static char          value_holder[50];
 
 typedef uint_fast16_t token_index_t;
 
@@ -111,20 +111,21 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
 static void *send_firmware_json(void *args)
 {
     OBC_printf("{\"fwVersion\" : \"%s\"}", FW_VERSION);
+    return NULL;
 }
 
 static void *send_hardware_json(void *args)
 {
     OBC_printf("{\"hwVersion\" : \"%s\"}", HW_VERSION);
+    return NULL;
 }
 
 
 static void *handle_pwm_rw_x(void *args)
 {
     token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(t < JSON_TKN_CNT);
-    *t++;
-
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
         pwm_t current_x_pwm = get_reaction_wheel_pwm(REACTION_WHEEL_x);
@@ -132,11 +133,11 @@ static void *handle_pwm_rw_x(void *args)
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
-        *t++;
+        *t += 1;
         if (jtok_tokcmp("value", &tkns[*t]))
         {
             /* getting values from JSON is a little unelegant in C ... */
-            *t++;
+            *t += 1;
             memset(value_holder, '\0', sizeof(value_holder));
             jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
             char *endptr    = value_holder;

@@ -1,38 +1,53 @@
 #include <stdint.h>
 
+#if defined(TARGET_MCU)
 #include "spi.h"
-#include "obc_interface.h"
 #include "uart.h"
 #include "watchdog.h"
 #include "mcu.h"
+#else
 
+#endif /* #if defined(TARGET_MCU) */
+
+#include "obc_interface.h"
 #include "jsons.h"
 
-#define TESTMSG "Hello World\r\n"
+#define TESTMSG (uint8_t *)"Hello World\r\n"
+
+static uint8_t json_buffer[500];
+
+static void periph_init(void);
+
+#if defined(TARGET_MCU)
 
 static uint8_t       user_spi_rx_buf[200];
 static volatile int *SPI0_RX_signal_watcher;
 static volatile int *SPI0_TX_signal_watcher;
-static uint8_t       json_buffer[500];
 
-static void periph_init(void);
+#endif /* #if defined(TARGET_MCU) */
 
-void main(void)
+
+int main(void)
 {
 
-#if defined(DEBUG)
-    watchdog_stop();
-#else
-    watchdog_start();
-#endif             /* #if defined(DEBUG) */
+
     periph_init(); /* peripheral initialization */
-    enable_interrupts();
+
     while (1)
     {
+
+#if defined(TARGET_MCU)
+
+        /** @todo I've put the SPI stuff inside an IFDEF block for now.
+         *        but in the future, need to wrap the SPI stuff in an interface
+         *        API for the actual hardware it is controlling.
+         *        - Carl
+         */
+
         if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET) /* Transmit if we can */
         {
-            unsigned int bytes_loaded =
-                SPI0_transmit_IT(TESTMSG, sizeof(TESTMSG));
+            // unsigned int bytes_loaded =
+            SPI0_transmit_IT(TESTMSG, sizeof(TESTMSG));
         }
 
         if (*SPI0_RX_signal_watcher == SPI_SIGNAL_SET)
@@ -42,7 +57,10 @@ void main(void)
             /** @todo DO STUFF WITH THE SPI DATA */
         }
 
-        if (OBC_IF_data_received_flag)
+#endif /* #if defined(TARGET_MCU) */
+
+
+        if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
             /* get command json string from OBC interface */
             OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
@@ -64,7 +82,7 @@ void main(void)
                 /* successful, don't do anything */
             }
 
-            OBC_IF_data_received_flag = false;
+            OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
     }
 }
@@ -72,6 +90,19 @@ void main(void)
 
 static void periph_init(void)
 {
+#if defined(TARGET_MCU)
+#if defined(DEBUG)
+    watchdog_stop();
+#else
+    watchdog_start();
+#endif /* #if defined(DEBUG) */
+
     SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
     OBC_IF_config(uart_init, uart_deinit, uart_transmit);
+
+    enable_interrupts(); /* This should be the very last thing that occurs */
+#else
+
+
+#endif /* #if defined(TARGET_MCU) */
 }

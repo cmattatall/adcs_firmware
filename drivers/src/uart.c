@@ -14,23 +14,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h> /* memcpy */
+
+#include "targets.h"
+
+#if defined(TARGET_MCU)
+#include <msp430.h>
+
 #include "uart.h"
 
-#include "platform.h"
-
-
 static volatile bool tx_cplt = false;
-
-
 static void (*uart_receive_byte)(uint8_t);
+
 
 /** @note PLEASE READ https://www.ti.com/lit/ug/slau144j/slau144j.pdf
  * PAGE 424 before touching this function
  */
 void uart_init(void (*receive_byte_func)(uint8_t))
 {
-#if defined(TARGET_MCU)
-
     WDTCTL = WDTPW + WDTHOLD;               // Stop WDT
     P3SEL  = BIT3 + BIT4;                   // P3.4,5 = USCI_A0 TXD/RXD
     UCA0CTL1 |= UCSWRST;                    // **Put state machine in reset**
@@ -41,11 +41,7 @@ void uart_init(void (*receive_byte_func)(uint8_t))
                                             // over sampling
     UCA0CTL1 &= ~UCSWRST;                   // **Initialize USCI state machine**
     UCA0IE |= UCRXIE;                       // Enable USCI_A0 RX interrupt
-#else
-    /** @todo TERMINAL EMULATOR */
     log_trace("initialized uart\n");
-#endif /* #if defined(TARGET_MCU) */
-
     CONFIG_ASSERT(receive_byte_func != NULL);
     uart_receive_byte = receive_byte_func;
 }
@@ -82,20 +78,12 @@ int uart_transmit(uint8_t *buf, uint_least16_t buflen)
             i++;
             tx_cplt = false;
         }
-
-#if defined(TARGET_MCU)
         UCA0TXBUF = buf[i]; /* load into transmit buffer after */
-#else
-
-
-#endif /* #if defined(TARGET_MCU) */
-
-
     } while (i <= buflen);
+    return i;
 }
 
 
-#if defined(TARGET_MCU)
 /* clang-format off */
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector = USCI_A0_VECTOR
@@ -131,7 +119,5 @@ void USCI_A0_ISR(void)
         break;
     }
 }
-#else
-
 
 #endif /* #if defined(TARGET_MCU) */

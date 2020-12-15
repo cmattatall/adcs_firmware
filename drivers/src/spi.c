@@ -19,7 +19,11 @@
 #include <stdint.h>
 #include <string.h> /* memcpy */
 
-#include "platform.h"
+#include "targets.h"
+
+#if defined(TARGET_MCU)
+
+#include <msp430.h>
 #include "spi.h"
 
 static uint8_t *         rx_outptr;
@@ -56,7 +60,6 @@ void SPI0_init(volatile int **receive_signal_watcher,
         *transmit_signal_watcher = &tx_complete_signal;
     }
 
-#if defined(TARGET_MCU)
     UCB0CTL1 |= UCSWRST; /* unlock ie: "reset" peripheral */
 
     /* Configure control registers */
@@ -94,9 +97,7 @@ void SPI0_init(volatile int **receive_signal_watcher,
     P3DIR &= ~BIT1;
 
     P2OUT &= ~BIT2; // Make CS Low
-#else
     log_trace("SPI 0 initialized!\n");
-#endif /* #if defined(TARGET_MCU) */
 }
 
 int SPI0_receive_payload(uint8_t *userbuf, uint16_t len)
@@ -158,20 +159,16 @@ unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
         tx_count        = 0;
         tx_bytes_loaded = copy_len;
 
-#if defined(TARGET_MCU)
         /* Load first byte and let ISR do the rest */
         UCB0TXBUF = tx_fifo[tx_count];
         UCB0IE |= UCTXIE;
-#else
 
 
-#endif                   /* #if defined(TARGET_MCU) */
         return copy_len; /* return number of bytes loaded into FIFO */
     }
 }
 
 
-#if defined(TARGET_MCU)
 /* clang-format off */
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector = USCI_B0_VECTOR
@@ -232,7 +229,4 @@ void USCI_B0_ISR(void)
         }
     }
 }
-#else
-
-
 #endif /* #if defined(TARGET_MCU) */

@@ -1,50 +1,11 @@
-#ifndef __PLATFORM_H__
-#define __PLATFORM_H__
+#ifndef __TARGETS_H__
+#define __TARGETS_H__
 #ifdef __cplusplus
 /* clang-format off */
 extern "C"
 {
 /* clang-format on */
 #endif /* Start C linkage */
-
-#if defined(TARGET_MCU)
-#include <msp430.h>
-#else
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-// define something for Windows (32-bit and 64-bit, this part is common)
-#include <windows.h>
-#ifdef _WIN64
-// define something for Windows (64-bit only)
-#else
-// define something for Windows (32-bit only)
-#endif
-#elif __APPLE__
-#include <TargetConditionals.h>
-#if TARGET_IPHONE_SIMULATOR
-// iOS Simulator
-#elif TARGET_OS_IPHONE
-// iOS device
-#elif TARGET_OS_MAC
-// Other kinds of Mac OS
-#else
-#error "Unknown Apple platform"
-#endif
-#elif __linux__
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <pthread.h>
-#elif __unix__ // all unices not caught above
-// Unix
-#elif defined(_POSIX_VERSION)
-// POSIX
-#else
-#error "Unknown compiler"
-#endif
-#endif /* #if defined(TARGET_MCU) */
 
 /* COMPILER ATTRIBUTES */
 /* clang-format off */
@@ -54,6 +15,7 @@ extern "C"
 #elif defined(__GNUC__)
 #define weak __attribute__((weak))
 #define packed __attribute__((packed))
+#define UNUSED __attribute__((unused))
 #else
 #error Compiler not supported!
 #endif
@@ -62,7 +24,7 @@ extern "C"
 #if defined(TARGET_MCU)
 #define log_trace(fmt, ...) ; /* do nothing (this is just so it compiles) */
 #else
-#define log_trace(fmt, ...) printf("[%s : %d in %s] :" fmt, __FILE__, __LINE__, __func__, ## __VA_ARGS__)
+#define log_trace(fmt, ...) printf("[%s : %d in %s]\n>>> " fmt "\n", __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 #endif /* #if defined(TARGET_MCU) */
 
 /* CONFIG_ASSERT */
@@ -85,16 +47,16 @@ extern "C"
 #if defined(DEBUG) && !defined(NDEBUG)
 #include <assert.h>
 #define CONFIG_ASSERT(x) assert((x))
-#else
-#define CONFIG_ASSERT(x) ; /* literally let compiler elide the check */
+#else   
+/* CAST AS VOID TO PREVENT COMPILER WARNING OF UNUSED VAR */
+#define CONFIG_ASSERT(x) (void)(x); 
 #endif                     /* #if defined(DEBUG)  && !defined(NDEBUG) */
 
 #endif /* #if defined(TARGET_MCU) */
-
 
 #ifdef __cplusplus
 /* clang-format off */
 }
 /* clang-format on */
 #endif /* End C linkage */
-#endif /* __PLATFORM_H__ */
+#endif /* __TARGETS_H__ */
