@@ -144,7 +144,7 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
     do
     {
         buf[i] = outPtr_read();
-        if (buf[i] == OBC_MSG_DELIM)
+        if (buf[i] == '\0')
         {
             found_delim = true;
         }

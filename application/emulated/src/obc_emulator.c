@@ -71,13 +71,6 @@ static void *OBC_EMU(void *args)
         {
             OBC_IF_receive_byte(tmp);
         }
-
-        /*
-        if (1 == read(0, &tmp, 1))
-        {
-            OBC_IF_receive_byte(tmp);
-        }
-        */
     } while (tmp != 'q'); /* q for quit */
 
     return NULL;
