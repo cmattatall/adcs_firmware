@@ -76,6 +76,7 @@ add_compile_options("-O0")
 # $git submodule update --force --remote --recursive --init
 # NOTICE THE --init on the end.
 execute_process(COMMAND "git submodule update --force --remote --recursive")
+
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
 add_subdirectory(application)

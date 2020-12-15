@@ -18,7 +18,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#define JTOK_STANDALONE_TOKENS
 #include "jtok.h"
 #include "obc_interface.h"
 #include "jsons.h"
@@ -43,16 +42,31 @@ typedef struct
 
 
 /* PUT FUNCTION PROTOTYPES HERE */
-static void *send_hardware_json(void *args);
-static void *send_firmware_json(void *args);
-static void *handle_pwm_rw_x(void *args);
+static void *parse_hardware_json(void *args);
+static void *parse_firmware_json(void *args);
+static void *parse_pwm_rw_x(void *args);
+
+static void *parse_test_json(void *args)
+{
+    token_index_t *t = (token_index_t *)args;
+    *t += 1;
+    if (jtok_tokcmp("1", &tkns[*t]))
+    {
+        OBC_IF_printf("{\"test\":\"ok\"}");
+        return NULL;
+    }
+    else
+    {
+        return (void *)t;
+    }
+}
 
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
-    {.key = "fwVersion", .handler = send_firmware_json},
-    {.key = "hwVersion", .handler = send_hardware_json},
-    {.key = "pwm_rw_x", .handler =  handle_pwm_rw_x},
-    
+    {.key = "test",      .handler = parse_test_json},
+    {.key = "fwVersion", .handler = parse_firmware_json},
+    {.key = "hwVersion", .handler = parse_hardware_json},
+    {.key = "pwm_rw_x",  .handler =  parse_pwm_rw_x},
 };
 /* clang-format on */
 
@@ -73,8 +87,6 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
     }
     else
     {
-        /** @todo USE A TABLE DRIVEN APPROACH. FOR NOW, WE JUST DO GIANT IF-ELSE
-         * CHAIN AS PROOF OF CONCEPT */
 
         token_index_t t; /* token index */
         token_index_t k; /* key index for json table */
@@ -93,10 +105,9 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
                  */
                 if (jtok_tokcmp(json_parse_table[k].key, &tkns[t]))
                 {
-                    if (NULL == json_parse_table[k].handler(&t))
+                    if (NULL != json_parse_table[k].handler)
                     {
-                        /* set status to token index that caused the error */
-                        json_parse_status = t;
+                        json_parse_table[k].handler(&t);
                     }
                 }
             }
@@ -110,20 +121,39 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
 }
 
 
-static void *send_firmware_json(void *args)
+static void *parse_firmware_json(void *args)
 {
-    OBC_printf("{\"fwVersion\" : \"%s\"}", FW_VERSION);
-    return NULL;
+    token_index_t *t = (token_index_t *)args;
+    *t += 1;
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        OBC_IF_printf("{\"fwVersion\" : \"%s\"}", FW_VERSION);
+        return NULL;
+    }
+    else
+    {
+        return (void *)t;
+    }
 }
 
-static void *send_hardware_json(void *args)
+
+static void *parse_hardware_json(void *args)
 {
-    OBC_printf("{\"hwVersion\" : \"%s\"}", HW_VERSION);
-    return NULL;
+    token_index_t *t = (token_index_t *)args;
+    *t += 1;
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        OBC_IF_printf("{\"hwVersion\" : \"%s\"}", HW_VERSION);
+        return NULL;
+    }
+    else
+    {
+        return (void *)t;
+    }
 }
 
 
-static void *handle_pwm_rw_x(void *args)
+static void *parse_pwm_rw_x(void *args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
@@ -131,7 +161,7 @@ static void *handle_pwm_rw_x(void *args)
     if (jtok_tokcmp("read", &tkns[*t]))
     {
         pwm_t current_x_pwm = get_reaction_wheel_pwm(REACTION_WHEEL_x);
-        OBC_printf("{\"pwm_rw_x\" : \"%d\"}", current_x_pwm);
+        OBC_IF_printf("{\"pwm_rw_x\" : \"%d\"}", current_x_pwm);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {

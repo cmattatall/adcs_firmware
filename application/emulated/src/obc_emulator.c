@@ -51,9 +51,6 @@ void OBC_EMU_start(void)
     tcgetattr(STDIN_FILENO, &new_tio);
     new_tio.c_lflag &= (~ICANON & ~ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
-
-    // fcntl(0, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
-
     char msg[] = "OBC UART EMULATOR. \nTYPE INTO THE TERMINAL TO SEND RAW "
                  "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
     OBC_EMU_tx((uint8_t *)msg, (uint_least16_t)sizeof(msg));
@@ -74,14 +71,6 @@ static void *OBC_EMU(void *args)
         {
             OBC_IF_receive_byte(tmp);
         }
-
-        /*
-        if (1 == read(0, &tmp, 1))
-        {
-            OBC_IF_receive_byte(tmp);
-        }
-        */
-    } while (tmp != 'q'); /* q for quit */
-
+    } while (true);
     return NULL;
 }

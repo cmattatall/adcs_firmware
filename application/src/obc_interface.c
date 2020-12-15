@@ -16,12 +16,12 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include "targets.h"
 
 #include "obc_interface.h"
 
-uint8_t txBufIdx;
-uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];
+static uint8_t obcTxBuf[OBC_TX_BUFFER_SIZE];
 
 typedef struct
 {
@@ -143,7 +143,7 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
     do
     {
         buf[i] = outPtr_read();
-        if (buf[i] == OBC_MSG_DELIM)
+        if (buf[i] == '\0')
         {
             found_delim = true;
         }
@@ -271,3 +271,59 @@ static void inPtr_advance(void)
     pthread_mutex_unlock(&inPtr_lock);
 #endif /* #if defined(TARGET_MCU) */
 }
+
+/** @todo THIS FUNCTION IS SO GODDAMN UGLY BUT AT LEAST ITS WORKING - Carl */
+int OBC_IF_printf(const char *restrict fmt, ...)
+{
+    CONFIG_ASSERT(fmt != NULL);
+    int     bytes_transmitted = 0;
+    va_list args;
+    va_start(args, fmt);
+
+#if defined(TARGET_MCU)
+    char *fmt_str = fmt;
+#else
+    /** @note why the fuck do I even have to add this. I shouldn't have to add
+     * it. In fact, according to POSIX spec for termios I shouldn't even have
+     * to WORRY about it...
+     *
+     * The entire reason this is here is so that the god damn newline gets
+     * appended to the format string because aparently, POSIX shells can't
+     * fucking detect EOL signals consistently...
+     *
+     * I've spend HOURS finding the problem and then fixing it.
+     *
+     * IF YOU TOUCH THIS PART I WILL ROLL OVER IN MY GRAVE...
+     *
+     * - Carl
+     */
+    char fmt_str[250] = {'\0'};
+    CONFIG_ASSERT(strnlen(fmt, sizeof(fmt_str)) <= sizeof(fmt_str));
+    strcpy(fmt_str, fmt);
+    strcat(fmt_str, "\n");
+#endif /* #if defined(TARGET_MCU) */
+
+    memset(obcTxBuf, 0, sizeof(obcTxBuf));
+    vsnprintf((char *)obcTxBuf, sizeof(obcTxBuf), fmt_str, args);
+    size_t msg_len = strnlen((char *)obcTxBuf, sizeof(obcTxBuf));
+
+    bytes_transmitted = OBC_IF_tx(obcTxBuf, msg_len);
+    va_end(args);
+    return bytes_transmitted;
+}
+
+#if 0
+/* Printf wrapper for transmit to make life a bit easier */
+#define __OBC_tx_wrapper(fmt, ...)                                             \
+    do                                                                         \
+    {                                                                          \
+        memset(obcTxBuf, 0, sizeof(obcTxBuf));                                 \
+        snprintf((char *)obcTxBuf, sizeof(obcTxBuf), fmt "\n", ##__VA_ARGS__); \
+        if (++txBufIdx > 1)                                                    \
+        {                                                                      \
+            txBufIdx = 0;                                                      \
+        }                                                                      \
+        OBC_IF_tx(obcTxBuf, sizeof(obcTxBuf));                                 \
+    } while (0)
+
+#endif
