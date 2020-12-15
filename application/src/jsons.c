@@ -61,12 +61,13 @@ static void *parse_test_json(void *args)
     }
 }
 
+
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
     {.key = "test",      .handler = parse_test_json},
     {.key = "fwVersion", .handler = parse_firmware_json},
     {.key = "hwVersion", .handler = parse_hardware_json},
-    {.key = "pwm_rw_x",  .handler =  parse_pwm_rw_x},
+    {.key = "pwm_rw_x",  .handler = parse_pwm_rw_x},
 };
 /* clang-format on */
 
