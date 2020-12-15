@@ -273,16 +273,32 @@ static void inPtr_advance(void)
 #endif /* #if defined(TARGET_MCU) */
 }
 
+/** @todo THIS FUNCTION IS SO GODDAMN UGLY BUT AT LEAST ITS WORKING - Carl */
 int OBC_IF_printf(const char *restrict fmt, ...)
 {
     CONFIG_ASSERT(fmt != NULL);
     int     bytes_transmitted = 0;
     va_list args;
     va_start(args, fmt);
+
+#if defined(TARGET_MCU)
+    char *fmt_str = fmt;
+#else
+    /** @note why the fuck do I even have to add this. I shouldn't have to add
+     * it. In fact, according to POSIX spec for termios I shouldn't even have
+     * to WORRY about it...
+     */
+    char fmt_str[250] = {'\0'};
+    CONFIG_ASSERT(strnlen(fmt, sizeof(fmt_str)) <= sizeof(fmt_str));
+    strcpy(fmt_str, fmt);
+    strcat(fmt_str, "\n");
+#endif /* #if defined(TARGET_MCU) */
+
     memset(obcTxBuf[txBufIdx], 0, sizeof(obcTxBuf[txBufIdx]));
-    vsnprintf((char *)obcTxBuf, sizeof(obcTxBuf[txBufIdx]), fmt, args);
+    vsnprintf((char *)obcTxBuf, sizeof(obcTxBuf[txBufIdx]), fmt_str, args);
     size_t msg_len =
         strnlen((char *)obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));
+
     bytes_transmitted = OBC_IF_tx(obcTxBuf[txBufIdx], msg_len);
     txBufIdx++;
     if (txBufIdx > 1)

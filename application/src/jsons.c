@@ -107,7 +107,6 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
                  */
                 if (jtok_tokcmp(json_parse_table[k].key, &tkns[t]))
                 {
-
                     if (NULL != json_parse_table[k].handler)
                     {
                         json_parse_table[k].handler(&t);
