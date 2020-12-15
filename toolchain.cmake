@@ -2,7 +2,16 @@
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
 
 if(CMAKE_CROSSCOMPILING STREQUAL "ON")
-    set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
+    if(WIN32)
+    #@todo FIGURE OUT WHERE IT INSTALLS    
+        message(FATAL_ERROR "WINDOWS PATH NOT SUPPORTED YET")
+    elseif(UNIX AND NOT APPLE)
+        set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
+    elseif(APPLE)
+        message(FATAL_ERROR "Apple not supported")
+    else()
+        message(FATAL_ERROR "${CMAKE_HOST_SYSTEM_NAME} not supported")
+    endif()
     set(TOOLCHAIN_PREFIX msp430-elf-)
 
     macro(msp430_check_define_macro var)
