@@ -6,7 +6,7 @@
 #include "watchdog.h"
 #include "mcu.h"
 #else
-
+#include "obc_emulator.h"
 #endif /* #if defined(TARGET_MCU) */
 
 #include "obc_interface.h"
@@ -66,12 +66,12 @@ int main(void)
             int parse_status = json_parse(json_buffer, sizeof(json_buffer));
             if (JSON_PARSE_ERROR(parse_status))
             {
-                uint8_t error_message[] = "{\"error\" : \"json format\"}";
+                uint8_t error_message[] = "{\"error\" : \"json format\"}\n";
                 OBC_IF_tx(error_message, sizeof(error_message));
             }
             else if (JSON_PARSE_UNK(parse_status))
             {
-                uint8_t message[] = "{\"ADCS\" : \"unknown command\"}";
+                uint8_t message[] = "{\"ADCS\" : \"unknown command\"}\n";
                 OBC_IF_tx(message, sizeof(message));
             }
             else
@@ -99,7 +99,7 @@ static void periph_init(void)
 
     enable_interrupts(); /* This should be the very last thing that occurs */
 #else
-
-
+    OBC_IF_config(NULL, NULL, OBC_EMU_tx);
+    OBC_EMU_start();
 #endif /* #if defined(TARGET_MCU) */
 }

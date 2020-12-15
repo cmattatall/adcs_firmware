@@ -62,6 +62,8 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
 
     int json_parse_status = 0;
 
+    parser = jtok_new_parser((char *)json);
+
     int jtok_retval = jtok_parse(&parser, tkns, JSON_TKN_CNT);
     if (jtok_retval != JTOK_PARSE_STATUS_PARSE_OK)
     {

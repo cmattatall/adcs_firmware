@@ -6,13 +6,20 @@ cmake_minimum_required(VERSION 3.16)
 # 
 # - when cross compiling is on, we build for target device
 ################################################################################
-set(CMAKE_CROSSCOMPILING OFF)
+set(CMAKE_CROSSCOMPILING OFF 
+    CACHE BOOL "is crosscompiled" FORCE)
 
-set(MCU_MPN "msp430f5529")
-set(MCU_FREQ "8000000")
+set(MCU_MPN "msp430f5529") #set this as a lowercase string of your part number
+set(MCU_FREQ "8000000")    #set this as the HSE input freq in Hz
 
 ################################################################################
 project(ADCS_firmware LANGUAGES C ASM)
+message("") 
+message("PROJECT : ${CMAKE_PROJECT_NAME}")
+message("TARGET : ${CMAKE_SYSTEM_NAME}")
+message("PROCESSOR : ${CMAKE_SYSTEM_PROCESSOR}")
+message("") 
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -23,6 +30,21 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options("-Wshadow")
 endif()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+    set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+else()
+    if(WIN32)
+        set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+    elseif(UNIX)
+        set(CMAKE_EXECUTABLE_SUFFIX ".out")
+    else()
+        message("UNSUPPORTED PLATFORM : ${CMAKE_HOST_SYSTEM_NAME}")
+    endif()
+endif()
 
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING STREQUAL "ON")
@@ -46,6 +68,8 @@ function(ADCS_add_library target)
 endfunction(ADCS_add_library target)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
+
+add_compile_options("-O0")
 
 # for some reason, you have to manually run this command. I haven't got it working yet
 # FOR THE FIRST TIME, DO 
