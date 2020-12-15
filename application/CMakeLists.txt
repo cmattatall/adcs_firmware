@@ -19,18 +19,12 @@ target_include_directories(${BUILD_TARGET} PUBLIC "${include_dirs}")
 
 target_link_libraries(${BUILD_TARGET} PUBLIC JTOK)
 
+add_subdirectory(emulated)
+
 if(CMAKE_CROSSCOMPILING STREQUAL "ON")
-    message("LINKING ${BUILD_TARGET} against ADCS_drivers")
     target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_drivers)
 else()
-    find_package(Threads REQUIRED)
-    if(CMAKE_USE_PTHREADS_INIT)
-        target_link_libraries(${BUILD_TARGET} PUBLIC pthread)
-        target_compile_options(${BUILD_TARGET} PUBLIC "-lpthread")
-    else()
-        message(FATAL_ERROR "pthread is the only supported library for native platform firmware test")
-    endif()
-    add_subdirectory(emulated)
+    target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_emulated_interfaces)
 endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
 
 

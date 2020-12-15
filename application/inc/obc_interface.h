@@ -53,6 +53,15 @@ void OBC_IF_clear_config(void);
 int OBC_IF_tx(uint8_t *buf, uint_least16_t buflen);
 
 
+#if !defined(TARGET_MCU)
+/**
+ * @brief receive a byte into the OBC communication interface
+ *
+ * @param byte byte to receive
+ */
+void OBC_IF_receive_byte(uint8_t byte);
+#endif /* #if defined(TARGET_MCU) */
+
 /**
  * @brief
  *

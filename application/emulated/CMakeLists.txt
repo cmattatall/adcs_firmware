@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
-if(CMAKE_CROSSCOMPILING STREQUAL "OFF")
-    project(emulated_interfaces VERSION 1.0 LANGUAGES C)
+
+if(CMAKE_CROSSCOMPILING STREQUAL "FALSE")
+    project(ADCS_emulated_interfaces VERSION 1.0 LANGUAGES C)
+    message("CONFIGURING ${PROJECT_NAME}")
     set(BUILD_TARGET ${PROJECT_NAME})
 
     ADCS_add_library(${BUILD_TARGET} STATIC)
@@ -14,4 +16,14 @@ if(CMAKE_CROSSCOMPILING STREQUAL "OFF")
 
     target_include_directories(${BUILD_TARGET} PUBLIC ${include_dirs})
     target_sources(${BUILD_TARGET} PRIVATE ${sources})
-endif(CMAKE_CROSSCOMPILING STREQUAL "OFF")
+
+    find_package(Threads REQUIRED)
+    if(CMAKE_USE_PTHREADS_INIT)
+        target_link_libraries(${BUILD_TARGET} PUBLIC pthread)
+        target_compile_options(${BUILD_TARGET} PUBLIC "-lpthread")
+    else()
+        message(FATAL_ERROR "pthread is the only supported library for native platform firmware test")
+    endif()
+else()
+    message("NOT BUILDING EMULATED INTERFACES BECAUSE CMAKE_CROSSCOMPILING==${CMAKE_CROSSCOMPILING}")
+endif(CMAKE_CROSSCOMPILING STREQUAL "FALSE")

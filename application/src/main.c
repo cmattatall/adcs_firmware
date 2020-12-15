@@ -29,8 +29,6 @@ static volatile int *SPI0_TX_signal_watcher;
 
 int main(void)
 {
-
-
     periph_init(); /* peripheral initialization */
 
     while (1)
@@ -58,7 +56,6 @@ int main(void)
         }
 
 #endif /* #if defined(TARGET_MCU) */
-
 
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {

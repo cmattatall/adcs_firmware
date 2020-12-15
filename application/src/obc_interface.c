@@ -42,16 +42,8 @@ static void    outPtr_advance(void);
 static void    inPtr_write(uint8_t byte);
 static uint8_t inPtr_read(void);
 static void    inPtr_advance(void);
+static void    OBC_IF_receive_byte_internal(uint8_t byte);
 
-static void OBC_IF_receive_byte(uint8_t byte);
-
-
-/**
- * @brief CALLED FROM ISR CONTEXT
- *
- * @param byte byte to plce into next spot of buffer (received from OBC)
- */
-static void OBC_IF_receive_byte(uint8_t byte);
 
 static uint8_t  ringbuf[2000];
 static uint8_t *inPtr;  /* Read in pointer */
@@ -71,17 +63,28 @@ int OBC_IF_config(void (*init)(void (*rx_func)(uint8_t)), void (*deinit)(void),
     ops.tx     = tx;
 
     CONFIG_ASSERT(ops.init != NULL);
-    ops.init(OBC_IF_receive_byte);
+    ops.init(OBC_IF_receive_byte_internal);
 
     if (tx == NULL)
     {
         status = 1;
     }
 
-#if defined(TARGET_MCU)
+#if !defined(TARGET_MCU)
+    /*
+     * If we're running on native machine, need to emulate OBC
+     * using a second thread to read raw IO from a file/terminal/etc
+     * as if it were asynchronously receiving bytes from the UART
+     *
+     * This makes the ring buffer a shared variable and we have to protect it
+     * using a mutex.
+     *
+     * On the ADCS target device, ring buffer is not shared because
+     * application always eventually resumes its original context
+     * after processing the UART ISR
+     * - Carl
+     */
 
-
-#else
     if (pthread_mutex_init(&inPtr_lock, NULL) != 0)
     {
         printf("\n mutex init for inPtr_lock failed\n");
@@ -94,8 +97,7 @@ int OBC_IF_config(void (*init)(void (*rx_func)(uint8_t)), void (*deinit)(void),
         exit(2);
     }
 
-#endif /* #if defined(TARGET_MCU) */
-
+#endif /* #if !defined(TARGET_MCU) */
 
     return status;
 }
@@ -118,6 +120,13 @@ void OBC_IF_clear_config(void)
 #endif /* #if !defined(TARGET_MCU) */
 }
 
+
+#if !defined(TARGET_MCU)
+void OBC_IF_receive_byte(uint8_t byte)
+{
+    OBC_IF_receive_byte_internal(byte);
+}
+#endif /* #if defined(TARGET_MCU) */
 
 int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
 {
@@ -168,7 +177,7 @@ void OBC_IF_dataRxFlag_write(bool data_state)
 }
 
 
-static void OBC_IF_receive_byte(uint8_t byte)
+static void OBC_IF_receive_byte_internal(uint8_t byte)
 {
     inPtr_write(byte);
     if (inPtr_read() == OBC_MSG_DELIM)

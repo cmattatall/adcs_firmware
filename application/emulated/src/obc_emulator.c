@@ -14,6 +14,16 @@
 
 #include "targets.h"
 
+#include <pthread.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <termios.h>
+
 static void *uart_emulator(void *args);
 static void  uart_emu_start(void);
 
