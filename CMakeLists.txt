@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # 
 # - when cross compiling is on, we build for target device
 ################################################################################
-set(CMAKE_CROSSCOMPILING ON)
+set(CMAKE_CROSSCOMPILING OFF)
 
 set(MCU_MPN "msp430f5529") #set this as a lowercase string of your part number
 set(MCU_FREQ "8000000")    #set this as the HSE input freq in Hz

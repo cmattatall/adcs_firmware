@@ -6,7 +6,7 @@
 #include "watchdog.h"
 #include "mcu.h"
 #else
-
+#include "obc_emulator.h"
 #endif /* #if defined(TARGET_MCU) */
 
 #include "obc_interface.h"
@@ -99,7 +99,6 @@ static void periph_init(void)
 
     enable_interrupts(); /* This should be the very last thing that occurs */
 #else
-
-
+    OBC_EMU_start();
 #endif /* #if defined(TARGET_MCU) */
 }

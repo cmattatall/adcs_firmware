@@ -24,19 +24,21 @@
 #include <signal.h>
 #include <termios.h>
 
-static void *uart_emulator(void *args);
-static void  uart_emu_start(void);
+#include "obc_interface.h"
 
-static pthread_t uart_emu_pthread;
+static void *OBC_EMU(void *args);
 
-static void uart_emu_start(void)
+static pthread_t OBC_EMU_pthread;
+
+
+void OBC_EMU_start(void)
 {
     int ret;
-    ret = pthread_create(&uart_emu_pthread, NULL, uart_emulator, NULL);
+    ret = pthread_create(&OBC_EMU_pthread, NULL, OBC_EMU, NULL);
     CONFIG_ASSERT(ret == 0);
 }
 
-static void *uart_emulator(void *args)
+static void *OBC_EMU(void *args)
 {
     struct termios new_tio;
     tcgetattr(STDIN_FILENO, &new_tio);
@@ -48,7 +50,7 @@ static void *uart_emulator(void *args)
         tmp = getchar();
         if (tmp != EOF)
         {
-            // uart_receive_byte(tmp);
+            OBC_IF_receive_byte(tmp);
         }
     } while (tmp != 'q'); /* q for quit */
     return NULL;
