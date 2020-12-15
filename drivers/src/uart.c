@@ -15,9 +15,11 @@
 #include <stdint.h>
 #include <string.h> /* memcpy */
 
-#include "platform.h"
+#include "targets.h"
 
 #if defined(TARGET_MCU)
+#include <msp430.h>
+
 #include "uart.h"
 
 static volatile bool tx_cplt = false;

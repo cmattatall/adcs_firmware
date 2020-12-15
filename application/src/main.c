@@ -1,14 +1,11 @@
 #include <stdint.h>
 
 #if defined(TARGET_MCU)
-
-
 #include "spi.h"
 #include "uart.h"
 #include "watchdog.h"
 #include "mcu.h"
 #else
-
 
 #endif /* #if defined(TARGET_MCU) */
 
@@ -21,6 +18,15 @@ static uint8_t json_buffer[500];
 
 static void periph_init(void);
 
+#if defined(TARGET_MCU)
+
+static uint8_t       user_spi_rx_buf[200];
+static volatile int *SPI0_RX_signal_watcher;
+static volatile int *SPI0_TX_signal_watcher;
+
+#endif /* #if defined(TARGET_MCU) */
+
+
 int main(void)
 {
 
@@ -31,9 +37,7 @@ int main(void)
     {
 
 #if defined(TARGET_MCU)
-        static uint8_t       user_spi_rx_buf[200];
-        static volatile int *SPI0_RX_signal_watcher;
-        static volatile int *SPI0_TX_signal_watcher;
+
         /** @todo I've put the SPI stuff inside an IFDEF block for now.
          *        but in the future, need to wrap the SPI stuff in an interface
          *        API for the actual hardware it is controlling.

@@ -19,9 +19,11 @@
 #include <stdint.h>
 #include <string.h> /* memcpy */
 
-#include "platform.h"
+#include "targets.h"
 
 #if defined(TARGET_MCU)
+
+#include <msp430.h>
 #include "spi.h"
 
 static uint8_t *         rx_outptr;
@@ -227,5 +229,4 @@ void USCI_B0_ISR(void)
         }
     }
 }
-
 #endif /* #if defined(TARGET_MCU) */

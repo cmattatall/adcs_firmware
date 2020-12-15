@@ -9,7 +9,7 @@
  *
  * @note
  */
-#include "platform.h"
+#include "targets.h"
 
 
 #include <stdint.h>

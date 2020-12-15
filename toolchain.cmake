@@ -77,6 +77,18 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
         target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
     endfunction(msp430_add_executable executable)
 
+    function(msp430_add_library library)
+        msp430_check_defines_macro()
+        string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
+        add_library(${library})
+        target_compile_definitions(${library} PRIVATE "F_CPU=${MSP430_MCU_FREQ}")
+        target_compile_definitions(${library} PRIVATE "__${UPPERCASE_MCU_MPN}__")
+        target_compile_definitions(${library} PRIVATE "TARGET_MCU")
+        target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
+        target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
+        target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
+    endfunction(msp430_add_library library)
+
 else()
     # empty prefix so it uses "gcc" instead of "msp430-elf-gcc"
     set(TOOLCHAIN_PREFIX "") 

@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
-#include "platform.h"
+#include "targets.h"
 
 #include "obc_interface.h"
 

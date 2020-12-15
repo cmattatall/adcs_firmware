@@ -12,11 +12,12 @@
  * @todo
  */
 
-#include "platform.h"
+#include "targets.h"
 
 static void *uart_emulator(void *args);
 static void  uart_emu_start(void);
 
+static pthread_t uart_emu_pthread;
 
 static void uart_emu_start(void)
 {
@@ -24,7 +25,6 @@ static void uart_emu_start(void)
     ret = pthread_create(&uart_emu_pthread, NULL, uart_emulator, NULL);
     CONFIG_ASSERT(ret == 0);
 }
-
 
 static void *uart_emulator(void *args)
 {
@@ -38,7 +38,7 @@ static void *uart_emulator(void *args)
         tmp = getchar();
         if (tmp != EOF)
         {
-            uart_receive_byte(tmp);
+            // uart_receive_byte(tmp);
         }
     } while (tmp != 'q'); /* q for quit */
     return NULL;

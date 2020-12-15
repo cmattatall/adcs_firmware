@@ -1,54 +1,11 @@
-#ifndef __PLATFORM_H__
-#define __PLATFORM_H__
+#ifndef __TARGETS_H__
+#define __TARGETS_H__
 #ifdef __cplusplus
 /* clang-format off */
 extern "C"
 {
 /* clang-format on */
 #endif /* Start C linkage */
-
-#if defined(TARGET_MCU)
-#include <msp430.h>
-#else
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-// define something for Windows (32-bit and 64-bit, this part is common)
-#include <windows.h>
-#ifdef _WIN64
-// define something for Windows (64-bit only)
-#else
-// define something for Windows (32-bit only)
-#endif
-#elif __APPLE__
-#include <TargetConditionals.h>
-#if TARGET_IPHONE_SIMULATOR
-// iOS Simulator
-#elif TARGET_OS_IPHONE
-// iOS device
-#elif TARGET_OS_MAC
-// Other kinds of Mac OS
-#else
-#error "Unknown Apple platform"
-#endif
-#elif __linux__
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <signal.h>
-#include <termios.h>
-
-#define _XOPEN_SOURCE 600
-#include <pthread.h>
-#elif __unix__ // all unices not caught above
-// Unix
-#elif defined(_POSIX_VERSION)
-// POSIX
-#else
-#error "Unknown compiler"
-#endif
-#endif /* #if defined(TARGET_MCU) */
 
 /* COMPILER ATTRIBUTES */
 /* clang-format off */
@@ -97,10 +54,9 @@ extern "C"
 
 #endif /* #if defined(TARGET_MCU) */
 
-
 #ifdef __cplusplus
 /* clang-format off */
 }
 /* clang-format on */
 #endif /* End C linkage */
-#endif /* __PLATFORM_H__ */
+#endif /* __TARGETS_H__ */

@@ -14,7 +14,7 @@
 #include <limits.h>
 
 #include "reaction_wheels.h"
-#include "platform.h"
+#include "targets.h"
 
 typedef struct
 {
