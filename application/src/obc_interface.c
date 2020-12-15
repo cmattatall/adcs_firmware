@@ -45,9 +45,9 @@ static void    inPtr_advance(void);
 static void    OBC_IF_receive_byte_internal(uint8_t byte);
 
 
-static uint8_t  ringbuf[2000];
-static uint8_t *inPtr;  /* Read in pointer */
-static uint8_t *outPtr; /* Read out pointer */
+static volatile uint8_t  ringbuf[2000];
+static volatile uint8_t *inPtr;  /* Read in pointer */
+static volatile uint8_t *outPtr; /* Read out pointer */
 
 static OBC_IF_fops ops = {NULL};
 
@@ -62,8 +62,15 @@ int OBC_IF_config(void (*init)(void (*rx_func)(uint8_t)), void (*deinit)(void),
     ops.deinit = deinit;
     ops.tx     = tx;
 
+    inPtr  = ringbuf;
+    outPtr = ringbuf;
+
     CONFIG_ASSERT(ops.init != NULL);
-    ops.init(OBC_IF_receive_byte_internal);
+
+    if (ops.init != NULL)
+    {
+        ops.init(OBC_IF_receive_byte_internal);
+    }
 
     if (tx == NULL)
     {

@@ -69,6 +69,8 @@ endfunction(ADCS_add_library target)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
 
+add_compile_options("-O0")
+
 # for some reason, you have to manually run this command. I haven't got it working yet
 # FOR THE FIRST TIME, DO 
 # $git submodule update --force --remote --recursive --init

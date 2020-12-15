@@ -99,6 +99,7 @@ static void periph_init(void)
 
     enable_interrupts(); /* This should be the very last thing that occurs */
 #else
+    OBC_IF_config(NULL, NULL, OBC_EMU_tx);
     OBC_EMU_start();
 #endif /* #if defined(TARGET_MCU) */
 }

@@ -15,6 +15,16 @@ extern "C"
  *       HOST MACHINE (rather than the target MCU)
  */
 void OBC_EMU_start(void);
+
+/**
+ * @brief TX wrapper forOBC emulator to allow dependency injection into OBC IF
+ *
+ * @param buf buffer to transmit
+ * @param buflen # of bytes to transmit
+ * @return number of bytes transmitted (just like printf)
+ */
+int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen);
+
 #else
 #error EMULATION OF HARDWARE IS INTENDED FOR TESTING ON NATIVE PLATFORMS
 #endif /* !#if defined(TARGET_MCU) */

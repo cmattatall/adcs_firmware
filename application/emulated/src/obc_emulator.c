@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <termios.h>
 
+#include "targets.h"
 #include "obc_interface.h"
 
 static void *OBC_EMU(void *args);
@@ -54,4 +55,11 @@ static void *OBC_EMU(void *args)
         }
     } while (tmp != 'q'); /* q for quit */
     return NULL;
+}
+
+
+int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen)
+{
+    CONFIG_ASSERT(buf != NULL);
+    return printf("%.*s", buflen, buf);
 }
