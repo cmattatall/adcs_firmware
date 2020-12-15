@@ -6,7 +6,8 @@ cmake_minimum_required(VERSION 3.16)
 # 
 # - when cross compiling is on, we build for target device
 ################################################################################
-set(CMAKE_CROSSCOMPILING OFF)
+set(CMAKE_CROSSCOMPILING OFF 
+    CACHE BOOL "is crosscompiled" FORCE)
 
 set(MCU_MPN "msp430f5529") #set this as a lowercase string of your part number
 set(MCU_FREQ "8000000")    #set this as the HSE input freq in Hz
@@ -23,6 +24,21 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options("-Wshadow")
 endif()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+    set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+else()
+    if(WIN32)
+        set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+    elseif(UNIX)
+        set(CMAKE_EXECUTABLE_SUFFIX ".out")
+    else()
+        message("UNSUPPORTED PLATFORM : ${CMAKE_HOST_SYSTEM_NAME}")
+    endif()
+endif()
 
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING STREQUAL "ON")
