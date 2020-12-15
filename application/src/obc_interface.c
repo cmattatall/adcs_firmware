@@ -11,6 +11,8 @@
  * @note
  * @todo
  */
+#include <stdio.h> /* snprintf */
+#include <string.h>
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>

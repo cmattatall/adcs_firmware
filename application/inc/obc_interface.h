@@ -7,11 +7,17 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-#include <stdio.h> /* snprintf */
-#include <string.h>
+
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
+
+#if !defined(TARGET_MCU)
+#include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
+#endif /* #if !defined(TARGET_MCU) */
+
 
 #define OBC_MSG_DELIM '!' /* for now we can just use ! */
 
