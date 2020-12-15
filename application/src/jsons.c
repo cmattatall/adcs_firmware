@@ -87,8 +87,6 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
     }
     else
     {
-        /** @todo USE A TABLE DRIVEN APPROACH. FOR NOW, WE JUST DO GIANT IF-ELSE
-         * CHAIN AS PROOF OF CONCEPT */
 
         token_index_t t; /* token index */
         token_index_t k; /* key index for json table */

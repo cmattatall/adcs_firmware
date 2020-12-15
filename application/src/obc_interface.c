@@ -21,8 +21,7 @@
 
 #include "obc_interface.h"
 
-uint8_t txBufIdx;
-uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];
+static uint8_t obcTxBuf[OBC_TX_BUFFER_SIZE];
 
 typedef struct
 {
@@ -304,17 +303,11 @@ int OBC_IF_printf(const char *restrict fmt, ...)
     strcat(fmt_str, "\n");
 #endif /* #if defined(TARGET_MCU) */
 
-    memset(obcTxBuf[txBufIdx], 0, sizeof(obcTxBuf[txBufIdx]));
-    vsnprintf((char *)obcTxBuf, sizeof(obcTxBuf[txBufIdx]), fmt_str, args);
-    size_t msg_len =
-        strnlen((char *)obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));
+    memset(obcTxBuf, 0, sizeof(obcTxBuf));
+    vsnprintf((char *)obcTxBuf, sizeof(obcTxBuf), fmt_str, args);
+    size_t msg_len = strnlen((char *)obcTxBuf, sizeof(obcTxBuf));
 
-    bytes_transmitted = OBC_IF_tx(obcTxBuf[txBufIdx], msg_len);
-    txBufIdx++;
-    if (txBufIdx > 1)
-    {
-        txBufIdx = 0;
-    }
+    bytes_transmitted = OBC_IF_tx(obcTxBuf, msg_len);
     va_end(args);
     return bytes_transmitted;
 }
@@ -324,14 +317,13 @@ int OBC_IF_printf(const char *restrict fmt, ...)
 #define __OBC_tx_wrapper(fmt, ...)                                             \
     do                                                                         \
     {                                                                          \
-        memset(obcTxBuf[txBufIdx], 0, sizeof(obcTxBuf[txBufIdx]));             \
-        snprintf((char *)obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]),       \
-                 fmt "\n", ##__VA_ARGS__);                                     \
+        memset(obcTxBuf, 0, sizeof(obcTxBuf));                                 \
+        snprintf((char *)obcTxBuf, sizeof(obcTxBuf), fmt "\n", ##__VA_ARGS__); \
         if (++txBufIdx > 1)                                                    \
         {                                                                      \
             txBufIdx = 0;                                                      \
         }                                                                      \
-        OBC_IF_tx(obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));             \
+        OBC_IF_tx(obcTxBuf, sizeof(obcTxBuf));                                 \
     } while (0)
 
 #endif

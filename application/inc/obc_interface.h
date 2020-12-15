@@ -25,8 +25,6 @@ extern "C"
 #define OBC_IF_DATA_RX_FLAG_CLR false
 
 #define OBC_TX_BUFFER_SIZE 500
-extern uint8_t txBufIdx;
-extern uint8_t obcTxBuf[2][OBC_TX_BUFFER_SIZE];
 
 /**
  * @brief Configure OBC interface for communication via dependency injection
