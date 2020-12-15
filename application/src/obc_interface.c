@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include "targets.h"
 
 #include "obc_interface.h"
@@ -271,3 +272,40 @@ static void inPtr_advance(void)
     pthread_mutex_unlock(&inPtr_lock);
 #endif /* #if defined(TARGET_MCU) */
 }
+
+int OBC_IF_printf(const char *restrict fmt, ...)
+{
+    CONFIG_ASSERT(fmt != NULL);
+    int     bytes_transmitted = 0;
+    va_list args;
+    va_start(args, fmt);
+    memset(obcTxBuf[txBufIdx], 0, sizeof(obcTxBuf[txBufIdx]));
+    vsnprintf((char *)obcTxBuf, sizeof(obcTxBuf[txBufIdx]), fmt, args);
+    size_t msg_len =
+        strnlen((char *)obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));
+    OBC_IF_tx(obcTxBuf[txBufIdx], msg_len);
+    txBufIdx++;
+    if (txBufIdx > 1)
+    {
+        txBufIdx = 0;
+    }
+    va_end(args);
+    return bytes_transmitted;
+}
+
+#if 0
+/* Printf wrapper for transmit to make life a bit easier */
+#define __OBC_tx_wrapper(fmt, ...)                                             \
+    do                                                                         \
+    {                                                                          \
+        memset(obcTxBuf[txBufIdx], 0, sizeof(obcTxBuf[txBufIdx]));             \
+        snprintf((char *)obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]),       \
+                 fmt "\n", ##__VA_ARGS__);                                     \
+        if (++txBufIdx > 1)                                                    \
+        {                                                                      \
+            txBufIdx = 0;                                                      \
+        }                                                                      \
+        OBC_IF_tx(obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));             \
+    } while (0)
+
+#endif

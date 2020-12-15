@@ -88,22 +88,15 @@ bool OBC_IF_dataRxFlag_read(void);
 void OBC_IF_dataRxFlag_write(bool data_state);
 
 
-/* Printf wrapper for transmit to make life a bit easier */
-#define __OBC_tx_wrapper(fmt, ...)                                             \
-    do                                                                         \
-    {                                                                          \
-        memset(obcTxBuf[txBufIdx], 0, sizeof(obcTxBuf[txBufIdx]));             \
-        snprintf((char *)obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]), fmt,  \
-                 ##__VA_ARGS__);                                               \
-        if (++txBufIdx > 1)                                                    \
-        {                                                                      \
-            txBufIdx = 0;                                                      \
-        }                                                                      \
-        OBC_IF_tx(obcTxBuf[txBufIdx], sizeof(obcTxBuf[txBufIdx]));             \
-    } while (0)
+/**
+ * @brief Printf wrapper for OBC_IF_tx to make life easier
+ *
+ * @param fmt printf style format string
+ * @param ... __VA_ARGS__
+ * @return int number of bytes transmitted
+ */
+int OBC_IF_printf(const char *restrict fmt, ...);
 
-#define OBC_printf(fmt, ...)                                                   \
-    __OBC_tx_wrapper(fmt "%c", ##__VA_ARGS__, OBC_MSG_DELIM)
 
 #ifdef __cplusplus
 /* clang-format off */
