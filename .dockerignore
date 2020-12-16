@@ -1,0 +1,5 @@
+Dockerfile
+docker_build.py
+.git*
+.clang-format
+.vscode

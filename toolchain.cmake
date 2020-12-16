@@ -1,10 +1,9 @@
 # CMAKE TOOLCHAIN FILE FOR msp430-elf-gcc
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
-
 if(CMAKE_CROSSCOMPILING STREQUAL "ON")
     if(WIN32)
-    #@todo FIGURE OUT WHERE IT INSTALLS    
-        message(FATAL_ERROR "WINDOWS PATH NOT SUPPORTED YET")
+        message("BLAH!")
+        set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
     elseif(UNIX AND NOT APPLE)
         set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
     elseif(APPLE)
