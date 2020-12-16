@@ -15,6 +15,7 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
     return()
 endif()
 
+
 set(MCU_MPN "msp430f5529") #set this as a lowercase string of your part number
 set(MCU_FREQ "8000000")    #set this as the HSE input freq in Hz
 
