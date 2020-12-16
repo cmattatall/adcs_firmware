@@ -19,7 +19,6 @@ if(CMAKE_CROSSCOMPILING STREQUAL "FALSE")
 
     find_package(Threads REQUIRED)
     if(Threads_FOUND) 
-
         # https://sourceforge.net/projects/mingw-w64/
         if(WIN32)
             if(CMAKE_USE_WIN32_THREADS_INIT)

@@ -25,8 +25,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <termios.h>
-#elif defined(_WIN32) || defined(WIN32)  
-#include <conio.h>
 
 #endif /* defined(linux) || defined(__unix__) */
 
@@ -60,7 +58,7 @@ void OBC_EMU_start(void)
                  "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
     OBC_EMU_tx((uint8_t *)msg, (uint_least16_t)sizeof(msg));
 #elif defined(_WIN32) || defined(WIN32)  
-
+    
 #endif /* defined(linux) || defined(__unix__) */
 
     /* Start listener thread */
@@ -74,20 +72,11 @@ static void *OBC_EMU(void *args)
     char tmp;
     do
     {   
-#if defined(linux) || defined(__unix__) 
         tmp = getchar();
         if (tmp != EOF)
         {
             OBC_IF_receive_byte(tmp);
         }
-#elif defined(_WIN32) || defined(WIN32) 
-        if (_kbhit()) 
-        {
-            tmp = _getch();
-            OBC_IF_receive_byte(tmp);
-        }
-#endif /* defined(linux) || defined(__unix__) */
-
     } while (true);
     return NULL;
 }

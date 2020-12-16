@@ -41,16 +41,11 @@ if __name__ == "__main__":
     '''
 
     if(platform.system() == "Windows"):
-        os.system("rm -r build")
-        os.system("mkdir build")
         os.system("cmake -S . -B build -G \"MinGW Makefiles\" -DCMAKE_TOOLCHAIN_FILE=\"D:\\Desktop\\MyDev\\adcs_firmware\\toolchain.cmake\" -DCMAKE_CROSSCOMPILING=\"%s\"" % (crossCompiling))
         os.system("cmake --build build")
 
     elif(platform.system() == "Linux"):
-        os.system("rm -r build")
-        os.system("mkdir build")
         os.system("cmake -S . -B build -G \"Unix Makefiles\" -DCMAKE_TOOLCHAIN_FILE=\"D:\\Desktop\\MyDev\\adcs_firmware\\toolchain.cmake\" -DCMAKE_CROSSCOMPILING=\"%s\"" % (crossCompiling))
-
     else:
         printf("%s not supported" % (platform.system()))
         exit(1)

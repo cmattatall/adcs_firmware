@@ -85,4 +85,13 @@ execute_process(COMMAND "git submodule update --force --remote --recursive")
 
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
+
+if(WIN32)
+    message("GOT HERE")
+    if(CMAKE_CROSSCOMPILING STREQUAL "OFF")
+        
+        add_subdirectory(termiWin)
+    endif()
+endif()
 add_subdirectory(application)
+

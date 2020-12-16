@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "windows": {
+                "program": "${workspaceFolder}/build/ADCS_application.exe",
+                "miDebuggerPath": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gdb.exe",
+            },
+            "linux": {
+                "program": "${workspaceFolder}/build/ADCS_application.out",
+                "miDebuggerPath": "gdb",
+            },
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+
+        {   
+            "cwd": "${workspaceRoot}",
+            "executable": "./bin/executable.elf",
+            "name": "Debug Microcontroller",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd"
+        }
+    ],
+    "compounds": []
+}
