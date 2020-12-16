@@ -15,24 +15,28 @@
 #include "targets.h"
 
 #include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#if defined(linux) || defined(__unix__) 
 #include <unistd.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <fcntl.h>
 #include <signal.h>
-#include <stdint.h>
 #include <termios.h>
+#elif defined(_WIN32) || defined(WIN32)  
+#include <conio.h>
+
+#endif /* defined(linux) || defined(__unix__) */
 
 #include "targets.h"
 #include "obc_emulator.h"
 #include "obc_interface.h"
 
+static pthread_t OBC_EMU_pthread;
 
 static void *OBC_EMU(void *args);
-
-static pthread_t OBC_EMU_pthread;
 
 int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen)
 {
@@ -45,7 +49,8 @@ int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen)
 }
 
 void OBC_EMU_start(void)
-{
+{   
+#if defined(linux) || defined(__unix__) 
     /* Configure terminal to read raw, unbuffered input */
     struct termios new_tio;
     tcgetattr(STDIN_FILENO, &new_tio);
@@ -54,6 +59,9 @@ void OBC_EMU_start(void)
     char msg[] = "OBC UART EMULATOR. \nTYPE INTO THE TERMINAL TO SEND RAW "
                  "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
     OBC_EMU_tx((uint8_t *)msg, (uint_least16_t)sizeof(msg));
+#elif defined(_WIN32) || defined(WIN32)  
+
+#endif /* defined(linux) || defined(__unix__) */
 
     /* Start listener thread */
     int ret;
@@ -65,12 +73,21 @@ static void *OBC_EMU(void *args)
 {
     char tmp;
     do
-    {
+    {   
+#if defined(linux) || defined(__unix__) 
         tmp = getchar();
         if (tmp != EOF)
         {
             OBC_IF_receive_byte(tmp);
         }
+#elif defined(_WIN32) || defined(WIN32) 
+        if (_kbhit()) 
+        {
+            tmp = _getch();
+            OBC_IF_receive_byte(tmp);
+        }
+#endif /* defined(linux) || defined(__unix__) */
+
     } while (true);
     return NULL;
 }

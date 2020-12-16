@@ -281,7 +281,7 @@ int OBC_IF_printf(const char *restrict fmt, ...)
     va_start(args, fmt);
 
 #if defined(TARGET_MCU)
-    char *fmt_str = fmt;
+    char *fmt_str = (char*)fmt;
 #else
     /** @note why the fuck do I even have to add this. I shouldn't have to add
      * it. In fact, according to POSIX spec for termios I shouldn't even have

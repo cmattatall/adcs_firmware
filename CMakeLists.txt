@@ -7,6 +7,9 @@ cmake_minimum_required(VERSION 3.16)
 # - when cross compiling is on, we build for target device
 ################################################################################
 
+
+# https://sourceforge.net/projects/mingw-w64/
+
 if(NOT DEFINED CMAKE_CROSSCOMPILING)
     message(FATAL_ERROR "CMAKE_CROSSCOMPILING IS NOT DEFINED. Please define it as \"ON\" or \"OFF\"")
     return()
