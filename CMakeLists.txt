@@ -34,6 +34,8 @@ endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options("-Wall")
     add_compile_options("-Wshadow")
+    add_compile_options("-g")
+    add_compile_options("-ggdb")
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -75,8 +77,6 @@ endfunction(ADCS_add_library target)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
 
-add_compile_options("-O0")
-
 # for some reason, you have to manually run this command. I haven't got it working yet
 # FOR THE FIRST TIME, DO 
 # $git submodule update --force --remote --recursive --init
@@ -85,13 +85,5 @@ execute_process(COMMAND "git submodule update --force --remote --recursive")
 
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
-
-if(WIN32)
-    message("GOT HERE")
-    if(CMAKE_CROSSCOMPILING STREQUAL "OFF")
-        
-        add_subdirectory(termiWin)
-    endif()
-endif()
 add_subdirectory(application)
 

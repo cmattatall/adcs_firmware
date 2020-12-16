@@ -54,12 +54,12 @@ void OBC_EMU_start(void)
     tcgetattr(STDIN_FILENO, &new_tio);
     new_tio.c_lflag &= (~ICANON & ~ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
-    char msg[] = "OBC UART EMULATOR. \nTYPE INTO THE TERMINAL TO SEND RAW "
-                 "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
-    OBC_EMU_tx((uint8_t *)msg, (uint_least16_t)sizeof(msg));
 #elif defined(_WIN32) || defined(WIN32)  
     
 #endif /* defined(linux) || defined(__unix__) */
+    char msg[] = "OBC UART EMULATOR. \nTYPE INTO THE TERMINAL TO SEND RAW "
+                 "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
+    OBC_EMU_tx((uint8_t *)msg, (uint_least16_t)sizeof(msg));
 
     /* Start listener thread */
     int ret;
