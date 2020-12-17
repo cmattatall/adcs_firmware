@@ -5,6 +5,7 @@
 # @note MUST BE RUN WITH ROOT PERMISSIONS ON LINUX                             # 
 #                                                                              # 
 ################################################################################
+import pip
 import sys
 import platform
 import os
@@ -12,6 +13,7 @@ import wget
 import requests
 import math
 import errno
+import zipfile
 
 
 ###############################################################################
@@ -19,6 +21,7 @@ import errno
 ###############################################################################
  
 toolchain_url = "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export"
+
 ###############################################################################
 
 # @brief abort if not python 3
@@ -80,8 +83,6 @@ def query_yes_no(question, default="yes"):
 
 
 def install_linux_drivers():
-    # install USB drivers (with headers / LD_SO_DIR configured)
-    # then retrigger udev)
     os.system("apt-get update -y")
     os.system("apt-get install -y libusb libusb-dev")
     os.system("apt-get install -y libreadline-dev") # for strange line endings
@@ -102,6 +103,8 @@ def install_linux_drivers():
     # libusb.so.x.x.x
     os.system("udevadm control --reload-rules && udevadm trigger")
 
+
+
 def install_windows_drivers():
     print("BLAH CARL FORGOT TO IMPLEMENT THIS (OR HASN'T IMPLEMENTED IT YET)!!")
     exit(1)
@@ -120,11 +123,42 @@ def install_windows():
 
 
     print("installing msp430 toolchain for " + platform.system())
-    download_url = toolchain_url + "/" + toolchain_folder
+
+    archive_ext = ".zip"
+    if systemIs32Bit():
+        toolchain_folder = "msp430-gcc-9.2.0.50_win32"
+    else:
+        toolchain_folder = "msp430-gcc-9.2.0.50_win64"
+    
+    download_url = toolchain_url + "/" + toolchain_folder + archive_ext
+    #os.system("curl %s --output %s" % (download_url, toolchain_folder + archive_ext))
+
+    toolchain_zip_name = str(toolchain_folder + archive_ext)
+    toolchain_zipdata = requests.get(download_url)
+    toolchain_zip = open(toolchain_zip_name, "wb")
+    toolchain_zip.write(toolchain_zipdata.content)
+    toolchain_zip.close()
+
+    with zipfile.ZipFile(toolchain_folder + archive_ext, 'r') as zip_ref:
+        zip_ref.extractall()
+    os.system("rm \"%s\"" % (toolchain_folder + archive_ext))
+
+    install_dir = "C:\\ti\\"
+    os.mkdir("%s\\%s" % (install_dir, toolchain_folder))
+    os.system("mv %s %s " % (toolchain_folder, install_dir))
+    current_workdir = os.getcwd() # save to restore later
+    os.chdir(install_dir + "\\" + toolchain_folder + "\\" + "bin")
+    
+    # NOW SHIT LIKE !!! THIS !!! is why programmers bitch and moan about windows being outdated and garbage
+    # equivalent linux command is literally just PATH=$PATH;new/thing/to/add
+    os.system("$PATH = [Environment]::GetEnvironmentVariable(\"PATH\")")
+    os.system("$path_to_add = \"%s\"" % (os.getcwd()))
+    os.system("[Environment]::SetEnvironmentVariable(\"PATH\", \"$PATH;$path_to_add\", \"Machine\")")
+    os.chdir(current_workdir)
+    os.system("echo $PATH")
 
     print("install_windows script is not finished yet!!")
     exit(1)
-
 
     install_windows_drivers()
 
@@ -153,6 +187,10 @@ def install_linux():
     for executable in os.listdir(os.getcwd()):
         symlink_force(os.path.abspath(executable), "/usr/local/bin/" + executable)
     os.chdir(current_workdir)
+
+    
+
+
     install_linux_drivers()
 
 
