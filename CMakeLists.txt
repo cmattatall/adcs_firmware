@@ -16,6 +16,8 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 
+# wget -qO- http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export/msp430-gcc-9.2.0.50_linux32.tar.bz2 | tar -xj
+
 set(MCU_MPN "msp430f5529") #set this as a lowercase string of your part number
 set(MCU_FREQ "8000000")    #set this as the HSE input freq in Hz
 
