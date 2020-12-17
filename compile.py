@@ -23,7 +23,7 @@ def configure_for_linux(source_dir = ".", build_dir="build", definitions=[], cro
     configure_string += space_args("-S %s" % (source_dir))
     configure_string += space_args("-B %s" % (build_dir))
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
-    configure_string += space_args("-G \"UNIX MakeFiles") # DON'T KNOW IF I NEED THIS ONE HERE OR NOT
+    configure_string += space_args("-G \"Unix Makefiles\"") # DON'T KNOW IF I NEED THIS ONE HERE OR NOT
     if cross_compiling == True:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
     else:
@@ -38,7 +38,7 @@ def configure_for_windows(source_dir = ".", build_dir="build", definitions=[], c
     configure_string += space_args("-S %s" % (source_dir))
     configure_string += space_args("-B %s" % (build_dir))
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
-    configure_string += space_args("-G \"MinGW MakeFiles") # DON'T KNOW IF I NEED THIS ONE HERE OR NOT
+    configure_string += space_args("-G \"MinGW Makefiles\"") # DON'T KNOW IF I NEED THIS ONE HERE OR NOT
     if cross_compiling == True:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
     else:

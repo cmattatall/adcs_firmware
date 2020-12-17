@@ -4,9 +4,27 @@
 ## USER CAN CHANGE THIS AS NEEDED
 set(TOOLCHAIN_PREFIX "msp430-elf")
 
+
+# So basically, this part right here, I'm relying on code composer to provide msp430.h 
+# because I'm sick and tired of trying to find an open source download
+# for the msp430xxxx.h device header files
+# vendor lock in is stupid and I swear I will never willingly choose to use
+# TI chipsets for the rest of my career if I can avoid it.
+# - Carl
+if(WIN32)
+    set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
+elseif(UNIX AND NOT APPLE)
+    set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
+elseif(APPLE)
+    message(FATAL_ERROR "Apple not supported")
+else()
+    message(FATAL_ERROR "${CMAKE_HOST_SYSTEM_NAME} not supported")
+endif()
+
 ################################################################################
 # DON'T TOUCH PAST THIS POINT 
 ################################################################################
+set(MCU_HEADER_DIR "${CODE_COMPOSER_INSTALL_PATH}/ccs_base/msp430/include_gcc")
 
 macro(abort message)
     message(FATAL_ERROR "${message}" "${ARGN}")

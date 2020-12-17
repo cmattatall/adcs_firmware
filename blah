@@ -1,0 +1,11 @@
+if(WIN32)
+        set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
+    elseif(UNIX AND NOT APPLE)
+        set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
+    elseif(APPLE)
+        message(FATAL_ERROR "Apple not supported")
+    else()
+        message(FATAL_ERROR "${CMAKE_HOST_SYSTEM_NAME} not supported")
+    endif()
+
+    set(MCU_HEADER_DIR "${CCS_PATH}/ccs_base/msp430/include_gcc")
