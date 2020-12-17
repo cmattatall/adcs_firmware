@@ -28,7 +28,7 @@ if(MINGW OR CYGWIN OR WIN32)
 elseif(UNIX AND NOT APPLE)
     set(UTIL_SEARCH_COMMAND which)
 elseif(APPLE)
-    # fairly certain this is going to be "which" but I don't want to assume 
+    # fairly certain this is going to be "$which" but I don't want to assume 
     abort("Apple not supported yet")
 else()
     abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
@@ -51,6 +51,8 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
         abort("Could not find ${TOOLCHAIN_GCC_EXE}")
     endif(TOOLCHAIN_GCC_SYMLINK_NOT_FOUND)
 
+
+    
     if(MINGW OR CYGWIN OR WIN32)
         
 # @todo
