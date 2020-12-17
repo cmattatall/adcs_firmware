@@ -76,7 +76,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
 # $git submodule update --force --remote --recursive --init
 # NOTICE THE --init on the end.
 execute_process(
-    COMMAND "git" "submodule" "update" "--force" "--remote" "--recursive"
+    COMMAND "git" "submodule" "update" "--remote" "--recursive"
     OUTPUT_VARIABLE GIT_SUBMODULE_UPDATE_OUTPUT_VARIABLE
     RESULT_VARIABLE GIT_SUBMODULE_UPDATE_RESULT_VARIABLE
     OUTPUT_STRIP_TRAILING_WHITESPACE

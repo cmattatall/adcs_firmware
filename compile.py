@@ -4,7 +4,8 @@ import sys
 import pathlib
 
 def checkPythonVersion():
-    if sys.version_info.major < 3: # python 3 must be the runtime
+    # python 3 must be the runtime
+    if sys.version_info.major < 3: 
         raise Exception(os.path.basename(__file__) + " must be executed using Python 3")
 
 def compile_for_linux():
@@ -31,8 +32,7 @@ def compile_the_project():
 
 if __name__ == "__main__":
     checkPythonVersion()
-    def compile_the_project():
-
+    compile_the_project()
 
 
 
