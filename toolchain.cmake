@@ -69,10 +69,11 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
     endif(TOOLCHAIN_GCC_SYMLINK_NOT_FOUND)
 
     if(MINGW OR CYGWIN OR WIN32)
-        
-# @todo
-        abort("CARL HAS NOT IMPLEMENTED SYMLINK FOLLOW YET")
-
+        # for now, since following shortcuts / aliased targets in windows
+        # is something I wouldn't wish on my worse enemy, we will just 
+        # require that the executable is directly in PATH and not aliased
+        # in PATH...
+        set(TOOLCHAIN_GCC_TRUE_PATH ${TOOLCHAIN_GCC_SYMLINK_PATH})
     elseif(UNIX AND NOT APPLE)
         execute_process(
             COMMAND readlink -f ${TOOLCHAIN_GCC_SYMLINK_PATH}
@@ -85,6 +86,10 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
     else()
         abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
     endif()
+
+    if(NOT TOOLCHAIN_GCC_TRUE_PATH)
+        abort("TOOLCHAIN_GCC_TRUE_PATH not defined. Something went wrong during toolchain configuration")
+    endif(NOT TOOLCHAIN_GCC_TRUE_PATH)
 
     if(TOOLCHAIN_GCC_TRUE_PATH_NOT_FOUND)
         abort("Could not follow symlink from ${TOOLCHAIN_GCC_SYMLINK_PATH}")
