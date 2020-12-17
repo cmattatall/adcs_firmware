@@ -1,6 +1,27 @@
 # CMAKE TOOLCHAIN FILE FOR msp430-elf-gcc
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
 if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+
+
+if(MINGW OR CYGWIN OR WIN32)
+    set(UTIL_SEARCH_CMD where)
+elseif(UNIX AND NOT APPLE)
+    set(UTIL_SEARCH_CMD which)
+elseif(APPLE)
+    # fairly certain this is going to be "which" but I don't want to assume
+    message(FATAL_ERROR "Apple not supported yet")
+else()
+    message(FATAL_ERROR "${CMAKE_HOST_SYSTEM_NAME} not supported")
+endif()
+
+execute_process(
+  COMMAND ${UTIL_SEARCH_CMD} ${TOOLCHAIN_PREFIX}gcc
+  OUTPUT_VARIABLE BINUTILS_PATH
+  RESULT_VARIABLE
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+
     if(WIN32)
         set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
     elseif(UNIX AND NOT APPLE)

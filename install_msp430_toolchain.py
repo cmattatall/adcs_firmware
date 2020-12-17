@@ -1,3 +1,10 @@
+################################################################################
+# @brief SCRIPT TO INSTALL THE MSP430 TOOLCHAIN AND UTILS ON YOUR SYSTEM       # 
+# @author: Carl Mattatall (cmattatall2@gmail.com)                              # 
+#                                                                              # 
+# @note MUST BE RUN WITH ROOT PERMISSIONS ON LINUX                             # 
+#                                                                              # 
+################################################################################
 import sys
 import platform
 import os
@@ -10,9 +17,8 @@ def checkPythonVersion():
     if sys.version_info.major < 3: # python 3 must be the runtime
         raise Exception(os.path.basename(__file__) + " must be executed using Python 3")
 
-
 # shitty way of checking for 32 bit vs 64 bit arch
-def is32bit():
+def systemIs32Bit():
     if sys.maxsize > 2**32:
         return False
     else:
@@ -56,12 +62,14 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
-
 toolchain_url = "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export"
 
 def install_windows():
     print("installing msp430 toolchain for " + platform.system())
     download_url = toolchain_url + "/" + toolchain_folder
+
+    print("install_windows script is not finished yet!!")
+    exit(1)
 
 def install_linux():
     if os.geteuid() != 0:
@@ -71,7 +79,7 @@ def install_linux():
         print("installing msp430 toolchain for " + platform.system())
 
     archive_ext = ".tar.bz2"
-    if is32bit():
+    if systemIs32Bit():
         toolchain_folder = "msp430-gcc-9.2.0.50_linux32"
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_linux64"
@@ -83,6 +91,8 @@ def install_linux():
     os.system("mv %s %s " % (toolchain_folder, install_dir))
     current_workdir = os.getcwd() # save to restore later
     os.chdir(install_dir + "/" + toolchain_folder + "/bin")
+
+    # build symbolic links
     for executable in os.listdir(os.getcwd()):
         symlink_force(os.path.abspath(executable), "/usr/local/bin/" + executable)
 
@@ -90,6 +100,9 @@ def install_apple():
     print("installing msp430 toolchain for " + platform.system())
     toolchain_folder = "msp430-gcc-full-osx-installer-9.2.0.0.app.zip"
     download_url = toolchain_url + "/" + toolchain_folder
+
+    print("install_apple script is not finished yet!!")
+    exit(1)
 
 def install_toolchain():
     checkPythonVersion()
