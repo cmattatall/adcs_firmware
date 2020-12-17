@@ -95,6 +95,31 @@ def configure_for_apple(source_dir = ".", build_dir="build", definitions=[], cro
 
 def compile_the_project():
     cross_compiling = query_yes_no("Build for the microcontroller", default="no")
+    
+    ############################################################################
+    # okay, so for now, we're going to rebuild everything from scratch each 
+    # time. 
+    #
+    # why you may ask? 
+    # because I can't get cmake to recognize that certain cache variables
+    # need to be repopulated / reprocessed from toolchain file in the 
+    # edge-case scenario where the following occurs:
+    # 
+    # 1. build for target device
+    # 2. reload shell <-- can happen for any number of reasons
+    # 3. build for native system.
+    # 4. build fails because it loads the OLD cache variables from
+    #    the toolchain file instead of reprocessing the toolchain file
+    #    when the "project" directive is hit as is supposed to happen according
+    #    to the documentation
+    #    
+    #    NOTE 
+    #    as of december 17, I have submitted a bug report with Kitware 
+    #    and they are working to resolve it (it has been a known issue
+    #    for the last few months) 
+    ############################################################################
+    os.system("rm -r build")
+
     if platform.system() == "Windows":
         configure_for_windows(cross = cross_compiling)
     elif platform.system() == "Linux":
