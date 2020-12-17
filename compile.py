@@ -1,14 +1,18 @@
+################################################################################
 # @brief python script to build the ADCS firmware platform independently
 # @author: Carl Mattatall (cmattatall2@gmail.com)
 #
-
+################################################################################
 import os
 import platform
 import sys
 import pathlib
 
-# just hard coding this for now
-toolchain_file = "toolchain.cmake"
+toolchain_file = "toolchain.cmake" # just going to hard-code this for now
+
+################################################################################
+# SCRIPT START. DON'T TOUCH STUFF BEYOND THIS POINT
+################################################################################
 
 def checkPythonVersion():
     # python 3 must be the runtime
@@ -18,13 +22,65 @@ def checkPythonVersion():
 def space_args(string):
     return " " + str(string) + " "
 
-def configure_for_linux(source_dir = ".", build_dir="build", definitions=[], cross_compiling=False):
+def query_yes_no(question, default="yes"):
+    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = None
+
+        # python 3 versus python 2 shenanigans
+        if sys.version_info.major < 3:
+            choice = raw_input().lower()
+        else:
+            choice = input().lower()
+
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+
+def configure_for_linux(source_dir = ".", build_dir="build", definitions=[], cross=False):
     configure_string = space_args("cmake")
+    if not os.path.exists(source_dir):
+        print("directory %s does not exist! Aborting!" % (source_dir))
+        exit(1)
     configure_string += space_args("-S %s" % (source_dir))
+    if not os.path.exists(build_dir):
+        os.mkdir(build_dir)
     configure_string += space_args("-B %s" % (build_dir))
+    configure_string += space_args("-G \"Unix Makefiles\"")
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
-    configure_string += space_args("-G \"Unix Makefiles\"") # DON'T KNOW IF I NEED THIS ONE HERE OR NOT
-    if cross_compiling == True:
+    if cross == True:
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
+    else:
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
+    for d in definitions:
+        configure_string += space_args("-D%s" % (d))
+    os.system(configure_string)
+
+def configure_for_windows(source_dir = ".", build_dir="build", definitions=[], cross=False):
+    configure_string = space_args("cmake")
+    if not os.path.exists(source_dir):
+        print("directory %s does not exist! Aborting!" % (source_dir))
+        exit(1)
+    configure_string += space_args("-S %s" % (source_dir))
+    if not os.path.exists(build_dir):
+        os.mkdir(build_dir)
+    configure_string += space_args("-B %s" % (build_dir))
+    configure_string += space_args("-G \"MinGW Makefiles\"") 
+    configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
+    if cross == True:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
     else:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
@@ -33,32 +89,18 @@ def configure_for_linux(source_dir = ".", build_dir="build", definitions=[], cro
     os.system(configure_string)
 
 
-def configure_for_windows(source_dir = ".", build_dir="build", definitions=[], cross_compiling=False):
-    configure_string = space_args("cmake")
-    configure_string += space_args("-S %s" % (source_dir))
-    configure_string += space_args("-B %s" % (build_dir))
-    configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
-    configure_string += space_args("-G \"MinGW Makefiles\"") # DON'T KNOW IF I NEED THIS ONE HERE OR NOT
-    if cross_compiling == True:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
-    else:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
-    for d in definitions:
-        configure_string += space_args("-D%s" % (d))
-    os.system(configure_string)
-
-
-def configure_for_apple(source_dir = ".", build_dir="build", definitions=[], cross_compiling=False):
+def configure_for_apple(source_dir = ".", build_dir="build", definitions=[], cross=False):
     print("Apple is not yet supported!!")
     exit(1)
 
 def compile_the_project():
+    cross_compiling = query_yes_no("Build for the microcontroller", default="no")
     if platform.system() == "Windows":
-        configure_for_windows()
+        configure_for_windows(cross = cross_compiling)
     elif platform.system() == "Linux":
-        configure_for_linux()
+        configure_for_linux(cross = cross_compiling)
     elif platform.system() == "Apple":
-        configure_for_apple()
+        configure_for_apple(cross = cross_compiling)
     else:
         print(platform.system() + " is not a supported platform!!")
         exit(1)
