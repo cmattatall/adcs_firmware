@@ -13,17 +13,32 @@ import requests
 import math
 import errno
 
+
+###############################################################################
+## CONSTANTS. DON'T EVER TOUCH THESE
+###############################################################################
+ 
+toolchain_url = "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export"
+###############################################################################
+
+# @brief abort if not python 3
 def checkPythonVersion():
     if sys.version_info.major < 3: # python 3 must be the runtime
         raise Exception(os.path.basename(__file__) + " must be executed using Python 3")
 
-# shitty way of checking for 32 bit vs 64 bit arch
+
+# @brief detect if python runtime is executing in 32 bit or 64 bit environment
 def systemIs32Bit():
+
+    ## THERE HAS TO BE A BETTER WAY OF DOING THIS...
     if sys.maxsize > 2**32:
         return False
     else:
         return True
 
+
+# @brief forcibly create symlink to @target at location @link_name
+# @note overwrites existing symlink with name == @name
 def symlink_force(target, link_name):
     try:
         os.symlink(target, link_name)
@@ -34,6 +49,7 @@ def symlink_force(target, link_name):
         else:
             raise e
 
+# @brief query wrapper to safely get y/n input from user
 def query_yes_no(question, default="yes"):
     valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
     if default is None:
@@ -62,15 +78,58 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
-toolchain_url = "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export"
 
+def install_linux_drivers():
+    # install USB drivers (with headers / LD_SO_DIR configured)
+    # then retrigger udev)
+    os.system("apt-get update -y")
+    os.system("apt-get install -y libusb libusb-dev")
+    os.system("apt-get install -y libreadline-dev") # for strange line endings
+    os.system("udevadm control --reload-rules && udevadm trigger")
+    current_workdir = os.getcwd()
+    os.chdir("/opt/")
+    os.system("rm -r msp_debug")
+    os.system("mkdir msp_debug")
+    os.chdir("msp_debug")
+    os.system("pwd")
+    os.system("rm -r mspdebug")
+    os.system("git clone https://github.com/dlbeer/mspdebug.git")
+    os.chdir("mspdebug")
+    os.system("make && make install")
+    os.chdir(current_workdir)
+
+    # retrigger udev so LD linkages against changes udev rules.d and loads
+    # libusb.so.x.x.x
+    os.system("udevadm control --reload-rules && udevadm trigger")
+
+def install_windows_drivers():
+    print("BLAH CARL FORGOT TO IMPLEMENT THIS (OR HASN'T IMPLEMENTED IT YET)!!")
+    exit(1)
+
+def install_apple_drivers():
+    print("BLAH CARL FORGOT TO IMPLEMENT THIS (OR HASN'T IMPLEMENTED IT YET)!!")
+    exit(1)
+
+
+
+
+# @brief install toolchain on windows
 def install_windows():
+    # IN ADDITION TO THE INSTALL SCRIPT, WE HAVE TO INSTALL THE USB DRIVERS 
+    #https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSP430_FET_Drivers/latest/index_FDS.html
+
+
     print("installing msp430 toolchain for " + platform.system())
     download_url = toolchain_url + "/" + toolchain_folder
 
     print("install_windows script is not finished yet!!")
     exit(1)
 
+
+    install_windows_drivers()
+
+
+# @brief install toolchain on linux
 def install_linux():
     if os.geteuid() != 0:
         print(os.path.basename(__file__) + " must be executed with root permission")
@@ -91,11 +150,17 @@ def install_linux():
     os.system("mv %s %s " % (toolchain_folder, install_dir))
     current_workdir = os.getcwd() # save to restore later
     os.chdir(install_dir + "/" + toolchain_folder + "/bin")
-
-    # build symbolic links
     for executable in os.listdir(os.getcwd()):
         symlink_force(os.path.abspath(executable), "/usr/local/bin/" + executable)
+    os.chdir(current_workdir)
+    install_linux_drivers()
 
+
+
+
+# @brief install toolchain on apple
+# @todo ACTUALLY IMPLEMENT THE DAMN THING 
+#      (I don't have a macbook so idk what to do yet)
 def install_apple():
     print("installing msp430 toolchain for " + platform.system())
     toolchain_folder = "msp430-gcc-full-osx-installer-9.2.0.0.app.zip"
@@ -104,6 +169,10 @@ def install_apple():
     print("install_apple script is not finished yet!!")
     exit(1)
 
+    install_apple_drivers()
+
+
+# @brief MAIN INSTALLATION WRAPPER
 def install_toolchain():
     checkPythonVersion()
     if platform.system() == "Windows":

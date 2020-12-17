@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start MSP430 Debug Server",
+            "type": "shell",
+            "group": "test",
+            "isBackground": true,
+
+            // kinda iffy on this one but we'll put it here commented out for now - Carl
+            //"runOptions": {"runOn": "folderOpen"}, 
+            "linux" : 
+            {
+                "command": "/bin/sh -c `skill mspdebug && mspdebug rf2500 gdb &`"
+            },
+            "windows" : 
+            {
+                "command": "CARL HASN'T IMPLEMENTED THIS YET"
+            },
+            "osx" : {
+                "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
+            },
+        }
+    ]
+}

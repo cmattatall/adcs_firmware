@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
+            "name": "(gdb) Debug native executable",
             "type": "cppdbg",
             "request": "launch",
             "windows": {
@@ -29,14 +29,38 @@
             ]
         },
 
-        {   
-            "cwd": "${workspaceRoot}",
-            "executable": "./bin/executable.elf",
-            "name": "Debug Microcontroller",
+        {
+            "name": "(msp430-elf-gdb) msp430 remote debug",
+            "type": "cppdbg",
             "request": "launch",
-            "type": "cortex-debug",
-            "servertype": "openocd"
+            "miDebuggerPath": "msp430-elf-gdb",
+            "miDebuggerServerAddress": "localhost:2000",
+            "program": "${workspaceRoot}/${input:ELF_file}",
+            "preLaunchTask": "Start Debug Server",
+            "cwd": "${workspaceFolder}", 
+            "linux": {
+                "MIMode": "gdb"
+            },
+            "osx": {
+                "MIMode": "lldb"
+            },
+            "windows": {
+                "MIMode": "gdb"
+            },
+            "stopAtEntry": false,
+            
         }
+
+       
     ],
-    "compounds": []
+    "compounds": [],
+
+    "inputs": [
+        {   
+            "description": "Path to the ELF file to debug (relative to workspace folder)",
+            "id": "ELF_file",
+            "type": "promptString",
+            "default": "build/ADCS_application.elf"
+        }
+    ]
 }
