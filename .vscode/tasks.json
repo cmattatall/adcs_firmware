@@ -27,7 +27,6 @@
             "dependsOrder": "sequence",
             
             "problemMatcher": {
-                //"fileLocation": "relative",
                 "pattern": {
                     "regexp": "^([^\\s].*)\\((\\d+|\\,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
                 },
@@ -41,7 +40,7 @@
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "focus": false,
+                "focus": true,
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": false
@@ -70,7 +69,7 @@
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "focus": false,
+                "focus": true,
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": false
@@ -88,6 +87,16 @@
             "command" : "skill mspdebug && mspdebug tilib --force-reset 'prog ${input:ELF_file}'",
             "dependsOn" : ["Build target"],
             "dependsOrder": "sequence",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "isBackground": false,
+            "promptOnClose": false,
         },
 
         {
@@ -99,7 +108,16 @@
             "problemMatcher": [
                 "$gcc"
             ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
             "isBackground": false,
+            "promptOnClose": false,
         },
 
         {
@@ -111,7 +129,16 @@
             "problemMatcher": [
                 "$gcc"
             ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
             "isBackground": false,
+            "promptOnClose": false,
         }
     ],
 
@@ -128,7 +155,7 @@
             "id": "ELF_file",
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "type": "promptString",
-            "default": "build/ADCS_application.elf"
+            "default": "build/adcs.elf"
         }
     ]
 

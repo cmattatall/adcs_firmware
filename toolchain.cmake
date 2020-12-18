@@ -30,11 +30,7 @@ set(MCU_HEADER_DIR "${CODE_COMPOSER_INSTALL_PATH}/ccs_base/msp430/include_gcc")
 set(LINKER_SCRIPT_DIR "${CMAKE_SOURCE_DIR}/linker")
 set(LINKER_SCRIPT "${LINKER_SCRIPT_DIR}/${MSP430_MCU}.ld")
 
-message("LINKER_SCRIPT = ${LINKER_SCRIPT}")
-
 include_directories("${LINKER_SCRIPT_DIR}")
-#set(PERIPHERAL_LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/linker/msp430f5529_symbols.ld CACHE INTERNAL "")
-#include_directories("${CMAKE_CURRENT_SOURCE_DIR}/linker")
 
 macro(abort message)
     message(FATAL_ERROR "${message}" "${ARGN}")
@@ -251,7 +247,7 @@ function(msp430_add_executable executable)
         ${executable}
         PROPERTIES
         SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
-        LINK_DEPENDS "${LINKERSCRIPT1}"
+        LINK_DEPENDS "${LINKER_SCRIPT}"
     )
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
@@ -301,13 +297,11 @@ function(msp430_add_library library)
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
 
-    #set_target_properties(
-    #    ${library}
-    #    PROPERTIES
-    #    LINK_DEPENDS "${LINKERSCRIPT1}"
-            #$<BUILD_INTERFACE:"${LINKERSCRIPT1};${LINKERSCRIPT2}">
-            #$<INSTALL_INTERFACE:mylinkscript> 
-    #)
+    set_target_properties(
+        ${library}
+        PROPERTIES
+        LINK_DEPENDS "${LINKER_SCRIPT1}"
+    )
 
     add_custom_target(${library}_postbuild ALL DEPENDS ${library})
 

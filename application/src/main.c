@@ -59,6 +59,7 @@ int main(void)
 
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
+
             /* get command json string from OBC interface */
             OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
 
