@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.16)
 ################################################################################
 # @brief Top level CMake file for the ADCS project
 # @author: Carl Mattatall (cmattatall2@gmail.com)
@@ -19,13 +20,9 @@
 #   https://cmake.org/cmake/help/v3.18/command/if.html
 #
 ################################################################################
-
 set(SUPPORTED_BUILD_TYPES "")
 list(APPEND SUPPORTED_BUILD_TYPES "Debug")
 list(APPEND SUPPORTED_BUILD_TYPES "Release")
-
-
-cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CROSSCOMPILING OFF BOOL CACHE STRING "[ON/OFF] Boolean to choose to cross compile or not")
 
@@ -63,12 +60,6 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options("-Wall")
-    add_compile_options("-Wshadow")
-else()
-endif()
-
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)
         msp430_add_executable(${target} ${ARGN})
@@ -87,21 +78,18 @@ endfunction(ADCS_add_library target)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
 
-# for some reason, you have to manually run this command. I haven't got it working yet
-# FOR THE FIRST TIME, DO 
-# $git submodule update --force --remote --recursive --init
-# NOTICE THE --init on the end.
 execute_process(
     COMMAND "git" "submodule" "update" "--remote" "--recursive"
-    OUTPUT_VARIABLE GIT_SUBMODULE_UPDATE_OUTPUT_VARIABLE
-    RESULT_VARIABLE GIT_SUBMODULE_UPDATE_RESULT_VARIABLE
+    RESULT_VARIABLE GIT_SUBMODULE_UPDATE_FAILED
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ECHO_OUTPUT_VARIABLE
     )
+if(GIT_SUBMODULE_UPDATE_FAILED)
+    message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
+endif(GIT_SUBMODULE_UPDATE_FAILED)
 
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
 add_subdirectory(application)
-
 
 

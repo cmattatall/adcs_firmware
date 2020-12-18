@@ -186,14 +186,12 @@ def install_linux():
     os.chdir(install_dir + "/" + toolchain_folder + "/bin")
     for executable in os.listdir(os.getcwd()):
         symlink_force(os.path.abspath(executable), "/usr/local/bin/" + executable)
+    os.chdir(install_dir)
+    support_files_url="https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/latest/exports/msp430-gcc-support-files-1.208.zip"
+    os.system("wget %s" % (support_files_url))
+    os.system("unzip msp430-gcc-support-files-1.208.zip")
     os.chdir(current_workdir)
-
-    
-
-
     install_linux_drivers()
-
-
 
 
 # @brief install toolchain on apple

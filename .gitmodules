@@ -1,10 +1,3 @@
 [submodule "JTOK"]
 	path = JTOK
 	url = https://github.com/cmattatall/JTOK.git
-
-[submodule "cmsis-svd"]
-	path = cmsis-svd
-	url = https://github.com/posborne/cmsis-svd.git
-[submodule "termiWin"]
-	path = termiWin
-	url = https://github.com/ChristianVisintin/termiWin
