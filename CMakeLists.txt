@@ -20,17 +20,20 @@
 #
 ################################################################################
 
+set(SUPPORTED_BUILD_TYPES "")
+list(APPEND SUPPORTED_BUILD_TYPES "Debug")
+list(APPEND SUPPORTED_BUILD_TYPES "Release")
+
+
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CROSSCOMPILING OFF BOOL CACHE STRING "[ON/OFF] Boolean to choose to cross compile or not")
 
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release)
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
 
 set(MSP430_MCU "msp430f5529" CACHE STRING "Lowercase MPN of target MCU. Used by msp430-elf-gcc")
 set(MSP430_MCU_FREQ "8000000" CACHE STRING "Frequency of input oscillator to MCU in Hz")
-
-
 
 ################################################################################
 #                       PROJECT START                                          #
@@ -42,24 +45,32 @@ project(
     LANGUAGES C ASM
 )
 
-message("") 
-message("PROJECT : ${CMAKE_PROJECT_NAME}")
-message("TARGET : ${CMAKE_SYSTEM_NAME}")
+message("\nPROJECT : ${CMAKE_PROJECT_NAME}")
+message("BUILD_TARGET : ${CMAKE_SYSTEM_NAME}")
 message("PROCESSOR : ${CMAKE_SYSTEM_PROCESSOR}")
-message("") 
+
+if(NOT ${CMAKE_BUILD_TYPE} IN_LIST SUPPORTED_BUILD_TYPES)
+    message("\n")
+    message("\"${CMAKE_BUILD_TYPE}\" IS NOT A SUPPORTED BUILD TYPE.\nAccepted values:")
+    foreach(type ${SUPPORTED_BUILD_TYPES})
+        message("- \"${type}\"")
+    endforeach(type ${SUPPORTED_BUILD_TYPES})
+    message("\n")
+    return()
+else()
+    message("CMAKE_BUILD_TYPE : \"${CMAKE_BUILD_TYPE}\"")
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
-
-
-
-#if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    add_compile_options("-Wall")
-#    add_compile_options("-Wshadow")
-#    add_compile_options("-g")
-#    add_compile_options("-ggdb")
-#endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options("-Wall")
+    add_compile_options("-Wshadow")
+    add_compile_options("-g")
+    add_compile_options("-ggdb")
+else()
+    add_compile_options("-O3")
+endif()
 
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)

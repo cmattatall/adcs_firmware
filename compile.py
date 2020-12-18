@@ -50,25 +50,6 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
-def configure_for_linux(source_dir = ".", build_dir="build", definitions=[], cross=False):
-    configure_string = space_args("cmake")
-    if not os.path.exists(source_dir):
-        print("directory %s does not exist! Aborting!" % (source_dir))
-        exit(1)
-    configure_string += space_args("-S %s" % (source_dir))
-    if not os.path.exists(build_dir):
-        os.mkdir(build_dir)
-    configure_string += space_args("-B %s" % (build_dir))
-    configure_string += space_args("-G \"Unix Makefiles\"")
-    configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
-    if cross == True:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
-    else:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
-    for d in definitions:
-        configure_string += space_args("-D%s" % (d))
-    os.system(configure_string)
-
 def configure_for_windows(source_dir = ".", build_dir="build", definitions=[], cross=False):
     configure_string = space_args("cmake")
     if not os.path.exists(source_dir):
@@ -88,6 +69,25 @@ def configure_for_windows(source_dir = ".", build_dir="build", definitions=[], c
         configure_string += space_args("-D%s" % (d))
     os.system(configure_string)
 
+def configure_for_linux(source_dir = ".", build_dir="build", definitions=[], cross=False):
+    configure_string = space_args("cmake")
+    if not os.path.exists(source_dir):
+        print("directory %s does not exist! Aborting!" % (source_dir))
+        exit(1)
+    configure_string += space_args("-S %s" % (source_dir))
+    if not os.path.exists(build_dir):
+        os.mkdir(build_dir)
+    configure_string += space_args("-B %s" % (build_dir))
+    configure_string += space_args("-G \"Unix Makefiles\"")
+    configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
+    configure_string += space_args("-DCMAKE_BUILD_TYPE=Debug")
+    if cross == True:
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
+    else:
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
+    for d in definitions:
+        configure_string += space_args("-D%s" % (d))
+    os.system(configure_string)
 
 def configure_for_apple(source_dir = ".", build_dir="build", definitions=[], cross=False):
     print("Apple is not yet supported!!")
@@ -95,7 +95,7 @@ def configure_for_apple(source_dir = ".", build_dir="build", definitions=[], cro
 
 def compile_the_project():
     cross_compiling = query_yes_no("Build for the microcontroller", default="no")
-    
+
     ############################################################################
     # okay, so for now, we're going to rebuild everything from scratch each 
     # time. 
