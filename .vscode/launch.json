@@ -5,6 +5,8 @@
             "name": "(gdb) Debug native executable",
             "type": "cppdbg",
             "request": "launch",
+            "program": "${workspaceFolder}/build/ADCS_application",
+
             "windows": {
                 "program": "${workspaceFolder}/build/ADCS_application.exe",
                 "miDebuggerPath": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gdb.exe",
@@ -18,10 +20,9 @@
                 "program": "${workspaceFolder}/build/ADCS_application",
                 "miDebuggerPath": "gdb",
             },
-            "serverStarted": "Now waiting for connection...",
-            
+
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
@@ -33,22 +34,20 @@
                     "ignoreFailures": true
                 }
             ],
-            
         },
 
         {
             "name": "(msp430-elf-gdb) msp430 remote debug",
             "type": "cppdbg",
             "request": "launch",
+            
+            "program": "${workspaceRoot}/${input:ELF_file}",
+            //"preLaunchTask": "Start MSP430 Debug Server",
+            //"postDebugTask": "Kill MSP430 Debug Server",
+
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
-            "program": "${workspaceRoot}/${input:ELF_file}",
-            "preLaunchTask": "Start MSP430 Debug Server",
-            "postDebugTask": "Kill MSP430 Debug Server",
-            
-            "miDebuggerArgs": "load",
-
-            "serverLaunchTimeout": 15000,
+            "miDebuggerArgs": "",
 
             "cwd": "${workspaceFolder}", 
             "linux": {
@@ -60,8 +59,32 @@
             "windows": {
                 "MIMode": "gdb"
             },
-            "stopAtEntry": true,
 
+            "stopAtEntry": true,
+            "externalConsole": false,
+            "logging": {
+                "moduleLoad": true,
+                "programOutput": true,
+                "trace": false,
+                "traceResponse": false,
+                "exceptions": true,
+                "engineLogging": false,
+            },
+
+            "presentation": {
+                "hidden": false,
+                "group": "",
+                "order": 1
+            },
+
+            "symbolLoadInfo": {
+                "loadAll": true,
+                "exceptionList": ""
+            },
+            "serverStarted": "Now waiting for connection...",
+
+            "filterStdout": true,
+            "filterStderr": false,
         }
 
        

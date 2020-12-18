@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(ADCS_application LANGUAGES C ASM)
+project(adcs LANGUAGES C ASM)
 set(BUILD_TARGET ${PROJECT_NAME})
 
 ADCS_add_executable(${BUILD_TARGET})
