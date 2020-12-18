@@ -226,6 +226,8 @@ find_program(
     REQUIRED
 )
 
+set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -g3 -gdwarf-2 -ggdb -DDEBUG" CACHE INTERNAL "")
+set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 
 ###############################################################################
 # END SCRIPT, START EXPORTED FUNCTIONS
@@ -319,3 +321,5 @@ function(msp430_add_library library)
         COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${library}${CMAKE_STATIC_LIBRARY_SUFFIX}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${library}.lss"
     )
 endfunction(msp430_add_library library)
+
+

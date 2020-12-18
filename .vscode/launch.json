@@ -44,6 +44,8 @@
             "program": "${workspaceRoot}/${input:ELF_file}",
             //"preLaunchTask": "Start MSP430 Debug Server",
             //"postDebugTask": "Kill MSP430 Debug Server",
+            
+            "miDebuggerArgs": "load",
 
             "serverLaunchTimeout": 15000,
 

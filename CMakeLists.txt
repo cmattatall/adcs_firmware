@@ -63,11 +63,7 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options("-Wall")
-    add_compile_options("-Wshadow")
-else()
-endif()
+
 
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)
@@ -102,6 +98,5 @@ execute_process(
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
 add_subdirectory(application)
-
 
 
