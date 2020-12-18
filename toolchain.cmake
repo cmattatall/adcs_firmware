@@ -1,19 +1,21 @@
 # CMAKE TOOLCHAIN FILE FOR msp430-elf-gcc
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
 
-## USER CAN CHANGE THIS AS NEEDED
-
-
 # So basically, this part right here, I'm relying on code composer to provide msp430.h 
 # because I'm sick and tired of trying to find an open source download
 # for the msp430xxxx.h device header files
 # vendor lock in is stupid and I swear I will never willingly choose to use
 # TI chipsets for the rest of my career if I can avoid it.
 # - Carl
+#
+#
+# @TODO
+
+
 if(WIN32)
     set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
 elseif(UNIX AND NOT APPLE)
-    set(CODE_COMPOSER_INSTALL_PATH "/opt/ti/ccs1011/ccs")
+     set(MCU_HEADER_DIR "/opt/msp430-gcc-support-files/include")
 elseif(APPLE)
     message(FATAL_ERROR "Apple not supported")
 else()
@@ -25,12 +27,9 @@ endif()
 ################################################################################
 
 # JUST HARD-CODING THE CCS INSTALLATION DIRECTORY FOR NOW
-set(MCU_HEADER_DIR "${CODE_COMPOSER_INSTALL_PATH}/ccs_base/msp430/include_gcc") 
+#set(MCU_HEADER_DIR "${CODE_COMPOSER_INSTALL_PATH}/ccs_base/msp430/include_gcc") 
 
-set(LINKER_SCRIPT_DIR "${CMAKE_SOURCE_DIR}/linker")
-set(LINKER_SCRIPT "${LINKER_SCRIPT_DIR}/${MSP430_MCU}.ld")
-
-include_directories("${LINKER_SCRIPT_DIR}")
+set(LINKER_SCRIPT "${MSP430_MCU}.ld")
 
 macro(abort message)
     message(FATAL_ERROR "${message}" "${ARGN}")
@@ -247,7 +246,6 @@ function(msp430_add_executable executable)
         ${executable}
         PROPERTIES
         SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
-        LINK_DEPENDS "${LINKER_SCRIPT}"
     )
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
@@ -296,12 +294,6 @@ function(msp430_add_library library)
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
-
-    set_target_properties(
-        ${library}
-        PROPERTIES
-        LINK_DEPENDS "${LINKER_SCRIPT1}"
-    )
 
     add_custom_target(${library}_postbuild ALL DEPENDS ${library})
 
