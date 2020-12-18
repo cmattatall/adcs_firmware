@@ -1,28 +1,39 @@
-cmake_minimum_required(VERSION 3.16)
+################################################################################
+# @brief Top level CMake file for the ADCS project
+# @author: Carl Mattatall (cmattatall2@gmail.com)
+#
+################################################################################
+# USEFUL DOCUMENTATION SECTION FOR THOSE NEW TO CMAKE
+################################################################################
+#
+# best practices:
+#   https://cliutils.gitlab.io/modern-cmake/
+#
+# variables:
+#   https://cmake.org/cmake/help/latest/manual/cmake-variables.7.html
+#
+# booleans:
+#   https://stackoverflow.com/questions/41079291/cmake-use-of-true-false-or-on-off-or-yes-no-in-generator-expressions
+#
+# behaviour of >if< 
+#   https://cmake.org/cmake/help/v3.18/command/if.html
+#
+################################################################################
 
-if(NOT DEFINED CMAKE_CROSSCOMPILING)
-    message(FATAL_ERROR "CMAKE_CROSSCOMPILING IS NOT DEFINED. Please define it as \"ON\" or \"OFF\"")
-    return()
-endif()
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif()
-
+set(SUPPORTED_BUILD_TYPES "")
 list(APPEND SUPPORTED_BUILD_TYPES "Debug")
 list(APPEND SUPPORTED_BUILD_TYPES "Release")
-list(APPEND SUPPORTED_BUILD_TYPES "RelWithDebInfo")
-list(APPEND SUPPORTED_BUILD_TYPES "MinSizeRel")
-if(NOT ${CMAKE_BUILD_TYPE} IN_LIST SUPPORTED_BUILD_TYPES)
-    message(FATAL_ERROR "${CMAKE_BUILD_TYPE} is not a supported build type")
-    message("Supported build types:")
-    foreach(btype ${SUPPORTED_BUILD_TYPES})
-        message("- \"${btype}\"")    
-    endforeach(btype ${SUPPORTED_BUILD_TYPES})
-endif(NOT ${CMAKE_BUILD_TYPE} IN_LIST SUPPORTED_BUILD_TYPES)
 
-set(MCU_MPN "msp430f5529") #set this as a lowercase string of your part number
-set(MCU_FREQ "8000000")    #set this as the HSE input freq in Hz
+
+cmake_minimum_required(VERSION 3.16)
+
+set(CMAKE_CROSSCOMPILING OFF BOOL CACHE STRING "[ON/OFF] Boolean to choose to cross compile or not")
+
+set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
+
+set(MSP430_MCU "msp430f5529" CACHE STRING "Lowercase MPN of target MCU. Used by msp430-elf-gcc")
+set(MSP430_MCU_FREQ "8000000" CACHE STRING "Frequency of input oscillator to MCU in Hz")
 
 ################################################################################
 #                       PROJECT START                                          #
@@ -34,39 +45,44 @@ project(
     LANGUAGES C ASM
 )
 
-message("") 
-message("PROJECT : ${CMAKE_PROJECT_NAME}")
-message("TARGET : ${CMAKE_SYSTEM_NAME}")
+message("\nPROJECT : ${CMAKE_PROJECT_NAME}")
+message("BUILD_TARGET : ${CMAKE_SYSTEM_NAME}")
 message("PROCESSOR : ${CMAKE_SYSTEM_PROCESSOR}")
-message("") 
+
+if(NOT ${CMAKE_BUILD_TYPE} IN_LIST SUPPORTED_BUILD_TYPES)
+    message("\n")
+    message("\"${CMAKE_BUILD_TYPE}\" IS NOT A SUPPORTED BUILD TYPE.\nAccepted values:")
+    foreach(type ${SUPPORTED_BUILD_TYPES})
+        message("- \"${type}\"")
+    endforeach(type ${SUPPORTED_BUILD_TYPES})
+    message("\n")
+    return()
+else()
+    message("CMAKE_BUILD_TYPE : \"${CMAKE_BUILD_TYPE}\"")
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    add_compile_options("-Wall")
-#    add_compile_options("-Wshadow")
-#    add_compile_options("-g")
-#    add_compile_options("-ggdb")
-#endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options("-Wall")
+    add_compile_options("-Wshadow")
+else()
+endif()
 
 function(ADCS_add_executable target)
-    if(CMAKE_CROSSCOMPILING STREQUAL "ON")
-        set(MSP430_MCU ${MCU_MPN})
-        set(MSP430_MCU_FREQ ${MCU_FREQ})
+    if(CMAKE_CROSSCOMPILING)
         msp430_add_executable(${target} ${ARGN})
-    else()
+    else()  # NOT CROSS COMPILING
         add_executable(${target} ${ARGN})
-    endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+    endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_executable target)
 
 function(ADCS_add_library target)
-    if(CMAKE_CROSSCOMPILING STREQUAL "ON")
-        set(MSP430_MCU ${MCU_MPN})
-        set(MSP430_MCU_FREQ ${MCU_FREQ})
+    if(CMAKE_CROSSCOMPILING)
         msp430_add_library(${target} ${ARGN})
-    else()
+    else()  # NOT CROSS COMPILING
         add_library(${target} ${ARGN})
-    endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+    endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_library target)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
@@ -86,4 +102,6 @@ execute_process(
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
 add_subdirectory(application)
+
+
 

@@ -4,14 +4,16 @@
         {
             "label": "Start MSP430 Debug Server",
             "type": "shell",
+            "detail": "Start the msp430-elf-gdb debug server for the target device using mspdebug",
             "group": "test",
-            "isBackground": true,
-
-            // kinda iffy on this one but we'll put it here commented out for now - Carl
-            //"runOptions": {"runOn": "folderOpen"}, 
+            
+            "runOptions": {
+                "instanceLimit": 1,
+                "reevaluateOnRerun": true,
+            },
             "linux" : 
             {
-                "command": "/bin/sh -c `skill mspdebug && mspdebug rf2500 gdb &`"
+                "command": "skill mspdebug && mspdebug tilib --force-reset gdb"
             },
             "windows" : 
             {
@@ -20,6 +22,90 @@
             "osx" : {
                 "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
             },
+
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": false
+            },
+
+            "isBackground": true,
+            "promptOnClose": false,
+        },
+
+        {
+            "label": "Kill MSP430 Debug Server",
+            "type": "shell",
+            "group": "test",
+            "linux" : 
+            {
+                "command": "/bin/bash -c 'skill mspdebug'"
+            },
+            "windows" : 
+            {
+                "command": "CARL HASN'T IMPLEMENTED THIS YET"
+            },
+            "osx" : {
+                "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
+            },
+
+            "isBackground": false,
+            "promptOnClose": false,
+        },
+
+        {
+            "label": "Flash MCU",
+            "detail": "Flash the msp430 microcontroller using mspdebug.",
+            "type": "shell",
+            "group": "test",
+            "command" : "skill mspdebug && mspdebug tilib --force-reset 'prog ${input:ELF_file}'",
+            "dependsOn" : ["Build target"],
+            "dependsOrder": "sequence",
+        },
+
+        {
+            "label" : "Build native",
+            "detail": "Build the project to execute on the host machine",
+            "group": "build",
+            "type": "shell",
+            "command" : "python3 ./compile.py --build-type=${input:build_type}",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "isBackground": false,
+        },
+
+        {
+            "label" : "Build target ",
+            "detail": "Build the project for a target device",
+            "group": "build",
+            "type": "shell",
+            "command" : "python3 ./compile.py --cross-compile --build-type=${input:build_type}",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "isBackground": false,
+        }
+    ],
+
+    "inputs": [
+        {
+            "id" : "build_type",
+            "description": "String for the build type",
+            "default": "Debug",
+            "options": ["Debug", "Release"],
+            "type": "pickString"
+        },
+
+        {   
+            "id": "ELF_file",
+            "description": "Path to the ELF file to debug (relative to workspace folder)",
+            "type": "promptString",
+            "default": "build/ADCS_application.elf"
         }
     ]
+
 }

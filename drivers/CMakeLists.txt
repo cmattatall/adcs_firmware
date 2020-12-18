@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 
-if(CMAKE_CROSSCOMPILING STREQUAL "ON")
-    project(ADCS_drivers VERSION 1.0 LANGUAGES C)
+if(CMAKE_CROSSCOMPILING)
+    project(
+        ADCS_drivers 
+        VERSION 1.0 
+        LANGUAGES C
+    )
+    
     message("CONFIGURING ${PROJECT_NAME}")
     set(BUILD_TARGET ${PROJECT_NAME})
     ADCS_add_library(${BUILD_TARGET} STATIC)
@@ -16,8 +21,6 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
 
     target_include_directories(${BUILD_TARGET} PUBLIC ${include_dirs})
     target_sources(${BUILD_TARGET} PRIVATE ${sources})
-else()
-    message("NOT BUILDING ADCS_DRIVERS BECAUSE CMAKE_CROSSCOMPILING==${CMAKE_CROSSCOMPILING}")
-endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+endif(CMAKE_CROSSCOMPILING)
 
 

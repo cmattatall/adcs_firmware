@@ -4,6 +4,7 @@ set(BUILD_TARGET ${PROJECT_NAME})
 
 ADCS_add_executable(${BUILD_TARGET})
 
+
 #headers and sources
 file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
@@ -21,10 +22,10 @@ target_link_libraries(${BUILD_TARGET} PUBLIC JTOK)
 
 add_subdirectory(emulated)
 
-if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+if(CMAKE_CROSSCOMPILING)
     target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_drivers)
 else()
     target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_emulated_interfaces)
-endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+endif(CMAKE_CROSSCOMPILING)
 
 
