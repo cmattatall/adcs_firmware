@@ -31,7 +31,7 @@ endmacro(abort message)
 
 macro(msp430_check_define_macro var)
     if(NOT ${var})
-        abort("${${var}} NOT DEFINED. Please define it before invoking ${CMAKE_CURRENT_FUNCTION}")
+        abort("[${CMAKE_CURRENT_LIST_FILE}] ${var} NOT DEFINED. Please define it before invoking ${CMAKE_CURRENT_FUNCTION}")
     endif(NOT ${var})
 endmacro(msp430_check_define_macro var)
 
@@ -51,7 +51,7 @@ else()
     abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
 
-if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+if(CMAKE_CROSSCOMPILING)
     set(TOOLCHAIN_PREFIX "msp430-elf")
     set(TOOLCHAIN_PREFIX_INTERNAL "${TOOLCHAIN_PREFIX}-")
     set(EXECUTABLE_SUFFIX ".elf")
@@ -137,7 +137,7 @@ else()
     else()
         abort("${CMAKE_HOST_SYSTEM_NAME} is not currently a supported platform")
     endif()
-endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+endif(CMAKE_CROSSCOMPILING)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
@@ -226,6 +226,7 @@ function(msp430_add_executable executable)
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
+
     set_target_properties(
         ${executable}
         PROPERTIES
@@ -240,7 +241,7 @@ function(msp430_add_executable executable)
         COMMENT "Built executable ${elf_file} with the following size:"
         COMMAND ${CMAKE_SIZE} -B "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
     )
-    
+
     add_custom_command( 
         TARGET ${executable}_postbuild
         POST_BUILD

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+if(CMAKE_CROSSCOMPILING)
     project(
         ADCS_drivers 
         VERSION 1.0 
@@ -21,6 +21,6 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
 
     target_include_directories(${BUILD_TARGET} PUBLIC ${include_dirs})
     target_sources(${BUILD_TARGET} PRIVATE ${sources})
-endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+endif(CMAKE_CROSSCOMPILING)
 
 

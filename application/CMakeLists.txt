@@ -22,10 +22,10 @@ target_link_libraries(${BUILD_TARGET} PUBLIC JTOK)
 
 add_subdirectory(emulated)
 
-if(CMAKE_CROSSCOMPILING STREQUAL "ON")
+if(CMAKE_CROSSCOMPILING)
     target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_drivers)
 else()
     target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_emulated_interfaces)
-endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+endif(CMAKE_CROSSCOMPILING)
 
 
