@@ -7,6 +7,7 @@ import os
 import platform
 import sys
 import pathlib
+import argparse
 
 toolchain_file = "toolchain.cmake" # just going to hard-code this for now
 
@@ -22,79 +23,61 @@ def checkPythonVersion():
 def space_args(string):
     return " " + str(string) + " "
 
-def query_yes_no(question, default="yes"):
-    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
-
-    while True:
-        sys.stdout.write(question + prompt)
-        choice = None
-
-        # python 3 versus python 2 shenanigans
-        if sys.version_info.major < 3:
-            choice = raw_input().lower()
-        else:
-            choice = input().lower()
-
-        if default is not None and choice == '':
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
-
-def configure_for_windows(source_dir = ".", build_dir="build", definitions=[], cross=False):
+def configure_for_windows(sdir=".", bdir="build", btype="Debug", cross=False, defs=[]):
     configure_string = space_args("cmake")
-    if not os.path.exists(source_dir):
-        print("directory %s does not exist! Aborting!" % (source_dir))
+    if not os.path.exists(sdir):
+        print("directory %s does not exist! Aborting!" % (sdir))
         exit(1)
-    configure_string += space_args("-S %s" % (source_dir))
-    if not os.path.exists(build_dir):
-        os.mkdir(build_dir)
-    configure_string += space_args("-B %s" % (build_dir))
+    configure_string += space_args("-S %s" % (sdir))
+    if not os.path.exists(bdir):
+        os.mkdir(bdir)
+    configure_string += space_args("-B %s" % (bdir))
     configure_string += space_args("-G \"MinGW Makefiles\"") 
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
+    configure_string += space_args("-DCMAKE_BUILD_TYPE=\"%s\"" % (btype))
     if cross == True:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
     else:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
-    for d in definitions:
+    for d in defs:
         configure_string += space_args("-D%s" % (d))
     os.system(configure_string)
 
-def configure_for_linux(source_dir = ".", build_dir="build", definitions=[], cross=False):
+def configure_for_linux(sdir=".", bdir="build", btype="Debug", cross=False, defs=[]):
     configure_string = space_args("cmake")
-    if not os.path.exists(source_dir):
-        print("directory %s does not exist! Aborting!" % (source_dir))
+    if not os.path.exists(sdir):
+        print("directory %s does not exist! Aborting!" % (sdir))
         exit(1)
-    configure_string += space_args("-S %s" % (source_dir))
-    if not os.path.exists(build_dir):
-        os.mkdir(build_dir)
-    configure_string += space_args("-B %s" % (build_dir))
+    configure_string += space_args("-S %s" % (sdir))
+    if not os.path.exists(bdir):
+        os.mkdir(bdir)
+    configure_string += space_args("-B %s" % (bdir))
     configure_string += space_args("-G \"Unix Makefiles\"")
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
-    configure_string += space_args("-DCMAKE_BUILD_TYPE=Debug")
+    configure_string += space_args("-DCMAKE_BUILD_TYPE=\"%s\"" % (btype))
     if cross == True:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
     else:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
-    for d in definitions:
+    for d in defs:
         configure_string += space_args("-D%s" % (d))
     os.system(configure_string)
 
-def configure_for_apple(source_dir = ".", build_dir="build", definitions=[], cross=False):
+def configure_for_apple(sdir=".", bdir="build", btype="Debug", cross=False):
     print("Apple is not yet supported!!")
     exit(1)
 
 def compile_the_project():
-    cross_compiling = query_yes_no("Build for the microcontroller", default="no")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cross-compile", action="store_true", dest="cross_compile", help="Option to cross compile for the target device")
+    parser.add_argument("--build-type", action="store", dest="build_type", choices=["Debug", "Release"], default ="Debug", help="String indicating the cmake build type")
+    parser.add_argument("--definitions", action="store", dest="definitions", help="string of key-value pairs to be used for definitions. NOTE: NOT THOROUGHLY TESTED!", default="")
+
+    args = parser.parse_args()
+    cross_compile = args.cross_compile
+    build_type = args.build_type
+    my_defs = args.definitions
 
     ############################################################################
     # okay, so for now, we're going to rebuild everything from scratch each 
@@ -121,11 +104,11 @@ def compile_the_project():
     os.system("rm -r build")
 
     if platform.system() == "Windows":
-        configure_for_windows(cross = cross_compiling)
+        configure_for_windows(cross=cross_compile, btype=build_type, defs=my_defs)
     elif platform.system() == "Linux":
-        configure_for_linux(cross = cross_compiling)
+        configure_for_linux(cross=cross_compile, btype=build_type, defs=my_defs)
     elif platform.system() == "Apple":
-        configure_for_apple(cross = cross_compiling)
+        configure_for_apple(cross=cross_compile, btype=build_type, defs=my_defs)
     else:
         print(platform.system() + " is not a supported platform!!")
         exit(1)
@@ -137,10 +120,3 @@ def run_tests():
 if __name__ == "__main__":
     checkPythonVersion()
     compile_the_project()
-
-
-
-
-
-
-

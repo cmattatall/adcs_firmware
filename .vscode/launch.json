@@ -36,7 +36,7 @@
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
             "program": "${workspaceRoot}/${input:ELF_file}",
-            "preLaunchTask": "Start Debug Server",
+            "preLaunchTask": "Start MSP430 Debug Server",
             "cwd": "${workspaceFolder}", 
             "linux": {
                 "MIMode": "gdb"
@@ -47,7 +47,7 @@
             "windows": {
                 "MIMode": "gdb"
             },
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             
         }
 

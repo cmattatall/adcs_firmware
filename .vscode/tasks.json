@@ -11,7 +11,7 @@
             //"runOptions": {"runOn": "folderOpen"}, 
             "linux" : 
             {
-                "command": "/bin/sh -c `skill mspdebug && mspdebug rf2500 gdb &`"
+                "command": "/bin/bash -c `skill mspdebug && mspdebug rf2500 gdb &`"
             },
             "windows" : 
             {
@@ -20,6 +20,28 @@
             "osx" : {
                 "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
             },
+        },
+
+        {
+            "label": "Flash MCU",
+            "type": "shell",
+            //"command": "make && skill mspdebug && make flash-target",
+            "dependsOn" : ["Build project"]
+
+            "group": "test"
+
+        },
+
+        {
+            "label" : "Build project",
+            "type": "shell",
+            "command" : "python3 ./compile.py",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
         }
+
+       
     ]
 }
