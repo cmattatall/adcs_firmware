@@ -18,7 +18,8 @@
                 "program": "${workspaceFolder}/build/ADCS_application",
                 "miDebuggerPath": "gdb",
             },
-
+            "serverStarted": "Now waiting for connection...",
+            
             "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
@@ -42,8 +43,8 @@
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
             "program": "${workspaceRoot}/${input:ELF_file}",
-            //"preLaunchTask": "Start MSP430 Debug Server",
-            //"postDebugTask": "Kill MSP430 Debug Server",
+            "preLaunchTask": "Start MSP430 Debug Server",
+            "postDebugTask": "Kill MSP430 Debug Server",
             
             "miDebuggerArgs": "load",
 

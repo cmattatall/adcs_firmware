@@ -13,9 +13,9 @@
             },
             "linux" : 
             {
-                "command": "skill mspdebug && mspdebug tilib --force-reset gdb"
+                "command": "mspdebug tilib gdb"
             },
-            "windows" : 
+            "windows" :
             {
                 "command": "CARL HASN'T IMPLEMENTED THIS YET"
             },
@@ -23,11 +23,31 @@
                 "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
             },
 
+            "dependsOn" : [ "Kill MSP430 Debug Server"],
+            "dependsOrder": "sequence",
+            
+            "problemMatcher": {
+                "fileLocation": "relative",
+                "pattern": {
+                    "regexp": "^([^\\s].*)\\((\\d+|\\,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+                    "file": 1,
+                    "location": 2,
+                    "severity": 3,
+                    "code": 4,
+                    "message": 5
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "-MSPDebug",
+                    "endsPattern": "MSP430_Close",
+                }
+              },
+
             "presentation": {
-                "echo": false,
-                "reveal": "always",
+                "echo": true,
+                "reveal": "never",
                 "focus": false,
-                "panel": "new",
+                "panel": "shared",
                 "showReuseMessage": false,
                 "clear": false
             },
@@ -50,6 +70,15 @@
             },
             "osx" : {
                 "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
+            },
+
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
             },
 
             "isBackground": false,

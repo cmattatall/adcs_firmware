@@ -61,9 +61,7 @@ else()
     message("CMAKE_BUILD_TYPE : \"${CMAKE_BUILD_TYPE}\"")
 endif()
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON BOOL CACHE INTERNAL "" FORCE)
 
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)
