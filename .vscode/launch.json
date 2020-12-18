@@ -11,11 +11,16 @@
                 "externalConsole": false,
             },
             "linux": {
-                "program": "${workspaceFolder}/build/ADCS_application.out",
+                "program": "${workspaceFolder}/build/ADCS_application",
                 "miDebuggerPath": "gdb",
             },
+            "osx": {
+                "program": "${workspaceFolder}/build/ADCS_application",
+                "miDebuggerPath": "gdb",
+            },
+
             "args": [],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
@@ -26,7 +31,8 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            
         },
 
         {
@@ -36,7 +42,11 @@
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
             "program": "${workspaceRoot}/${input:ELF_file}",
-            "preLaunchTask": "Start MSP430 Debug Server",
+            //"preLaunchTask": "Start MSP430 Debug Server",
+            //"postDebugTask": "Kill MSP430 Debug Server",
+
+            "serverLaunchTimeout": 15000,
+
             "cwd": "${workspaceFolder}", 
             "linux": {
                 "MIMode": "gdb"
@@ -48,7 +58,7 @@
                 "MIMode": "gdb"
             },
             "stopAtEntry": true,
-            
+
         }
 
        
