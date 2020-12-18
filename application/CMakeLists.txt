@@ -4,6 +4,7 @@ set(BUILD_TARGET ${PROJECT_NAME})
 
 ADCS_add_executable(${BUILD_TARGET})
 
+
 #headers and sources
 file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")

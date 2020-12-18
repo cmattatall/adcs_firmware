@@ -1,12 +1,21 @@
+
+# USEFUL DOCUMENTATION SECTION
+# https://cliutils.gitlab.io/modern-cmake/
+# https://cmake.org/cmake/help/latest/manual/cmake-variables.7.html 
 cmake_minimum_required(VERSION 3.16)
 
-if(NOT DEFINED CMAKE_CROSSCOMPILING)
-    message(FATAL_ERROR "CMAKE_CROSSCOMPILING IS NOT DEFINED. Please define it as \"ON\" or \"OFF\"")
-    return()
-endif()
+option(CROSSCOMPILE "This is settable from the command line" OFF)
+
+message("CROSSCOMPILE = ${CROSSCOMPILE}")
+if(CROSSCOMPILE)
+    message("IF(CROSSCOMPILE) IS TRUE")
+else()
+    message("IF(CROSSCOMPILE) IS FALSE")
+endif(CROSSCOMPILE)
+
 
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "The build type. Options: [Debug, Release, MinSizeRel, RelWithDebInfo]")
 endif()
 
 list(APPEND SUPPORTED_BUILD_TYPES "Debug")

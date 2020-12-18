@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 
-if(CMAKE_CROSSCOMPILING STREQUAL "FALSE")
-    project(ADCS_emulated_interfaces VERSION 1.0 LANGUAGES C)
+if(CMAKE_CROSSCOMPILING STREQUAL "OFF")
+    project(
+        ADCS_emulated_interfaces 
+        VERSION 1.0 
+        LANGUAGES C
+    )
+    
     message("CONFIGURING ${PROJECT_NAME}")
     set(BUILD_TARGET ${PROJECT_NAME})
 
@@ -38,6 +43,4 @@ if(CMAKE_CROSSCOMPILING STREQUAL "FALSE")
     else()
         message(FATAL_ERROR "No threading libraries have been found. Aborting!")
     endif()
-else()
-    message("NOT BUILDING EMULATED INTERFACES BECAUSE CMAKE_CROSSCOMPILING==${CMAKE_CROSSCOMPILING}")
-endif(CMAKE_CROSSCOMPILING STREQUAL "FALSE")
+endif(CMAKE_CROSSCOMPILING STREQUAL "OFF")
