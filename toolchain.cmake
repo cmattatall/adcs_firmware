@@ -54,7 +54,7 @@ endif()
 if(CMAKE_CROSSCOMPILING STREQUAL "ON")
     set(TOOLCHAIN_PREFIX "msp430-elf")
     set(TOOLCHAIN_PREFIX_INTERNAL "${TOOLCHAIN_PREFIX}-")
-    set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+    set(EXECUTABLE_SUFFIX ".elf")
 
     set(TOOLCHAIN_GCC_EXE ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
     execute_process(
@@ -126,20 +126,25 @@ if(CMAKE_CROSSCOMPILING STREQUAL "ON")
         
     include(CheckLinkerFlag)
 
-
-
 else()
     set(TOOLCHAIN_PREFIX "")
     if(WIN32 OR CYGWIN OR MINGW)
-        set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+        set(EXECUTABLE_SUFFIX ".exe")
     elseif(UNIX AND NOT APPLE)
-        set(CMAKE_EXECUTABLE_SUFFIX ".out")
+        set(EXECUTABLE_SUFFIX ".out")
     elseif(APPLE)
-        abort("Apple is not currently a supported platform")
+        set(EXECUTABLE_SUFFIX ".out")
     else()
         abort("${CMAKE_HOST_SYSTEM_NAME} is not currently a supported platform")
     endif()
 endif(CMAKE_CROSSCOMPILING STREQUAL "ON")
+
+
+if(NOT EXECUTABLE_SUFFIX)
+    abort("EXECUTABLE_SUFFIX IS NOT DEFINED!")
+else()
+    set(CMAKE_EXECUTABLE_SUFFIX ${EXECUTABLE_SUFFIX} CACHE STRING "Suffix for compiled executable" FORCE)
+endif(NOT EXECUTABLE_SUFFIX)
 
 
 set(CMAKE_C_COMPILER_NAME ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
