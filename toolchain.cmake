@@ -15,7 +15,7 @@
 if(WIN32)
     set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
 elseif(UNIX AND NOT APPLE)
-     set(MCU_HEADER_DIR "/opt/msp430-gcc-support-files/include")
+     set(MCU_HEADER_DIR "/opt/msp430_toolchain/msp430-gcc-support-files/include")
 elseif(APPLE)
     message(FATAL_ERROR "Apple not supported")
 else()
@@ -227,7 +227,6 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 ###############################################################################
 # END SCRIPT, START EXPORTED FUNCTIONS
 ###############################################################################
-
 
 
 function(msp430_add_executable executable)

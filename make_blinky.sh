@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/opt/msp430-gcc-9.2.0.50_linux64/bin/msp430-elf-gcc --sysroot=/opt/msp430-gcc-9.2.0.50_linux64/msp430-elf -DF_CPU=8000000 -DTARGET_MCU -D__MSP430F5529__ -I/home/carl/workspace_v10/adcs_firmware/shared/inc -I/opt/msp430-gcc-support-files/include  -ffunction-sections -fdata-sections -Wall -Wshadow -O0 -g3 -ggdb -DDEBUG -mmcu=msp430f5529 -o blink.elf -c /home/carl/workspace_v10/adcs_firmware/test/blinky.c
