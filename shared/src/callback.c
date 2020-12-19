@@ -1,17 +1,14 @@
 /**
- * @file callback_api.c
+ * @file callback.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief API module for callback dependency injection
+ * @brief Source module for callback interface as part of injection API
  * @version 0.1
  * @date 2020-12-19
  *
- * @copyright Copyright (c) 2020 LORIS PROJECT
- *
- * @note
- * @todo
+ * @copyright Copyright (c) 2020 LORRIS DISS
  */
 #include <stdlib.h>
-#include "callback_api.h"
+#include "callback.h"
 #include "targets.h"
 
 struct callback_struct_t

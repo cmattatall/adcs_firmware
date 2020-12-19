@@ -15,7 +15,7 @@
 #include "obc_interface.h"
 #include "jsons.h"
 
-#include "callback_api.h"
+#include "injection_api.h"
 
 /* NOTE THESE 2 HEADERS ARE JUST TEMPORARY STUFF  */
 
@@ -28,7 +28,7 @@ int main(void)
     watchdog_stop();
 
     // SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
-    // OBC_IF_config(uart_init, uart_deinit, uart_transmit);
+    OBC_IF_config(uart_init, uart_deinit, uart_transmit);
 
     BSP_init();
     TIMERA0_heartbeat_init();

@@ -7,10 +7,15 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-
 #if defined(TARGET_MCU)
 
-void uart_init(void (*receive_byte_func)(uint8_t));
+#include "injection_api.h"
+
+/**
+ * @brief Initialize the UART with interface UCA0
+ * @param rx the receive function to execute upon execution of the UART rx ISR
+ */
+void uart_init(receive_func rx);
 void uart_deinit(void);
 int  uart_transmit(uint8_t *buf, uint_least16_t buflen);
 

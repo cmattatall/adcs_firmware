@@ -9,7 +9,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "callback_api.h"
+#include "injection_api.h"
 
 void TIMERA0_heartbeat_init(void);
 void TIMERA0_register_callback(callback_handle_t cb);

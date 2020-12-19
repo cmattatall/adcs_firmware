@@ -6,7 +6,7 @@ extern "C"
 {
 /* clang-format on */
 #endif /* Start C linkage */
-#include "callback_api.h"
+#include "injection_api.h"
 
 /**
  * @brief Initialize the board support function stuff for the launchpad

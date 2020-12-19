@@ -1,5 +1,5 @@
-#ifndef __INJECTION_API_H__
-#define __INJECTION_API_H__
+#ifndef __CALLBACK_H__
+#define __CALLBACK_H__
 #ifdef __cplusplus
 /* clang-format off */
 extern "C"
@@ -7,13 +7,11 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-#define UNREGISTERED_CALLBACK_HANDLE NULL
-
+/* clang-format off */
 typedef void *callback_args;
 typedef void (*callback_func)(callback_args);
+/* clang-format on */
 
-/* Implementation is INTENTIONALLY hidden so people are forced to interact
- * through the API */
 typedef struct callback_struct_t *callback_handle_t;
 
 /**
@@ -43,10 +41,9 @@ void unregister_callback(callback_handle_t cb);
  */
 void callback_exec(callback_handle_t cb);
 
-
 #ifdef __cplusplus
 /* clang-format off */
 }
 /* clang-format on */
 #endif /* End C linkage */
-#endif /* __INJECTION_API_H__ */
+#endif /* __CALLBACK_H__ */
