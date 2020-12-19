@@ -12,50 +12,39 @@
 #include "obc_interface.h"
 #include "jsons.h"
 
-#define TESTMSG (uint8_t *)"Hello World\r\n"
+/* NOTE THESE 2 HEADERS ARE JUST TEMPORARY STUFF  */
+#include <msp430.h>
+#include "timers.h"
 
 static uint8_t json_buffer[500];
 
-static void periph_init(void);
 
-#if defined(TARGET_MCU)
-
-static uint8_t       user_spi_rx_buf[200];
-static volatile int *SPI0_RX_signal_watcher;
-static volatile int *SPI0_TX_signal_watcher;
-
-#endif /* #if defined(TARGET_MCU) */
-
+void BSP_configure_red_led(void)
+{
+    P1DIR = 0xFF; // P1.0 output
+}
 
 int main(void)
 {
-    periph_init(); /* peripheral initialization */
+#if defined(TARGET_MCU)
+    watchdog_stop();
+
+    // SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
+    // OBC_IF_config(uart_init, uart_deinit, uart_transmit);
+
+    BSP_configure_red_led();
+    TIMERA0_init();
+
+    enable_interrupts(); /* This should be the very last thing that occurs */
+
+#else
+    OBC_IF_config(NULL, NULL, OBC_EMU_tx);
+    OBC_EMU_start();
+#endif /* #if defined(TARGET_MCU) */
 
     while (1)
     {
-
-#if defined(TARGET_MCU)
-
-        /** @todo I've put the SPI stuff inside an IFDEF block for now.
-         *        but in the future, need to wrap the SPI stuff in an interface
-         *        API for the actual hardware it is controlling.
-         *        - Carl
-         */
-
-        if (*SPI0_TX_signal_watcher == SPI_SIGNAL_SET) /* Transmit if we can */
-        {
-            // unsigned int bytes_loaded =
-            SPI0_transmit_IT(TESTMSG, sizeof(TESTMSG));
-        }
-
-        if (*SPI0_RX_signal_watcher == SPI_SIGNAL_SET)
-        {
-            SPI0_receive_payload(user_spi_rx_buf, sizeof(user_spi_rx_buf));
-
-            /** @todo DO STUFF WITH THE SPI DATA */
-        }
-
-#endif /* #if defined(TARGET_MCU) */
+#if 0
 
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
@@ -82,25 +71,13 @@ int main(void)
 
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
+#endif
+        /*
+        if (heartbeat_flag)
+        {
+            
+            heartbeat_flag = false;
+        }
+        */
     }
-}
-
-
-static void periph_init(void)
-{
-#if defined(TARGET_MCU)
-#if defined(DEBUG)
-    watchdog_stop();
-#else
-    watchdog_start();
-#endif /* #if defined(DEBUG) */
-
-    SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
-    OBC_IF_config(uart_init, uart_deinit, uart_transmit);
-
-    enable_interrupts(); /* This should be the very last thing that occurs */
-#else
-    OBC_IF_config(NULL, NULL, OBC_EMU_tx);
-    OBC_EMU_start();
-#endif /* #if defined(TARGET_MCU) */
 }

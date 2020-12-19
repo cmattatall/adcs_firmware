@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "I don't know what to call this",
             "includePath": [
                 "${workspaceFolder}/**"
             ],
@@ -10,10 +10,8 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:\\Program Files\\LLVM\\bin\\clang.exe",
             "cStandard": "c11",
             "cppStandard": "c++14",
-            "intelliSenseMode": "clang-x64",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         }
     ],

@@ -89,6 +89,7 @@ int uart_transmit(uint8_t *buf, uint_least16_t buflen)
 #pragma vector = USCI_A0_VECTOR
 __interrupt
 #elif defined(__GNUC__)
+__attribute__((interrupt(USCI_A0_VECTOR)))
 #else
 #error Compiler not supported!
 #endif

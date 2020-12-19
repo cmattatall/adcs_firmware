@@ -78,20 +78,6 @@ endfunction(ADCS_add_library target)
 
 
 
-
-
-################################################################################
-ADCS_add_executable(blinky)
-target_sources(blinky PUBLIC ${CMAKE_SOURCE_DIR}/test/blinky.c)
-message("\nDON'T FORGET TO REMOVE THE BLINKY EXAMPLE AFTER YOU SORT OUT DEBUGGING!!!\n")
-return()
-################################################################################
-
-
-
-
-
-
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
 
 execute_process(
