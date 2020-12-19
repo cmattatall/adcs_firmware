@@ -6,6 +6,8 @@
 #include "uart.h"
 #include "watchdog.h"
 #include "mcu.h"
+#include "BSP.h"
+#include "timer_a0.h"
 #else
 #include "obc_emulator.h"
 #endif /* #if defined(TARGET_MCU) */
@@ -13,11 +15,9 @@
 #include "obc_interface.h"
 #include "jsons.h"
 
-#include "BSP.h"
 #include "callback_api.h"
 
 /* NOTE THESE 2 HEADERS ARE JUST TEMPORARY STUFF  */
-#include "timer_a0.h"
 
 static uint8_t json_buffer[500];
 

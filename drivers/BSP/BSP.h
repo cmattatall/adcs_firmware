@@ -8,9 +8,31 @@ extern "C"
 #endif /* Start C linkage */
 #include "callback_api.h"
 
+/**
+ * @brief Initialize the board support function stuff for the launchpad
+ *
+ */
 void BSP_init(void);
+
+/**
+ * @brief Toggle onboard red LED
+ *
+ * @param args UNUSED
+ */
 void BSP_toggle_red_led(__unused callback_args args);
+
+/**
+ * @brief turn on the onboard red LED
+ *
+ * @param args UNUSED
+ */
 void BSP_set_red_led(__unused callback_args args);
+
+/**
+ * @brief turn off the onboard red LED
+ *
+ * @param args UNUSED
+ */
 void BSP_clr_red_led(__unused callback_args args);
 
 #ifdef __cplusplus
