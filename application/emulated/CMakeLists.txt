@@ -21,6 +21,7 @@ if(NOT CMAKE_CROSSCOMPILING)
 
     target_include_directories(${BUILD_TARGET} PUBLIC ${include_dirs})
     target_sources(${BUILD_TARGET} PRIVATE ${sources})
+    target_link_libraries(${BUILD_TARGET} PUBLIC INJECTION_API)
 
     find_package(Threads REQUIRED)
     if(Threads_FOUND) 

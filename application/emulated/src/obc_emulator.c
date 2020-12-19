@@ -20,17 +20,17 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#if defined(linux) || defined(__unix__) 
+#if defined(linux) || defined(__unix__)
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
 #include <termios.h>
-
 #endif /* defined(linux) || defined(__unix__) */
 
 #include "targets.h"
 #include "obc_emulator.h"
 #include "obc_interface.h"
+
 
 static pthread_t OBC_EMU_pthread;
 
@@ -47,15 +47,15 @@ int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen)
 }
 
 void OBC_EMU_start(void)
-{   
-#if defined(linux) || defined(__unix__) 
+{
+#if defined(linux) || defined(__unix__)
     /* Configure terminal to read raw, unbuffered input */
     struct termios new_tio;
     tcgetattr(STDIN_FILENO, &new_tio);
     new_tio.c_lflag &= (~ICANON & ~ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
-#elif defined(_WIN32) || defined(WIN32)  
-    
+#elif defined(_WIN32) || defined(WIN32)
+
 #endif /* defined(linux) || defined(__unix__) */
     char msg[] = "OBC UART EMULATOR. \nTYPE INTO THE TERMINAL TO SEND RAW "
                  "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
@@ -71,7 +71,7 @@ static void *OBC_EMU(void *args)
 {
     char tmp;
     do
-    {   
+    {
         tmp = getchar();
         if (tmp != EOF)
         {

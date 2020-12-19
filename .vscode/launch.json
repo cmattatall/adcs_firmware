@@ -5,19 +5,19 @@
             "name": "(gdb) Debug native executable",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/ADCS_application",
+            "program": "${workspaceFolder}/build/adcs",
 
             "windows": {
-                "program": "${workspaceFolder}/build/ADCS_application.exe",
+                "program": "${workspaceFolder}/build/adcs.exe",
                 "miDebuggerPath": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gdb.exe",
                 "externalConsole": false,
             },
             "linux": {
-                "program": "${workspaceFolder}/build/ADCS_application",
+                "program": "${workspaceFolder}/build/adcs",
                 "miDebuggerPath": "gdb",
             },
             "osx": {
-                "program": "${workspaceFolder}/build/ADCS_application",
+                "program": "${workspaceFolder}/build/adcs",
                 "miDebuggerPath": "gdb",
             },
 
@@ -96,7 +96,7 @@
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "id": "ELF_file",
             "type": "promptString",
-            "default": "build/ADCS_application.elf"
+            "default": "build/adcs.elf"
         }
     ]
 }

@@ -25,9 +25,14 @@ static uint8_t obcTxBuf[OBC_TX_BUFFER_SIZE];
 
 typedef struct
 {
+    /*
     void (*init)(void (*rx_func)(uint8_t));
     void (*deinit)(void);
     int (*tx)(uint8_t *, uint_least16_t);
+    */
+    rx_injector_func init;
+    deinit_func      deinit;
+    transmit_func    tx;
 } OBC_IF_fops;
 
 
@@ -52,9 +57,7 @@ static OBC_IF_fops ops = {NULL};
 
 static volatile bool OBC_IF_data_received_flag = false;
 
-
-int OBC_IF_config(void (*init)(void (*rx_func)(uint8_t)), void (*deinit)(void),
-                  int (*tx)(uint8_t *, uint_least16_t))
+int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx)
 {
     int status = 0;
     ops.init   = init;
@@ -281,7 +284,7 @@ int OBC_IF_printf(const char *restrict fmt, ...)
     va_start(args, fmt);
 
 #if defined(TARGET_MCU)
-    char *fmt_str = (char*)fmt;
+    char *fmt_str = (char *)fmt;
 #else
     /** @note why the fuck do I even have to add this. I shouldn't have to add
      * it. In fact, according to POSIX spec for termios I shouldn't even have

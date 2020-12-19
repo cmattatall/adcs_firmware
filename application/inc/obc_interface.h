@@ -18,6 +18,8 @@ extern "C"
 #include <stdlib.h>
 #endif /* #if !defined(TARGET_MCU) */
 
+#include "injection_api.h"
+
 
 #define OBC_MSG_DELIM '!' /* for now we can just use ! */
 
@@ -26,6 +28,7 @@ extern "C"
 
 #define OBC_TX_BUFFER_SIZE 500
 
+#if 0
 /**
  * @brief Configure OBC interface for communication via dependency injection
  *
@@ -36,6 +39,10 @@ extern "C"
  */
 int OBC_IF_config(void (*init)(void (*rx_func)(uint8_t)), void (*deinit)(void),
                   int (*tx)(uint8_t *, uint_least16_t));
+#endif
+
+
+int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx);
 
 /**
  * @brief Clear OBC interface driver configuration

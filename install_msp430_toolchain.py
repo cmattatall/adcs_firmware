@@ -14,13 +14,19 @@ import requests
 import math
 import errno
 import zipfile
+import shutil
 
 
 ###############################################################################
 ## CONSTANTS. DON'T EVER TOUCH THESE
 ###############################################################################
  
-toolchain_url = "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export"
+toolchain_url_base = "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export"
+
+support_files_folder_name = "msp430-gcc-support-files"
+support_files_archive_ext = "-1.208.zip"
+support_files_archive_name = support_files_folder_name + support_files_archive_ext
+support_files_url="https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/latest/exports/%s" % (support_files_archive_name)
 
 ###############################################################################
 
@@ -82,40 +88,6 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
-def install_linux_drivers():
-    os.system("apt-get update -y")
-    os.system("apt-get install -y libusb libusb-dev")
-    os.system("apt-get install -y libreadline-dev") # for strange line endings
-    os.system("udevadm control --reload-rules && udevadm trigger")
-    current_workdir = os.getcwd()
-    os.chdir("/opt/")
-    os.system("rm -r msp_debug")
-    os.system("mkdir msp_debug")
-    os.chdir("msp_debug")
-    os.system("pwd")
-    os.system("rm -r mspdebug")
-    os.system("git clone https://github.com/dlbeer/mspdebug.git")
-    os.chdir("mspdebug")
-    os.system("make && make install")
-    os.chdir(current_workdir)
-
-    # retrigger udev so LD linkages against changes udev rules.d and loads
-    # libusb.so.x.x.x
-    os.system("udevadm control --reload-rules && udevadm trigger")
-
-
-
-def install_windows_drivers():
-    print("BLAH CARL FORGOT TO IMPLEMENT THIS (OR HASN'T IMPLEMENTED IT YET)!!")
-    exit(1)
-
-def install_apple_drivers():
-    print("BLAH CARL FORGOT TO IMPLEMENT THIS (OR HASN'T IMPLEMENTED IT YET)!!")
-    exit(1)
-
-
-
-
 # @brief install toolchain on windows
 def install_windows():
     # IN ADDITION TO THE INSTALL SCRIPT, WE HAVE TO INSTALL THE USB DRIVERS 
@@ -130,7 +102,7 @@ def install_windows():
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_win64"
     
-    download_url = toolchain_url + "/" + toolchain_folder + archive_ext
+    download_url = toolchain_url_base + "/" + toolchain_folder + archive_ext
     #os.system("curl %s --output %s" % (download_url, toolchain_folder + archive_ext))
 
     toolchain_zip_name = str(toolchain_folder + archive_ext)
@@ -143,11 +115,11 @@ def install_windows():
         zip_ref.extractall()
     os.system("rm \"%s\"" % (toolchain_folder + archive_ext))
 
-    install_dir = "C:\\ti\\"
-    os.mkdir("%s\\%s" % (install_dir, toolchain_folder))
-    os.system("mv %s %s " % (toolchain_folder, install_dir))
+    windows_install_dir = "C:\\ti\\"
+    os.mkdir("%s\\%s" % (windows_install_dir, toolchain_folder))
+    os.system("mv %s %s " % (toolchain_folder, windows_install_dir))
     current_workdir = os.getcwd() # save to restore later
-    os.chdir(install_dir + "\\" + toolchain_folder + "\\" + "bin")
+    os.chdir(windows_install_dir + "\\" + toolchain_folder + "\\" + "bin")
     
     # NOW SHIT LIKE !!! THIS !!! is why programmers bitch and moan about windows being outdated and garbage
     # equivalent linux command is literally just PATH=$PATH;new/thing/to/add
@@ -160,7 +132,6 @@ def install_windows():
     print("install_windows script is not finished yet!!")
     exit(1)
 
-    install_windows_drivers()
 
 
 # @brief install toolchain on linux
@@ -177,21 +148,56 @@ def install_linux():
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_linux64"
     
-    install_dir = "/opt"
-    download_url = toolchain_url + "/" + toolchain_folder + archive_ext
+    # some string literals that have been abstracted out. May want to make 
+    # these configurable in the future
+    linux_install_dir = "/opt/msp430_toolchain"
+    executable_symlink_dir = "/usr/local/bin"
+    bashrc_filename = os.getenv("HOME") + "/" + ".bashrc"
+
+    # save current directly to restore later because we dont have pushd/popd
+    current_workdir = os.getcwd() 
+
+    # delete old installation
+    if os.path.exists(linux_install_dir):
+        shutil.rmtree(linux_install_dir)
+    os.mkdir(linux_install_dir)
+    os.chdir(linux_install_dir)
+
+    # download msp430-elf-gcc toolchain
+    # and symlink to user local binary so they're in PATH
+    download_url = toolchain_url_base + "/" + toolchain_folder + archive_ext
     os.system("wget -qO- %s | tar -xj" % (download_url))
-    os.system("rm -r %s/%s" % ( install_dir, toolchain_folder))
-    os.system("mv %s %s " % (toolchain_folder, install_dir))
-    current_workdir = os.getcwd() # save to restore later
-    os.chdir(install_dir + "/" + toolchain_folder + "/bin")
+    os.chdir(linux_install_dir + "/" + toolchain_folder + "/bin")
     for executable in os.listdir(os.getcwd()):
-        symlink_force(os.path.abspath(executable), "/usr/local/bin/" + executable)
-    os.chdir(install_dir)
-    support_files_url="https://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/latest/exports/msp430-gcc-support-files-1.208.zip"
+        symlink_force(os.path.abspath(executable), executable_symlink_dir + "/" + executable)
+    os.chdir(linux_install_dir)
+
+    # download mcu linker scripts and device header support files
     os.system("wget %s" % (support_files_url))
-    os.system("unzip msp430-gcc-support-files-1.208.zip")
-    os.chdir(current_workdir)
-    install_linux_drivers()
+    os.system("unzip " + support_files_archive_name)
+    if os.path.exists(support_files_archive_name):
+        os.remove(support_files_archive_name)
+        #shutil.rmtree doesn't work because the Inode for a compressed file
+        #APPEARS as if it has no children 
+        #(so a .zip file appears to be a single file, not an archive)
+
+    # install mspdebug
+    os.system("apt-get update -y")
+    os.system("apt-get install -y libusb libusb-dev")
+    os.system("apt-get install -y libreadline-dev") # for strange line endings
+    os.system("git clone https://github.com/dlbeer/mspdebug.git")
+    os.chdir("mspdebug")
+    os.system("make && make install")
+    symlink_force(os.path.abspath("mspdebug"), executable_symlink_dir + "/" + "mspdebug")
+
+    # set up USB rules and udev, then retrigger so we don't need to relog
+    os.system("udevadm control --reload-rules && udevadm trigger")
+        # we may also need to set up USB and UDEV user groups here
+        # if I remember correctly from past troubleshooting,
+        # plugin, usb, and dialout groups are the ones required
+
+    # go back to directory we started in
+    os.chdir(current_workdir) 
 
 
 # @brief install toolchain on apple
@@ -200,12 +206,10 @@ def install_linux():
 def install_apple():
     print("installing msp430 toolchain for " + platform.system())
     toolchain_folder = "msp430-gcc-full-osx-installer-9.2.0.0.app.zip"
-    download_url = toolchain_url + "/" + toolchain_folder
+    download_url = toolchain_url_base + "/" + toolchain_folder
 
     print("install_apple script is not finished yet!!")
     exit(1)
-
-    install_apple_drivers()
 
 
 # @brief MAIN INSTALLATION WRAPPER
