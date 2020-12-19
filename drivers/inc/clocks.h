@@ -1,21 +1,18 @@
-#ifndef __TIMERS_H__
-#define __TIMERS_H__
+#ifndef __CLOCKS_H__
+#define __CLOCKS_H__
 #ifdef __cplusplus
 /* clang-format off */
 extern "C"
 {
 /* clang-format on */
 #endif /* Start C linkage */
-#include <stdint.h>
-#include <stdbool.h>
 
-void TIMERA0_heartbeat_init(void);
-
-extern volatile bool heartbeat_flag;
+#define SMCLK_FREQ 1100000 /* 1.1MHz on launchpad */
+/*(might be different on real board if we use external xtal */
 
 #ifdef __cplusplus
 /* clang-format off */
 }
 /* clang-format on */
 #endif /* End C linkage */
-#endif /* __TIMERS_H__ */
+#endif /* __CLOCKS_H__ */

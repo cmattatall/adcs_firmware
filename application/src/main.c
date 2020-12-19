@@ -33,7 +33,7 @@ int main(void)
     // OBC_IF_config(uart_init, uart_deinit, uart_transmit);
 
     BSP_configure_red_led();
-    TIMERA0_init();
+    TIMERA0_heartbeat_init();
 
     enable_interrupts(); /* This should be the very last thing that occurs */
 

@@ -20,7 +20,6 @@ void enable_interrupts(void)
 {
     //__bis_SR_register(LPM0_bits + GIE); /* Enter LPM0, interrupts enabled */
 
-    //_BIS_SR(CPUOFF + GIE);        // Enter LPM0 w/ interrupt
     __bis_SR_register(GIE);
 
 
