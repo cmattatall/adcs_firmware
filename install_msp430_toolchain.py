@@ -188,12 +188,15 @@ def install_linux():
     os.system("git clone https://github.com/dlbeer/mspdebug.git")
     os.chdir("mspdebug")
     os.system("make && make install")
+    symlink_force(os.path.abspath("mspdebug"), executable_symlink_dir + "/" + "mspdebug")
 
     # set up USB rules and udev, then retrigger so we don't need to relog
     os.system("udevadm control --reload-rules && udevadm trigger")
+        # we may also need to set up USB and UDEV user groups here
+        # if I remember correctly from past troubleshooting,
+        # plugin, usb, and dialout groups are the ones required
 
-    # we may also need to set up USB and UDEV user groups here
-
+    # go back to directory we started in
     os.chdir(current_workdir) 
 
 

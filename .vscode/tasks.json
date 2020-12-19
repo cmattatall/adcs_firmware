@@ -84,7 +84,7 @@
             "detail": "Flash the msp430 microcontroller using mspdebug.",
             "type": "shell",
             "group": "test",
-            "command" : "skill mspdebug && mspdebug tilib --force-reset 'prog ${input:ELF_file}'",
+            "command" : "mspdebug tilib 'prog ${input:ELF_file}'",
             "dependsOn" : ["Build target"],
             "dependsOrder": "sequence",
             "presentation": {
@@ -121,7 +121,7 @@
         },
 
         {
-            "label" : "Build target ",
+            "label" : "Build target",
             "detail": "Build the project for a target device",
             "group": "build",
             "type": "shell",
