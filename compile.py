@@ -36,9 +36,9 @@ def configure_for_windows(sdir=".", bdir="build", btype="Debug", cross=False, de
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
     configure_string += space_args("-DCMAKE_BUILD_TYPE=\"%s\"" % (btype))
     if cross == True:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=ON")
     else:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=OFF")
     for d in defs:
         configure_string += space_args("-D%s" % (d))
     os.system(configure_string)
@@ -56,9 +56,9 @@ def configure_for_linux(sdir=".", bdir="build", btype="Debug", cross=False, defs
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
     configure_string += space_args("-DCMAKE_BUILD_TYPE=\"%s\"" % (btype))
     if cross == True:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"ON\"")
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=ON")
     else:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING=\"OFF\"")
+        configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=OFF")
     for d in defs:
         configure_string += space_args("-D%s" % (d))
     os.system(configure_string)

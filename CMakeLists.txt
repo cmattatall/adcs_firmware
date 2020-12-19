@@ -60,6 +60,7 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)
         msp430_add_executable(${target} ${ARGN})
@@ -78,7 +79,6 @@ endfunction(ADCS_add_library target)
 
 
 
-
 execute_process(
     COMMAND "git" "submodule" "update" "--remote" "--recursive"
     RESULT_VARIABLE GIT_SUBMODULE_UPDATE_FAILED
@@ -91,7 +91,7 @@ endif(GIT_SUBMODULE_UPDATE_FAILED)
 
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
-add_subdirectory(application)
-add_subdirectory(shared)
+add_subdirectory(core)
+add_subdirectory(share)
 
 

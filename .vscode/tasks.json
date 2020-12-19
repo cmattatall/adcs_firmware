@@ -2,89 +2,11 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Start MSP430 Debug Server",
-            "type": "shell",
-            "detail": "Start the msp430-elf-gdb debug server for the target device using mspdebug",
-            "group": "test",
-            
-            "runOptions": {
-                "instanceLimit": 1,
-                "reevaluateOnRerun": true,
-            },
-            "linux" : 
-            {
-                "command": "mspdebug tilib gdb"
-            },
-            "windows" :
-            {
-                "command": "CARL HASN'T IMPLEMENTED THIS YET"
-            },
-            "osx" : {
-                "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
-            },
-
-            "dependsOn" : [ "Kill MSP430 Debug Server"],
-            "dependsOrder": "sequence",
-            
-            "problemMatcher": {
-                "pattern": {
-                    "regexp": "^([^\\s].*)\\((\\d+|\\,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": "-MSPDebug",
-                    "endsPattern": "MSP430_Close",
-                }
-              },
-
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": false
-            },
-
-            "isBackground": true,
-            "promptOnClose": false,
-        },
-
-        {
-            "label": "Kill MSP430 Debug Server",
-            "type": "shell",
-            "group": "test",
-            "linux" : 
-            {
-                "command": "skill mspdebug"
-            },
-            "windows" : 
-            {
-                "command": "CARL HASN'T IMPLEMENTED THIS YET"
-            },
-            "osx" : {
-                "command": "CARL HASN'T IMPLEMENTED THIS EITHER"
-            },
-
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": false
-            },
-
-            "isBackground": false,
-            "promptOnClose": false,
-        },
-
-        {
             "label": "Flash MCU",
             "detail": "Flash the msp430 microcontroller using mspdebug.",
             "type": "shell",
             "group": "test",
-            "command" : "mspdebug tilib 'prog ${input:ELF_file}'",
+            "command" : "mspdebug tilib 'prog ${input:elf_file}'",
             "dependsOn" : ["Build target"],
             "dependsOrder": "sequence",
             "presentation": {
@@ -152,7 +74,7 @@
         },
 
         {   
-            "id": "ELF_file",
+            "id": "elf_file",
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "type": "promptString",
             "default": "build/adcs.elf"

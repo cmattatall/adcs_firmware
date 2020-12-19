@@ -54,8 +54,7 @@ void callback_exec(callback_handle_t cb)
 }
 
 
-callback_handle_t register_callback(callback_func cb_func,
-                                    callback_args cb_args)
+callback_handle_t new_callback(callback_func cb_func, callback_args cb_args)
 {
     callback_handle_t new_cb = callback_ctor();
     CONFIG_ASSERT(NULL != cb_func);

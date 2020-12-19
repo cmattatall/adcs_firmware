@@ -1,0 +1,1 @@
+/usr/bin/gcc -Wall -Wshadow -O0 -g3 -ggdb -DDEBUG CMakeFiles/adcs.dir/src/jsons.c.o CMakeFiles/adcs.dir/src/magnetorquers.c.o CMakeFiles/adcs.dir/src/main.c.o CMakeFiles/adcs.dir/src/obc_interface.c.o CMakeFiles/adcs.dir/src/reaction_wheels.c.o -o adcs  ../JTOK/libJTOK.a ../shared/libINJECTION_API.a emulated/libADCS_emulated_interfaces.a ../shared/libINJECTION_API.a -lpthread 
