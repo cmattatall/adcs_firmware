@@ -1,0 +1,2 @@
+/usr/bin/ar qc libADCS_emulated_interfaces.a CMakeFiles/ADCS_emulated_interfaces.dir/src/obc_emulator.c.o
+/usr/bin/ranlib libADCS_emulated_interfaces.a

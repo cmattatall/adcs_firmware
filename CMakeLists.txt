@@ -91,7 +91,7 @@ endif(GIT_SUBMODULE_UPDATE_FAILED)
 
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
-add_subdirectory(application)
-add_subdirectory(shared)
+add_subdirectory(core)
+add_subdirectory(share)
 
 
