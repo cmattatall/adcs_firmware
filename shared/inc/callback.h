@@ -21,8 +21,7 @@ typedef struct callback_struct_t *callback_handle_t;
  * @param cb_args callback arguments to register
  * @return callback_handle_t opaque ptr to callback
  */
-callback_handle_t register_callback(callback_func cb_func,
-                                    callback_args cb_args);
+callback_handle_t new_callback(callback_func cb_func, callback_args cb_args);
 
 /**
  * @brief unregister and dealloc a given callback

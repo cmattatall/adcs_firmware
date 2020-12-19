@@ -60,6 +60,7 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+
 function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)
         msp430_add_executable(${target} ${ARGN})
@@ -75,7 +76,6 @@ function(ADCS_add_library target)
         add_library(${target} ${ARGN})
     endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_library target)
-
 
 
 

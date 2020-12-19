@@ -1,17 +1,5 @@
 # CMAKE TOOLCHAIN FILE FOR msp430-elf-gcc
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
-
-# So basically, this part right here, I'm relying on code composer to provide msp430.h 
-# because I'm sick and tired of trying to find an open source download
-# for the msp430xxxx.h device header files
-# vendor lock in is stupid and I swear I will never willingly choose to use
-# TI chipsets for the rest of my career if I can avoid it.
-# - Carl
-#
-#
-# @TODO
-
-
 if(WIN32)
     set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
 elseif(UNIX AND NOT APPLE)
@@ -25,10 +13,6 @@ endif()
 ################################################################################
 # DON'T TOUCH PAST THIS POINT 
 ################################################################################
-
-# JUST HARD-CODING THE CCS INSTALLATION DIRECTORY FOR NOW
-#set(MCU_HEADER_DIR "${CODE_COMPOSER_INSTALL_PATH}/ccs_base/msp430/include_gcc") 
-
 set(LINKER_SCRIPT "${MSP430_MCU}.ld")
 
 macro(abort message)
@@ -52,6 +36,7 @@ elseif(UNIX AND NOT APPLE)
     set(UTIL_SEARCH_COMMAND which)
 elseif(APPLE)
     # fairly certain this is going to be "$which" but I don't want to assume 
+    # I also don't own a mackbook soo....
     abort("Apple not supported yet")
 else()
     abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
@@ -101,7 +86,6 @@ if(CMAKE_CROSSCOMPILING)
         abort("Could not follow symlink from ${TOOLCHAIN_GCC_SYMLINK_PATH}")
     endif(TOOLCHAIN_GCC_TRUE_PATH_NOT_FOUND)
 
-    # FIND TOOLCHAIN ROOT AND SYSROOT FROM TRUE LOCATION OF GCC
     get_filename_component(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_GCC_TRUE_PATH} DIRECTORY)
     get_filename_component(TOOLCHAIN_ROOT ${TOOLCHAIN_BIN_DIR} DIRECTORY)
     list(APPEND BINUTILS_SEARCH_HINTS "${TOOLCHAIN_BIN_DIR}")
@@ -110,6 +94,8 @@ if(CMAKE_CROSSCOMPILING)
     set(CMAKE_SYSTEM_PROCESSOR MSP430)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+    add_compile_options("-mmcu=${MSP430_MCU}")
+
 
     set(CMAKE_SYSROOT "${TOOLCHAIN_ROOT}/${TOOLCHAIN_PREFIX}")
     set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -137,7 +123,6 @@ if(CMAKE_CROSSCOMPILING)
         CACHE INTERNAL "Initial options for linker the VERY first time a CMake build tree is configured")
         
     include(CheckLinkerFlag)
-
 else()
     set(TOOLCHAIN_PREFIX "")
     if(WIN32 OR CYGWIN OR MINGW)
@@ -162,7 +147,6 @@ else()
     mark_as_advanced(FORCE CMAKE_EXECUTABLE_SUFFIX)
 endif(NOT EXECUTABLE_SUFFIX)
 
-
 set(CMAKE_C_COMPILER_NAME ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
 set(CMAKE_ASM_COMPILER_NAME ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
 set(CMAKE_CXX_COMPILER_NAME ${TOOLCHAIN_PREFIX_INTERNAL}g++)
@@ -170,7 +154,6 @@ set(CMAKE_OBJCOPY_NAME ${TOOLCHAIN_PREFIX_INTERNAL}objcopy)
 set(CMAKE_OBJDUMP_NAME ${TOOLCHAIN_PREFIX_INTERNAL}objdump)
 set(CMAKE_SIZE_NAME ${TOOLCHAIN_PREFIX_INTERNAL}size)
 set(CMAKE_GDB_NAME ${TOOLCHAIN_PREFIX_INTERNAL}gdb) 
-
 
 find_program(
     CMAKE_C_COMPILER 
@@ -228,7 +211,6 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 # END SCRIPT, START EXPORTED FUNCTIONS
 ###############################################################################
 
-
 function(msp430_add_executable executable)
     msp430_check_defines_macro()
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
@@ -282,7 +264,6 @@ function(msp430_add_executable executable)
 
 endfunction(msp430_add_executable executable)
 
-
 function(msp430_add_library library)
     msp430_check_defines_macro()
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
@@ -296,8 +277,6 @@ function(msp430_add_library library)
 
     add_custom_target(${library}_postbuild ALL DEPENDS ${library})
 
-    # generate human-readable section info so we can 
-    #figure out if something is going wrong during build
     add_custom_command( 
         TARGET ${library}_postbuild
         POST_BUILD

@@ -27,16 +27,17 @@ int main(void)
 #if defined(TARGET_MCU)
     watchdog_stop();
 
-    // SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
     OBC_IF_config(uart_init, uart_deinit, uart_transmit);
 
     BSP_init();
+
     TIMERA0_heartbeat_init();
 
-    TIMERA0_register_callback(register_callback(BSP_toggle_red_led, NULL));
+    callback_handle_t heartbeat_cb = new_callback(BSP_toggle_red_led, NULL);
+    TIMERA0_register_callback(heartbeat_cb);
 
-    enable_interrupts(); /* This should be the very last thing that occurs */
-
+    /* This should be the very last thing that occurs */
+    enable_interrupts();
 #else
     OBC_IF_config(NULL, NULL, OBC_EMU_tx);
     OBC_EMU_start();
@@ -44,14 +45,13 @@ int main(void)
 
     while (1)
     {
-#if 0
 
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
 
             /* get command json string from OBC interface */
             OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
-
+#if 0
             /* Parse command json string */
             int parse_status = json_parse(json_buffer, sizeof(json_buffer));
             if (JSON_PARSE_ERROR(parse_status))
@@ -68,9 +68,9 @@ int main(void)
             {
                 /* successful, don't do anything */
             }
+#endif
 
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
-#endif
     }
 }

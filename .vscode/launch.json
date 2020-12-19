@@ -41,9 +41,7 @@
             "type": "cppdbg",
             "request": "launch",
             
-            "program": "${workspaceRoot}/${input:ELF_file}",
-            //"preLaunchTask": "Start MSP430 Debug Server",
-            //"postDebugTask": "Kill MSP430 Debug Server",
+            "program": "${workspaceRoot}/${input:elf_file}",
 
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
@@ -59,6 +57,8 @@
             "windows": {
                 "MIMode": "gdb"
             },
+
+            "preLaunchTask": "Flash MCU",
 
             "stopAtEntry": true,
             "externalConsole": false,
@@ -86,7 +86,6 @@
             "filterStdout": true,
             "filterStderr": false,
         }
-
        
     ],
     "compounds": [],
@@ -94,7 +93,7 @@
     "inputs": [
         {   
             "description": "Path to the ELF file to debug (relative to workspace folder)",
-            "id": "ELF_file",
+            "id": "elf_file",
             "type": "promptString",
             "default": "build/adcs.elf"
         }
