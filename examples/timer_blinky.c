@@ -14,8 +14,6 @@
 #define delay 1000
 static volatile unsigned int x = 0;
 
-static volatile int flag = 0;
-
 int main(void)
 {
     WDTCTL   = WDTPW + WDTHOLD; // Stop WDT

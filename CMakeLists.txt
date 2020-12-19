@@ -78,7 +78,6 @@ endfunction(ADCS_add_library target)
 
 
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/shared/inc")
 
 execute_process(
     COMMAND "git" "submodule" "update" "--remote" "--recursive"
@@ -93,5 +92,6 @@ endif(GIT_SUBMODULE_UPDATE_FAILED)
 add_subdirectory(JTOK)
 add_subdirectory(drivers)
 add_subdirectory(application)
+add_subdirectory(shared)
 
 

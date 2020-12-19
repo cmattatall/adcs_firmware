@@ -21,8 +21,4 @@ void enable_interrupts(void)
     //__bis_SR_register(LPM0_bits + GIE); /* Enter LPM0, interrupts enabled */
 
     __bis_SR_register(GIE);
-
-
-
-    
 }

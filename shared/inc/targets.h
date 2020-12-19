@@ -7,24 +7,14 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-/* COMPILER ATTRIBUTES */
-/* clang-format off */
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#define weak __weak
-#define packed __packed
-#elif defined(__GNUC__)
-#define weak __attribute__((weak))
-#define packed __attribute__((packed))
-#define UNUSED __attribute__((unused))
-#else
-#error Compiler not supported!
-#endif
 
 /* log_trace */
 #if defined(TARGET_MCU)
 #define log_trace(fmt, ...) ; /* do nothing (this is just so it compiles) */
 #else
-#define log_trace(fmt, ...) printf("[%s : %d in %s]\n>>> " fmt "\n", __FILE__, __LINE__, __func__, ## __VA_ARGS__)
+#define log_trace(fmt, ...)                                                    \
+    printf("[%s : %d in %s]\n>>> " fmt "\n", __FILE__, __LINE__, __func__,     \
+           ##__VA_ARGS__)
 #endif /* #if defined(TARGET_MCU) */
 
 /* CONFIG_ASSERT */
@@ -47,10 +37,10 @@ extern "C"
 #if defined(DEBUG) && !defined(NDEBUG)
 #include <assert.h>
 #define CONFIG_ASSERT(x) assert((x))
-#else   
+#else
 /* CAST AS VOID TO PREVENT COMPILER WARNING OF UNUSED VAR */
-#define CONFIG_ASSERT(x) (void)(x); 
-#endif                     /* #if defined(DEBUG)  && !defined(NDEBUG) */
+#define CONFIG_ASSERT(x) (void)(x);
+#endif /* #if defined(DEBUG)  && !defined(NDEBUG) */
 
 #endif /* #if defined(TARGET_MCU) */
 

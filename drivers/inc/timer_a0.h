@@ -9,9 +9,11 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-void TIMERA0_heartbeat_init(void);
+#include "callback_api.h"
 
-extern volatile bool heartbeat_flag;
+void TIMERA0_heartbeat_init(void);
+void TIMERA0_register_callback(callback_handle_t cb);
+
 
 #ifdef __cplusplus
 /* clang-format off */

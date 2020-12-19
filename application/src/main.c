@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 
 #if defined(TARGET_MCU)
 #include "spi.h"
@@ -12,17 +13,14 @@
 #include "obc_interface.h"
 #include "jsons.h"
 
+#include "BSP.h"
+#include "callback_api.h"
+
 /* NOTE THESE 2 HEADERS ARE JUST TEMPORARY STUFF  */
-#include <msp430.h>
-#include "timers.h"
+#include "timer_a0.h"
 
 static uint8_t json_buffer[500];
 
-
-void BSP_configure_red_led(void)
-{
-    P1DIR = 0xFF; // P1.0 output
-}
 
 int main(void)
 {
@@ -32,8 +30,10 @@ int main(void)
     // SPI0_init(&SPI0_RX_signal_watcher, &SPI0_TX_signal_watcher);
     // OBC_IF_config(uart_init, uart_deinit, uart_transmit);
 
-    BSP_configure_red_led();
+    BSP_init();
     TIMERA0_heartbeat_init();
+
+    TIMERA0_register_callback(register_callback(BSP_toggle_red_led, NULL));
 
     enable_interrupts(); /* This should be the very last thing that occurs */
 
@@ -72,12 +72,5 @@ int main(void)
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
 #endif
-        /*
-        if (heartbeat_flag)
-        {
-            
-            heartbeat_flag = false;
-        }
-        */
     }
 }
