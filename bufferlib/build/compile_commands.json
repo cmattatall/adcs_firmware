@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/carl/workspace_v10/adcs_firmware/bufferlib/build",
-  "command": "/usr/bin/cc  -I/home/carl/workspace_v10/adcs_firmware/bufferlib -I/home/carl/workspace_v10/adcs_firmware/bufferlib/inc  -o CMakeFiles/BUFFERLIB.dir/src/ringbuf.c.o -c /home/carl/workspace_v10/adcs_firmware/bufferlib/src/ringbuf.c",
-  "file": "/home/carl/workspace_v10/adcs_firmware/bufferlib/src/ringbuf.c"
-}
-]
