@@ -21,11 +21,11 @@ target_include_directories(${BUILD_TARGET} PUBLIC "${include_dirs}")
 target_link_libraries(${BUILD_TARGET} PUBLIC JTOK)
 target_link_libraries(${BUILD_TARGET} PUBLIC INJECTION_API)
 
-add_subdirectory(emulated)
 
 if(CMAKE_CROSSCOMPILING)
     target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_drivers)
 else()
+    add_subdirectory(emulated)
     target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_emulated_interfaces)
 endif(CMAKE_CROSSCOMPILING)
 

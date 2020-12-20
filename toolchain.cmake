@@ -1,11 +1,12 @@
 # CMAKE TOOLCHAIN FILE FOR msp430-elf-gcc
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
+
 if(WIN32)
-    set(CODE_COMPOSER_INSTALL_PATH "C:\\ti\\ccs1011\\ccs")
+    set(MCU_HEADER_DIR "C:\\msp430_toolchain\\msp430-gcc-support-files\\include\\")
 elseif(UNIX AND NOT APPLE)
      set(MCU_HEADER_DIR "/opt/msp430_toolchain/msp430-gcc-support-files/include")
 elseif(APPLE)
-    message(FATAL_ERROR "Apple not supported")
+    message(FATAL_ERROR "Apple not supported yet")
 else()
     message(FATAL_ERROR "${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()

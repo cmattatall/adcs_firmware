@@ -6,7 +6,7 @@
 #include "uart.h"
 #include "watchdog.h"
 #include "mcu.h"
-#include "BSP.h"
+#include "bsp.h"
 #include "timer_a0.h"
 #else
 #include "obc_emulator.h"

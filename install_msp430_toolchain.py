@@ -102,33 +102,51 @@ def install_windows():
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_win64"
     
-    download_url = toolchain_url_base + "/" + toolchain_folder + archive_ext
-    #os.system("curl %s --output %s" % (download_url, toolchain_folder + archive_ext))
+    windows_install_dir = "D:\\Desktop\\msp430_toolchain"
+    #windows_install_dir = "C:\\msp430_toolchain\\"
+    if os.path.exists(windows_install_dir):
+        os.rmdir(windows_install_dir)
+    os.mkdir(windows_install_dir)
+    os.chdir(windows_install_dir)
 
-    toolchain_zip_name = str(toolchain_folder + archive_ext)
+    toolchain_archive_name = toolchain_folder + archive_ext
+    download_url = toolchain_url_base + "/" + toolchain_archive_name
     toolchain_zipdata = requests.get(download_url)
-    toolchain_zip = open(toolchain_zip_name, "wb")
+    toolchain_zip = open(toolchain_archive_name, "wb")
     toolchain_zip.write(toolchain_zipdata.content)
     toolchain_zip.close()
 
-    with zipfile.ZipFile(toolchain_folder + archive_ext, 'r') as zip_ref:
+    with zipfile.ZipFile(toolchain_archive_name, 'r') as zip_ref:
         zip_ref.extractall()
-    os.system("rm \"%s\"" % (toolchain_folder + archive_ext))
-
-    windows_install_dir = "C:\\ti\\"
-    os.mkdir("%s\\%s" % (windows_install_dir, toolchain_folder))
-    os.system("mv %s %s " % (toolchain_folder, windows_install_dir))
+    
+    if os.path.exists(toolchain_archive_name):
+        os.remove(toolchain_archive_name)
+    #os.system("rm \"%s\"" % (toolchain_archive_name))
     current_workdir = os.getcwd() # save to restore later
     os.chdir(windows_install_dir + "\\" + toolchain_folder + "\\" + "bin")
     
     # NOW SHIT LIKE !!! THIS !!! is why programmers bitch and moan about windows being outdated and garbage
     # equivalent linux command is literally just PATH=$PATH;new/thing/to/add
-    os.system("$PATH = [Environment]::GetEnvironmentVariable(\"PATH\")")
-    os.system("$path_to_add = \"%s\"" % (os.getcwd()))
-    os.system("[Environment]::SetEnvironmentVariable(\"PATH\", \"$PATH;$path_to_add\", \"Machine\")")
-    os.chdir(current_workdir)
-    os.system("echo $PATH")
+    #os.system("$PATH = [Environment]::GetEnvironmentVariable(\"PATH\")")
+    #os.system("$path_to_add = \"%s\"" % (os.getcwd()))
+    #os.system("[Environment]::SetEnvironmentVariable(\"PATH\", \"$PATH;$path_to_add\", \"Machine\")")
+    os.chdir(windows_install_dir)
 
+    supprtfiles_zipdata = requests.get(support_files_url)
+    supportfiles_zip = open(support_files_archive_name, "wb")
+    supportfiles_zip.write(supprtfiles_zipdata.content)
+    supportfiles_zip.close()
+    with zipfile.ZipFile(support_files_archive_name, "r") as zip_ref:
+        zip_ref.extractall()
+    if os.path.exists(support_files_archive_name):
+        os.remove(support_files_archive_name)
+
+    # install mspdebug
+    os.system("git clone https://github.com/dlbeer/mspdebug.git")
+    os.chdir("mspdebug")
+    os.system("make && make install")
+
+    os.chdir(windows_install_dir)
     print("install_windows script is not finished yet!!")
     exit(1)
 
@@ -159,7 +177,7 @@ def install_linux():
 
     # delete old installation
     if os.path.exists(linux_install_dir):
-        shutil.rmtree(linux_install_dir)
+        os.remove(linux_install_dir)
     os.mkdir(linux_install_dir)
     os.chdir(linux_install_dir)
 
