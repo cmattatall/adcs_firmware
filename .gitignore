@@ -1,6 +1,11 @@
 build/*
 Testing/*
 
+*CMakeFiles
+*Makefile
+*cmake_install*
+*CMakeCache
+
 *.o
 *.d
 *.i
