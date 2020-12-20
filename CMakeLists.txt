@@ -100,7 +100,12 @@ if(GIT_SUBMODULE_UPDATE_FAILED)
     message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
 endif(GIT_SUBMODULE_UPDATE_FAILED)
 
+if(BUILD_TESTING)
+    include(CTest)
+endif()
+
 include_directories(share)
+
 add_subdirectory(share)
 add_subdirectory(JTOK)
 add_subdirectory(bufferlib)

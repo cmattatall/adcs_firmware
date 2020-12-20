@@ -23,47 +23,68 @@ def checkPythonVersion():
 def space_args(string):
     return " " + str(string) + " "
 
-def configure_for_windows(sdir=".", bdir="build", btype="Debug", cross=False, defs=[]):
+def configure_for_windows(sdir=".", bdir="build", btype="Debug", cross=False, defs=[], t=False):
     configure_string = space_args("cmake")
+    
     if not os.path.exists(sdir):
         print("directory %s does not exist! Aborting!" % (sdir))
         exit(1)
     configure_string += space_args("-S %s" % (sdir))
+
+
     if not os.path.exists(bdir):
         os.mkdir(bdir)
+    
     configure_string += space_args("-B %s" % (bdir))
     configure_string += space_args("-G \"MinGW Makefiles\"") 
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
     configure_string += space_args("-DCMAKE_BUILD_TYPE=\"%s\"" % (btype))
+    
     if cross == True:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=ON")
     else:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=OFF")
+
+    if t == True:
+        configure_string += space_args("-DBUILD_TESTING:BOOL=ON")
+    else:
+        configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
+
     for d in defs:
         configure_string += space_args("-D%s" % (d))
     os.system(configure_string)
 
-def configure_for_linux(sdir=".", bdir="build", btype="Debug", cross=False, defs=[]):
+def configure_for_linux(sdir=".", bdir="build", btype="Debug", cross=False, defs=[], t=False):
     configure_string = space_args("cmake")
+
     if not os.path.exists(sdir):
         print("directory %s does not exist! Aborting!" % (sdir))
         exit(1)
+
     configure_string += space_args("-S %s" % (sdir))
     if not os.path.exists(bdir):
         os.mkdir(bdir)
+
     configure_string += space_args("-B %s" % (bdir))
     configure_string += space_args("-G \"Unix Makefiles\"")
     configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
     configure_string += space_args("-DCMAKE_BUILD_TYPE=\"%s\"" % (btype))
+
     if cross == True:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=ON")
     else:
         configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=OFF")
+
+    if t == True:
+        configure_string += space_args("-DBUILD_TESTING:BOOL=ON")
+    else:
+        configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
+
     for d in defs:
         configure_string += space_args("-D%s" % (d))
     os.system(configure_string)
 
-def configure_for_apple(sdir=".", bdir="build", btype="Debug", cross=False):
+def configure_for_apple(sdir=".", bdir="build", btype="Debug", cross=False, defs=[], t=False):
     print("Apple is not yet supported!!")
     exit(1)
 
@@ -73,11 +94,13 @@ def compile_the_project():
     parser.add_argument("--cross-compile", action="store_true", dest="cross_compile", help="Option to cross compile for the target device")
     parser.add_argument("--build-type", action="store", dest="build_type", choices=["Debug", "Release"], default ="Debug", help="String indicating the cmake build type")
     parser.add_argument("--definitions", action="store", dest="definitions", help="string of key-value pairs to be used for definitions. NOTE: NOT THOROUGHLY TESTED!", default="")
+    parser.add_argument("--test", action="store_true", dest="build_tests", help="option to build and run the automated tests as well as the project source")
 
     args = parser.parse_args()
     cross_compile = args.cross_compile
     build_type = args.build_type
     my_defs = args.definitions
+    build_tests=args.build_tests
 
     ############################################################################
     # okay, so for now, we're going to rebuild everything from scratch each 
@@ -104,11 +127,11 @@ def compile_the_project():
     os.system("rm -r build")
 
     if platform.system() == "Windows":
-        configure_for_windows(cross=cross_compile, btype=build_type, defs=my_defs)
+        configure_for_windows(cross=cross_compile, btype=build_type, defs=my_defs, t=build_tests)
     elif platform.system() == "Linux":
-        configure_for_linux(cross=cross_compile, btype=build_type, defs=my_defs)
+        configure_for_linux(cross=cross_compile, btype=build_type, defs=my_defs, t=build_tests)
     elif platform.system() == "Apple":
-        configure_for_apple(cross=cross_compile, btype=build_type, defs=my_defs)
+        configure_for_apple(cross=cross_compile, btype=build_type, defs=my_defs, t=build_tests)
     else:
         print(platform.system() + " is not a supported platform!!")
         exit(1)
