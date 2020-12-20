@@ -85,13 +85,14 @@ function(ADCS_add_library target)
 endfunction(ADCS_add_library target)
 
 
-
 execute_process(
-    COMMAND "git" "submodule" "update" "--remote" "--recursive"
+    COMMAND "git" "submodule" "update" "--remote" "--recursive" "--force"
     RESULT_VARIABLE GIT_SUBMODULE_UPDATE_FAILED
+    OUTPUT_VARIABLE GIT_SUBMODULE_UPDATE_OUTPUT
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ECHO_OUTPUT_VARIABLE
     )
+    
 if(GIT_SUBMODULE_UPDATE_FAILED)
     message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
 endif(GIT_SUBMODULE_UPDATE_FAILED)
