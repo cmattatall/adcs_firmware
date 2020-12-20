@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 if(NOT CMAKE_CROSSCOMPILING)
     project(
-        ADCS_emulated_interfaces 
+        ADCS_IF_EMU 
         VERSION 1.0
         DESCRIPTION "ADCS interface emulation for execution on a native machine"
         LANGUAGES C
@@ -23,6 +23,7 @@ if(NOT CMAKE_CROSSCOMPILING)
     target_include_directories(${BUILD_TARGET} PUBLIC ${include_dirs})
     target_sources(${BUILD_TARGET} PRIVATE ${sources})
     target_link_libraries(${BUILD_TARGET} PUBLIC INJECTION_API)
+    target_link_libraries(${BUILD_TARGET} PUBLIC ADCS_OBC_INTERFACE)
 
     find_package(Threads REQUIRED)
     if(Threads_FOUND) 

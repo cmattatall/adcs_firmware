@@ -84,7 +84,6 @@ function(ADCS_add_library target)
     endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_library target)
 
-
 execute_process(
     COMMAND "git" "submodule" "update" "--remote" "--recursive" "--force"
     RESULT_VARIABLE GIT_SUBMODULE_UPDATE_FAILED
@@ -97,11 +96,21 @@ if(GIT_SUBMODULE_UPDATE_FAILED)
     message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
 endif(GIT_SUBMODULE_UPDATE_FAILED)
 
+include_directories(share)
+add_subdirectory(share)
 add_subdirectory(JTOK)
 add_subdirectory(bufferlib)
 add_subdirectory(drivers)
 add_subdirectory(core)
-add_subdirectory(share)
 
+# If this project is later imported, 
+# we don't wan't to force all the tests on the person who imports.
+# (so only run tests automatically if top-level project is the current project)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    enable_testing()
+    include(CTest)
+    add_subdirectory(test)
+    option(PACKAGE_TESTS "Build the tests" ON)
+endif()
 
 
