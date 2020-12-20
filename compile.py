@@ -94,13 +94,13 @@ def compile_the_project():
     parser.add_argument("--cross-compile", action="store_true", dest="cross_compile", help="Option to cross compile for the target device")
     parser.add_argument("--build-type", action="store", dest="build_type", choices=["Debug", "Release"], default ="Debug", help="String indicating the cmake build type")
     parser.add_argument("--definitions", action="store", dest="definitions", help="string of key-value pairs to be used for definitions. NOTE: NOT THOROUGHLY TESTED!", default="")
-    parser.add_argument("--test", action="store_true", dest="build_tests", help="option to build and run the automated tests as well as the project source")
+    parser.add_argument("--test", action="store_true", dest="test", help="option to build and run the automated tests as well as the project source")
 
     args = parser.parse_args()
     cross_compile = args.cross_compile
     build_type = args.build_type
     my_defs = args.definitions
-    build_tests=args.build_tests
+    test=args.test
 
     ############################################################################
     # okay, so for now, we're going to rebuild everything from scratch each 
@@ -124,18 +124,27 @@ def compile_the_project():
     #    and they are working to resolve it (it has been a known issue
     #    for the last few months) 
     ############################################################################
-    os.system("rm -r build")
+
+    build_dir = "build"
+
+    os.system("rm -r %s" % (build_dir))
 
     if platform.system() == "Windows":
-        configure_for_windows(cross=cross_compile, btype=build_type, defs=my_defs, t=build_tests)
+        configure_for_windows(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
     elif platform.system() == "Linux":
-        configure_for_linux(cross=cross_compile, btype=build_type, defs=my_defs, t=build_tests)
+        configure_for_linux(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
     elif platform.system() == "Apple":
-        configure_for_apple(cross=cross_compile, btype=build_type, defs=my_defs, t=build_tests)
+        configure_for_apple(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
     else:
         print(platform.system() + " is not a supported platform!!")
         exit(1)
     os.system("cmake --build build")
+
+    if(test):
+        current_dir = os.getcwd()
+        os.chdir(build_dir)
+        os.system("ctest -V")
+        os.chdir(current_dir)
 
 def run_tests():
     print("running tests")
