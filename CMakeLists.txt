@@ -27,11 +27,13 @@ cmake_minimum_required(VERSION 3.16)
 #
 #
 ################################################################################
+option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
+option(CMAKE_CROSSCOMPILING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
+
+
 set(SUPPORTED_BUILD_TYPES "")
 list(APPEND SUPPORTED_BUILD_TYPES "Debug")
 list(APPEND SUPPORTED_BUILD_TYPES "Release")
-
-set(CMAKE_CROSSCOMPILING OFF BOOL CACHE STRING "[ON/OFF] Boolean to choose to cross compile or not")
 
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
@@ -84,21 +86,23 @@ function(ADCS_add_library target)
     endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_library target)
 
-
-
+message("\n")
 execute_process(
-    COMMAND "git" "submodule" "update" "--remote" "--recursive"
+    COMMAND "git" "submodule" "update" "--remote" "--recursive" "--force"
     RESULT_VARIABLE GIT_SUBMODULE_UPDATE_FAILED
+    OUTPUT_VARIABLE GIT_SUBMODULE_UPDATE_OUTPUT
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ECHO_OUTPUT_VARIABLE
     )
+
+
 if(GIT_SUBMODULE_UPDATE_FAILED)
     message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
 endif(GIT_SUBMODULE_UPDATE_FAILED)
 
+include_directories(share)
+add_subdirectory(share)
 add_subdirectory(JTOK)
+add_subdirectory(bufferlib)
 add_subdirectory(drivers)
 add_subdirectory(core)
-add_subdirectory(share)
-
-

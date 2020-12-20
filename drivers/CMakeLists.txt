@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 if(CMAKE_CROSSCOMPILING)
     project(
-        ADCS_drivers
+        ADCS_DRIVERS
         DESCRIPTION "Peripheral driver library for ADCS targeting msp430f5529" 
         VERSION 1.0 
         LANGUAGES C
