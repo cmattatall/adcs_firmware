@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 if(NOT CMAKE_CROSSCOMPILING)
     project(
         ADCS_emulated_interfaces 
-        VERSION 1.0 
+        VERSION 1.0
+        DESCRIPTION "ADCS interface emulation for execution on a native machine"
         LANGUAGES C
     )
     
@@ -25,7 +26,6 @@ if(NOT CMAKE_CROSSCOMPILING)
 
     find_package(Threads REQUIRED)
     if(Threads_FOUND) 
-        # https://sourceforge.net/projects/mingw-w64/
         if(WIN32)
             if(CMAKE_USE_WIN32_THREADS_INIT)
                 target_link_libraries(${BUILD_TARGET} PUBLIC pthread)

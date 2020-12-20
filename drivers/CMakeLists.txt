@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 if(CMAKE_CROSSCOMPILING)
     project(
-        ADCS_drivers 
+        ADCS_drivers
+        DESCRIPTION "Peripheral driver library for ADCS targeting msp430f5529" 
         VERSION 1.0 
         LANGUAGES C
     )
@@ -11,13 +12,13 @@ if(CMAKE_CROSSCOMPILING)
     ADCS_add_library(${BUILD_TARGET} STATIC)
 
     file(GLOB_RECURSE sources 
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c" 
-        "${CMAKE_CURRENT_SOURCE_DIR}/BSP/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/**.c" 
+        "${CMAKE_CURRENT_SOURCE_DIR}/BSP/**.c"
     )
     
     file(GLOB_RECURSE headers 
-        "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h" 
-        "${CMAKE_CURRENT_SOURCE_DIR}/BSP/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/inc/**.h" 
+        "${CMAKE_CURRENT_SOURCE_DIR}/BSP/**.h"
     )
 
     foreach(hdr ${headers})
