@@ -92,14 +92,16 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ECHO_OUTPUT_VARIABLE
     )
-    
+
 if(GIT_SUBMODULE_UPDATE_FAILED)
     message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
 endif(GIT_SUBMODULE_UPDATE_FAILED)
 
 add_subdirectory(JTOK)
+add_subdirectory(bufferlib)
 add_subdirectory(drivers)
 add_subdirectory(core)
 add_subdirectory(share)
+
 
 

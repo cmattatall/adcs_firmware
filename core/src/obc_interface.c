@@ -21,15 +21,12 @@
 
 #include "obc_interface.h"
 
+#include "bufferlib.h"
+
 static uint8_t obcTxBuf[OBC_TX_BUFFER_SIZE];
 
 typedef struct
 {
-    /*
-    void (*init)(void (*rx_func)(uint8_t));
-    void (*deinit)(void);
-    int (*tx)(uint8_t *, uint_least16_t);
-    */
     rx_injector_func init;
     deinit_func      deinit;
     transmit_func    tx;

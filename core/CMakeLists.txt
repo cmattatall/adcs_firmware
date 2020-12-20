@@ -19,6 +19,7 @@ target_sources(${BUILD_TARGET} PRIVATE "${sources}")
 target_include_directories(${BUILD_TARGET} PUBLIC "${include_dirs}")
 
 target_link_libraries(${BUILD_TARGET} PUBLIC JTOK)
+target_link_libraries(${BUILD_TARGET} PUBLIC BUFFERLIB)
 target_link_libraries(${BUILD_TARGET} PUBLIC INJECTION_API)
 
 
