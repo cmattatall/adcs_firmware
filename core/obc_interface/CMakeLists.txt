@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.18)
 option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
 
 project(
-    ADCS_JSONS 
+    ADCS_OBC_INTERFACE 
     VERSION 1.0 
     DESCRIPTION "ADCS <-> OBC JSON COMMUNICATION LIBRARY FOR LORRIS PROJECT"
     LANGUAGES C ASM
 )
 set(LIB "${PROJECT_NAME}")
-message("CONFIGURING TARGET : ${LIB}")
+message("CONFIGURING TARGET : ${PROJECT_NAME}")
 add_library(${LIB})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # vscode
 
@@ -26,10 +26,9 @@ list(REMOVE_DUPLICATES ${LIB}_public_include_dirs)
 target_include_directories(${LIB} PUBLIC ${${LIB}_public_include_dirs})
 
 # Link against the necessary things
-target_link_libraries(${LIB} PUBLIC JTOK)
-target_link_libraries(${LIB} PUBLIC ADCS_OBC_INTERFACE)
-target_link_libraries(${LIB} PUBLIC ADCS_REACTIONWHEELS)
-target_link_libraries(${LIB} PUBLIC ADCS_MAGNETORQUERS)
+target_link_libraries(${LIB} PUBLIC INJECTION_API)
+target_link_libraries(${LIB} PUBLIC BUFFERLIB)
+
 
 if(BUILD_TESTING)
     include(CTest)

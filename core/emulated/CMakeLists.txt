@@ -7,7 +7,6 @@ if(NOT CMAKE_CROSSCOMPILING)
         DESCRIPTION "ADCS interface emulation for execution on a native machine"
         LANGUAGES C
     )
-    
     message("CONFIGURING ${PROJECT_NAME}")
     set(BUILD_TARGET ${PROJECT_NAME})
 
