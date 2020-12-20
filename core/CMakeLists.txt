@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
+
+option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
+
+if(BUILD_TESTING)
+    include(CTest)
+endif(BUILD_TESTING)
+
 project(
     adcs 
     VERSION 0.1
