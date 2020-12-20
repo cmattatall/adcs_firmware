@@ -1,10 +1,7 @@
 ################################################################################ 
-# @brief
-# CMAKE TEST SCRIPT FOR HARDWARD INDEPENDENT TEST AUTOMATION
-# ON ADCS PROJECT
 # 
+# @brief CMAKE TEST SCRIPT FOR ADCS JSONS ON ADCS PROJECT
 # @author Carl Mattatall (cmattatall2@gmail.com)
-#
 #
 ################################################################################ 
 

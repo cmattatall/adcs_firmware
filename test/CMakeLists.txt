@@ -1,6 +1,0 @@
-cmake_minimum_required(VERSION 3.16)
-if(CMAKE_CROSSCOMPILING)
-    add_subdirectory(target_test)
-else()
-    add_subdirectory(native_test)
-endif(CMAKE_CROSSCOMPILING)

@@ -102,15 +102,3 @@ add_subdirectory(JTOK)
 add_subdirectory(bufferlib)
 add_subdirectory(drivers)
 add_subdirectory(core)
-
-# If this project is later imported, 
-# we don't wan't to force all the tests on the person who imports.
-# (so only run tests automatically if top-level project is the current project)
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    enable_testing()
-    include(CTest)
-    add_subdirectory(test)
-    option(PACKAGE_TESTS "Build the tests" ON)
-endif()
-
-
