@@ -143,7 +143,7 @@ def compile_the_project():
     if(test):
         current_dir = os.getcwd()
         os.chdir(build_dir)
-        os.system("ctest -V")
+        os.system("ctest")
         os.chdir(current_dir)
 
 def run_tests():

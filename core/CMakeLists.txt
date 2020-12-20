@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
 
 if(BUILD_TESTING)
-    message("WE GONNA BUILD THE TESTS FOR CORE")
-endif()
+    include(CTest)
+endif(BUILD_TESTING)
 
 project(
     adcs 
