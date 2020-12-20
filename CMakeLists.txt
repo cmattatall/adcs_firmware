@@ -19,6 +19,13 @@ cmake_minimum_required(VERSION 3.16)
 # behaviour of >if< 
 #   https://cmake.org/cmake/help/v3.18/command/if.html
 #
+#
+# OTHER : 
+#   on windows, you probably need to install gcc
+#   https://sourceforge.net/projects/mingw-w64/
+#   
+#
+#
 ################################################################################
 set(SUPPORTED_BUILD_TYPES "")
 list(APPEND SUPPORTED_BUILD_TYPES "Debug")

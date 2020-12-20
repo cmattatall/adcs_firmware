@@ -6,7 +6,7 @@
 #include "uart.h"
 #include "watchdog.h"
 #include "mcu.h"
-#include "BSP.h"
+#include "bsp.h"
 #include "timer_a0.h"
 #else
 #include "obc_emulator.h"
@@ -49,9 +49,9 @@ int main(void)
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
 
+#if 0
             /* get command json string from OBC interface */
             OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
-#if 0
             /* Parse command json string */
             int parse_status = json_parse(json_buffer, sizeof(json_buffer));
             if (JSON_PARSE_ERROR(parse_status))

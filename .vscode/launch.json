@@ -40,12 +40,13 @@
             "name": "(msp430-elf-gdb) msp430 remote debug",
             "type": "cppdbg",
             "request": "launch",
-            
             "program": "${workspaceRoot}/${input:elf_file}",
-
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
             "miDebuggerArgs": "",
+
+            //"preLaunchTask": "Flash MCU",
+            "serverStarted": "Now waiting for connection...",
 
             "cwd": "${workspaceFolder}", 
             "linux": {
@@ -57,8 +58,6 @@
             "windows": {
                 "MIMode": "gdb"
             },
-
-            "preLaunchTask": "Flash MCU",
 
             "stopAtEntry": true,
             "externalConsole": false,
@@ -81,8 +80,6 @@
                 "loadAll": true,
                 "exceptionList": ""
             },
-            "serverStarted": "Now waiting for connection...",
-
             "filterStdout": true,
             "filterStderr": false,
         }
