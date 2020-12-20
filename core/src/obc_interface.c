@@ -67,8 +67,6 @@ int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx)
     inPtr  = ringbuf;
     outPtr = ringbuf;
 
-    CONFIG_ASSERT(ops.init != NULL);
-
     if (ops.init != NULL)
     {
         ops.init(OBC_IF_receive_byte_internal);
