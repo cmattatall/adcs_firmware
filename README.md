@@ -13,7 +13,9 @@
 
 ### LINUX (UBUNTU 18.04 OR NEWER)
 
+```
     #python3 ./install_msp430_toolchain.py.
+```
 
 ### Windows
 
@@ -23,9 +25,9 @@
 4. Start an administrator instance of powershell, navigate to this directory and launch the python installer
 5. The installer can be executed with 
 
-    
+```    
     #python3 .\install_msp430_toolchain.py
-
+```
 
 ## Building
 
