@@ -61,6 +61,15 @@
             },
             "isBackground": false,
             "promptOnClose": false,
+        },
+
+
+        {
+            "label": "Pull latest",
+            "detail": "pull all branches from origin",
+            "type": "shell",
+            "command" : "git pull --all",
+            "runOptions": {"runOn": "folderOpen"},
         }
     ],
 

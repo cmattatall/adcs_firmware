@@ -51,6 +51,21 @@ project(
     LANGUAGES C ASM
 )
 
+# I'd like to configure this in the toolchain file, BUT, we don't actually
+# have access to project variables when cmake processes the toolchain file
+# since the top-level "project" instruction is actually what triggers
+# toolchain configuration.
+# Thus, we have to set this after we process the toolchain, but before
+# we add any executable/library targets to the project
+#
+# if cmake supported CMAKE_PROJECT_BINARY_DIR instead of just
+#
+# PROJECT_BINARY_DIR , it would be SOOOOO useful :(
+#
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
+
 message("\nPROJECT : ${CMAKE_PROJECT_NAME}")
 message("BUILD_TARGET : ${CMAKE_SYSTEM_NAME}")
 message("PROCESSOR : ${CMAKE_SYSTEM_PROCESSOR}")

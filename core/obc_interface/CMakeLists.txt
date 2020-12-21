@@ -10,7 +10,7 @@ project(
 )
 set(LIB "${PROJECT_NAME}")
 message("CONFIGURING TARGET : ${PROJECT_NAME}")
-add_library(${LIB})
+ADCS_add_library(${LIB})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # vscode
 
 file(GLOB_RECURSE ${LIB}_sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
@@ -30,13 +30,38 @@ target_link_libraries(${LIB} PUBLIC INJECTION_API)
 target_link_libraries(${LIB} PUBLIC BUFFERLIB)
 
 
+if(NOT CMAKE_CROSSCOMPILING)
+    find_package(Threads REQUIRED)
+    if(Threads_FOUND) 
+        if(WIN32)
+            if(CMAKE_USE_WIN32_THREADS_INIT)
+                target_link_libraries(${LIB} PUBLIC pthread)
+                target_compile_options(${LIB} PUBLIC "-lpthread")
+            else()
+                message(FATAL_ERROR "BLAHHH ")
+            endif()
+        elseif(UNIX)
+            if(CMAKE_USE_PTHREADS_INIT)
+                target_link_libraries(${LIB} PUBLIC pthread)
+                target_compile_options(${LIB} PUBLIC "-lpthread")
+            else()
+                message(FATAL_ERROR "BLAHHH ")
+            endif()
+        endif()
+    else()
+        message(FATAL_ERROR "No threading libraries have been found. Aborting!")
+    endif()
+endif(NOT CMAKE_CROSSCOMPILING)
+
+
+
 if(BUILD_TESTING)
+    enable_testing()
     include(CTest)
     add_subdirectory(test)
 else()
-    # If we're working on this project 
-    # we should be doing all the tests anyway
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+        enable_testing()
         include(CTest)
         add_subdirectory(test)
     endif()

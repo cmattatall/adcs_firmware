@@ -137,10 +137,15 @@ else()
     endif()
 endif(CMAKE_CROSSCOMPILING)
 
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_PROJECT_BINARY_DIR} CACHE INTERNAL "")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_PROJECT_BINARY_DIR} CACHE INTERNAL "")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_PROJECT_BINARY_DIR} CACHE INTERNAL "")
+# I'd like to configure this in the toolchain file, BUT, we don't actually
+# have access to project variables when cmake processes the toolchain file
+# since the top-level "project" instruction is actually what triggers
+# toolchain configuration.
+# Thus, we have to set this after we process the toolchain, but before
+# we add any executable/library targets to the project
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
 
 if(NOT EXECUTABLE_SUFFIX)
     abort("EXECUTABLE_SUFFIX IS NOT DEFINED!")
@@ -231,6 +236,8 @@ function(msp430_add_executable executable)
         SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
     )
 
+    message("CMAKE_RUNTIME_OUTPUT_DIRECTORY = ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
     add_custom_command( 
         TARGET ${executable}_postbuild
@@ -276,16 +283,6 @@ function(msp430_add_library library)
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
-
-    add_custom_target(${library}_postbuild ALL DEPENDS ${library})
-
-    add_custom_command( 
-        TARGET ${library}_postbuild
-        POST_BUILD
-        DEPENDS ${library}
-        COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
-        COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib${library}${CMAKE_STATIC_LIBRARY_SUFFIX}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${library}.lss"
-    )
 endfunction(msp430_add_library library)
 
 
