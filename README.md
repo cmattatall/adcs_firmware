@@ -22,6 +22,7 @@
 3. Download and install python 3 (or newer). It can be installed from the windows store on windows 10 and above.
 4. Start an administrator instance of powershell, navigate to this directory and launch the python installer
 5. The installer can be executed with 
+
     #python3 .\install_msp430_toolchain.py
 ## Building
 
