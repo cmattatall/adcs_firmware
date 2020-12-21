@@ -1,7 +1,7 @@
 /**
  * @file fw_version_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Test to check response to firmware version request from OBC
+ * @brief Test to check response to hardware version request from OBC
  * @version 0.1
  * @date 2020-12-21
  *
@@ -15,12 +15,11 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "jsons.h"
-#include <assert.h>
+#include "json_test_hook.h"
 
 int main(void)
 {
-    char json   = "{\"fwVersion\":\"read\"}";
-    int  retval = json_parse(json, sizeof(json));
-    assert(retval == 0);
-    return 0;
+    uint8_t json[] = "{\"hwVersion\":\"read\"}";
+    int     retval = json_parse(json, sizeof(json));
+    return   retval;
 }

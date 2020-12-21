@@ -1,10 +1,20 @@
+
+# SPECIFIC VSCODE STUFF
+*vscode/settings.json
+vscode/settings.json
+
+# CMAKE
 build/*
 Testing/*
-
 *CMakeFiles
 *Makefile
 *cmake_install*
 *CMakeCache
+
+# PYTHON
+*.pyc
+
+# C / C++
 
 *.o
 *.d

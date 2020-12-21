@@ -15,12 +15,11 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "jsons.h"
-#include <assert.h>
+#include "json_test_hook.h"
 
 int main(void)
 {
-    char json   = "{\"fwVersion\":\"read\"}";
-    int  retval = json_parse(json, sizeof(json));
-    assert(retval == 0);
-    return 0;
+    uint8_t json[] = "{\"fwVersion\":\"read\"}";
+    int     retval = json_parse(json, sizeof(json));
+    return retval;
 }

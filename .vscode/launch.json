@@ -8,12 +8,12 @@
             "program": "${workspaceFolder}/build/adcs",
 
             "windows": {
-                "program": "${workspaceFolder}/build/adcs.exe",
+                "program": "${workspaceFolder}/build/${input:native_executable}.exe",
                 "miDebuggerPath": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gdb.exe",
                 "externalConsole": false,
             },
             "linux": {
-                "program": "${workspaceFolder}/build/adcs",
+                "program": "${workspaceFolder}/build/${input:native_executable}",
                 "miDebuggerPath": "gdb",
             },
             "osx": {
@@ -22,7 +22,7 @@
             },
 
             "args": [],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
@@ -93,6 +93,14 @@
             "id": "elf_file",
             "type": "promptString",
             "default": "build/adcs.elf"
+        },
+
+        {
+            "id": "native_executable",
+            //"default": "adcs_executable",
+            "default": "ADCS_JSONS_pwm_rw_x_write_check",
+            "description": "Path to the native executable",
+            "type": "promptString"
         }
     ]
 }

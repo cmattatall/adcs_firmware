@@ -17,10 +17,21 @@ typedef enum
     REACTION_WHEEL_z,
 } REACTION_WHEEL_t;
 
-int set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
+typedef enum
+{
+    RW_DIR_clockwise,
+    RW_DIR_anticlockwise,
+    RW_DIR_invalid, /* <-- USED TO INDICATE API ERROR TO CALLER */
+} RW_DIR_t;
 
 
-pwm_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel);
+
+void set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
+void set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir);
+
+
+pwm_t    get_reaction_wheel_pwm(REACTION_WHEEL_t wheel);
+RW_DIR_t get_reaction_wheel_dir(REACTION_WHEEL_t wheel);
 
 #ifdef __cplusplus
 /* clang-format off */
