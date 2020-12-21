@@ -44,8 +44,11 @@ set(MSP430_MCU_FREQ "8000000" CACHE STRING "Frequency of input oscillator to MCU
 ################################################################################
 #                       PROJECT START                                          #
 ################################################################################
+
+get_filename_component(MY_TOPLEVEL_PROJECT_NAME ${CMAKE_SOURCE_DIR} NAME)
+
 project(
-    ADCS_application 
+    ${MY_TOPLEVEL_PROJECT_NAME}
     VERSION 0.1
     DESCRIPTION "ADCS Firmware Project for DSS LORIS Satellite"
     LANGUAGES C ASM

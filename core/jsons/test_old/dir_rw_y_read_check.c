@@ -12,7 +12,7 @@
 int main(void)
 {
     char fmt[] = "{\"dir_rw_y\": \"read\"}";
-    char json[250];
+    uint8_t json[250];
     int  i;
     for (i = 0; i < 2; i++)
     {

@@ -19,8 +19,8 @@
 
 int main(void)
 {
-    char json = "{\"hwVersion\":\"read\"}";
-    int  retval          = json_parse(json, sizeof(json));
+    uint8_t json[] = "{\"hwVersion\":\"read\"}";
+    int  retval = json_parse(json, sizeof(json));
     assert(retval == 0);
     return 0;
 }
