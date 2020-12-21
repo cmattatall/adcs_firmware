@@ -22,7 +22,7 @@
             },
 
             "args": [],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
@@ -97,7 +97,8 @@
 
         {
             "id": "native_executable",
-            "default": "adcs_executable",
+            //"default": "adcs_executable",
+            "default": "ADCS_JSONS_pwm_rw_x_write_check",
             "description": "Path to the native executable",
             "type": "promptString"
         }

@@ -28,8 +28,10 @@
 #define JSON_TKN_CNT 250
 #define JSON_HANDLER_RETVAL_ERROR NULL
 
-typedef void *json_handler_retval;
-typedef void *json_handler_args;
+typedef uint_fast16_t token_index_t;
+
+typedef void *         json_handler_retval;
+typedef token_index_t *json_handler_args;
 typedef json_handler_retval (*json_handler)(json_handler_args);
 
 typedef struct
@@ -38,7 +40,6 @@ typedef struct
     json_handler handler;
 } json_parse_table_item;
 
-typedef uint_fast16_t token_index_t;
 
 static jtoktok_t     tkns[JSON_TKN_CNT];
 static jtok_parser_t parser;
@@ -54,7 +55,6 @@ static void *parse_pwm_rw_z(json_handler_args args);
 static void *parse_dir_rw_x(json_handler_args args);
 static void *parse_dir_rw_y(json_handler_args args);
 static void *parse_dir_rw_z(json_handler_args args);
-
 
 /* JSON PARSE TABLE */
 /* clang-format off */
@@ -187,11 +187,13 @@ static void *parse_pwm_rw_x(json_handler_args args)
         {
             /* getting values from JSON is a little unelegant in C ... */
             *t += 1;
-            memset(value_holder, '\0', sizeof(value_holder));
+
+
+            memset(value_holder, 0, sizeof(value_holder));
             jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
             char *endptr    = value_holder;
             pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
-            if (endptr != &tkns[*t].json[tkns[*t].end])
+            if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
                 return JSON_HANDLER_RETVAL_ERROR;
@@ -244,7 +246,7 @@ static void *parse_pwm_rw_y(json_handler_args args)
             jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
             char *endptr    = value_holder;
             pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
-            if (endptr != &tkns[*t].json[tkns[*t].end])
+            if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
                 return JSON_HANDLER_RETVAL_ERROR;
@@ -297,7 +299,7 @@ static void *parse_pwm_rw_z(json_handler_args args)
             jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
             char *endptr    = value_holder;
             pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
-            if (endptr != &tkns[*t].json[tkns[*t].end])
+            if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
                 return JSON_HANDLER_RETVAL_ERROR;
