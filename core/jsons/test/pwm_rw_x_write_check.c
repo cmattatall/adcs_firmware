@@ -16,7 +16,7 @@ int main(void)
     char               json[250];
     int                pwm;
     int                retval = 0;
-    for (pwm = 5; pwm < pwm_max; pwm++)
+    for (pwm = 0; pwm < pwm_max; pwm++)
     {
         int json_len =
             sprintf(json, "{\"pwm_rw_x\": \"write\", \"value\" : %d}", pwm);
