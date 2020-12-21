@@ -10,15 +10,19 @@
 ## TOOLCHAIN INSTALLATION
 
 
+
 ### LINUX (UBUNTU 18.04 OR NEWER)
 
-    #python3 install_msp430_toolchain.py.
+    #python3 ./install_msp430_toolchain.py.
 
 ### Windows
 
-On windows, you'll have to run it from a powershell instance with administrator permissions.
-You'll also have to add the installation directory of the toolchain to PATH.
-
+1. First install MinGW gcc from http://mingw-w64.org/doku.php/download 
+2. You'll have to make sure that you have gcc added to your PATH
+3. Download and install python 3 (or newer). It can be installed from the windows store on windows 10 and above.
+4. Start an administrator instance of powershell, navigate to this directory and launch the python installer
+5. The installer can be executed with 
+    #python3 .\install_msp430_toolchain.py
 ## Building
 
 run python3 ./compile.py
