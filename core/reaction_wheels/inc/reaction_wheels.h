@@ -26,8 +26,8 @@ typedef enum
 
 
 
-void set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
-void set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir);
+pwm_t set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
+RW_DIR_t set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir);
 
 
 pwm_t    get_reaction_wheel_pwm(REACTION_WHEEL_t wheel);

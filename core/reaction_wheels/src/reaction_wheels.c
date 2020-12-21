@@ -27,9 +27,9 @@ static struct
 };
 
 
-
-void set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
+pwm_t set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
 {
+    pwm_t set_value = PWM_INVALID;
     switch (wheel)
     {
         case REACTION_WHEEL_x:
@@ -37,78 +37,92 @@ void set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
         case REACTION_WHEEL_z:
         {
             reaction_wheel_configs[wheel].pwm = value;
+
+            set_value = value;
         }
         break;
         default:
         {
-            CONFIG_ASSERT(0);
         }
     }
+    return set_value;
 }
 
 pwm_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel)
 {
+    pwm_t value = PWM_INVALID;
     switch (wheel)
     {
         case REACTION_WHEEL_x:
         case REACTION_WHEEL_y:
         case REACTION_WHEEL_z:
         {
-            return reaction_wheel_configs[wheel].pwm;
+            value = reaction_wheel_configs[wheel].pwm;
         }
         break;
         default:
         {
-            /*
-             * no good way we can indicate error to caller
-             * but at least during testing / hosted environment,
-             * we can crash the process via assert exception
-             * to indicate failure
-             */
-            CONFIG_ASSERT(0);
+            /* no way to indicate error to caller */
         }
     }
-    return 0; /* no good way we can indicate error to caller sadly */
+    return value;
 }
 
 
-void set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir)
+RW_DIR_t set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir)
 {
+    RW_DIR_t set_value = RW_DIR_invalid;
     switch (wheel)
     {
         case REACTION_WHEEL_x:
         case REACTION_WHEEL_y:
         case REACTION_WHEEL_z:
         {
-            reaction_wheel_configs[wheel].dir = dir;
+            switch (dir)
+            {
+                case RW_DIR_clockwise:
+                case RW_DIR_anticlockwise:
+                {
+                    reaction_wheel_configs[wheel].dir = dir;
+                    set_value = reaction_wheel_configs[wheel].dir;
+                }
+                break;
+                default:
+                {
+                    /*
+                     * do nothing, this is just here
+                     * so compile doesn't complain
+                     */
+                }
+                break;
+            }
         }
         break;
         default:
         {
-            /* Indicate API error to caller */
-            /* Sadly on mcu we can't do much to prevent software eliding the
-             * command */
-            CONFIG_ASSERT(0);
+            /* no way to indicate error to caller */
         }
+        break;
     }
+    return set_value;
 }
 
 
 RW_DIR_t get_reaction_wheel_dir(REACTION_WHEEL_t wheel)
 {
+    RW_DIR_t dir = RW_DIR_invalid;
     switch (wheel)
     {
         case REACTION_WHEEL_x:
         case REACTION_WHEEL_y:
         case REACTION_WHEEL_z:
         {
-            return reaction_wheel_configs[wheel].dir;
+            dir = reaction_wheel_configs[wheel].dir;
         }
         break;
         default:
         {
-            /* Indicate API error to caller */
-            return RW_DIR_invalid;
         }
     }
+    return dir;
 }

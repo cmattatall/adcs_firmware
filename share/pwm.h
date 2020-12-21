@@ -8,8 +8,13 @@ extern "C"
 #endif /* Start C linkage */
 
 #include <stdint.h>
+#include <limits.h>
+
 
 typedef uint16_t pwm_t;
+
+#define PWM_MAX ((UINT16_MAX)-1)
+#define PWM_INVALID ((PWM_MAX) + 1)
 
 #ifdef __cplusplus
 /* clang-format off */

@@ -14,10 +14,14 @@ extern "C"
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+
+static uint8_t OBC_MESSAGE_SIPHON_BUFFER[250];
 
 int OBC_IF_tx(uint8_t *buf, uint_least16_t buflen)
 {
-    return printf("%.*s", buflen, buf);
+    strncpy((char *)OBC_MESSAGE_SIPHON_BUFFER, (char *)buf, buflen);
+    return buflen;
 }
 
 #ifdef __cplusplus
