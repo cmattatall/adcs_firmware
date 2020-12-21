@@ -9,11 +9,15 @@
 
 ## TOOLCHAIN INSTALLATION
 
+
+### LINUX (UBUNTU 18.04 OR NEWER)
+
     #python3 install_msp430_toolchain.py.
 
-On linux, you'll have to run it with root permissions (as root or using something like sudo)
+### Windows
 
-On windows, you'll have to run it from a powershell instance with administrator permissions
+On windows, you'll have to run it from a powershell instance with administrator permissions.
+You'll also have to add the installation directory of the toolchain to PATH.
 
 ## Building
 
