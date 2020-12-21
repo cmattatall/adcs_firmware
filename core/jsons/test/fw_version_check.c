@@ -19,9 +19,7 @@
 
 int main(void)
 {
-    // uint8_t json[] = "{\"fwVersion\":\"read\"}";
-
-    uint8_t json[] = "{\"powerMode\":\"read\"}";
+    uint8_t json[] = "{\"fwVersion\":\"read\"}";
     int     retval = json_parse(json, sizeof(json));
     return retval;
 }
