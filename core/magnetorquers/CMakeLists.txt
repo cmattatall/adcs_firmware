@@ -34,12 +34,14 @@ else()
 endif(CMAKE_CROSSCOMPILING)
 
 if(BUILD_TESTING)
+    enable_testing()
     include(CTest)
     add_subdirectory(test)
 else()
     # If we're working on this project 
     # we should be doing all the tests anyway
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+        enable_testing()
         include(CTest)
         add_subdirectory(test)
     endif()
