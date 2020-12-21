@@ -3,6 +3,8 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "jsons.h"
+#include "test_hook.h"
+
 #include <assert.h>
 
 #include <stdio.h> /* sprintf */
@@ -12,13 +14,14 @@
 int main(void)
 {
     char *directions[] = {"clock", "antiClock"};
-    char  fmt[]        = "{\"dir_rw_z\": \"write\", \"value\" : \"%s\"}";
     char  json[250];
     int   i;
     for (i = 0; i < 2; i++)
     {
-        int json_len = sprintf(json, fmt, directions[i]);
-        int retval   = json_parse(json, json_len);
+        int json_len =
+            sprintf(json, "{\"dir_rw_x\": \"write\", \"value\" : \"%s\"}",
+                    directions[i]);
+        int retval = json_parse((uint8_t *)json, json_len);
         assert(retval == 0);
     }
     return 0;

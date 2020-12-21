@@ -3,6 +3,8 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "jsons.h"
+#include "test_hook.h"
+
 #include <assert.h>
 
 #include <stdio.h> /* sprintf */
@@ -11,15 +13,12 @@
 
 int main(void)
 {
-    char fmt[] = "{\"pwm_rw_z\": \"read\"}";
-
-    const unsigned int pwm_max = UINT16_MAX;
-    char               json[250];
-    int                pwm;
-    for (pwm = 0; pwm < pwm_max; pwm++)
+    char json[250];
+    int  i;
+    for (i = 0; i < 2; i++)
     {
-        int json_len = sprintf(json, fmt, pwm);
-        int retval   = json_parse(json, json_len);
+        int json_len = sprintf(json, "{\"dir_rw_y\": \"read\"}");
+        int retval   = json_parse((uint8_t *)json, json_len);
         assert(retval == 0);
     }
     return 0;

@@ -1,7 +1,7 @@
 /**
  * @file fw_version_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Test to check response to power mode write command from OBC
+ * @brief Test to check response to hardware version request from OBC
  * @version 0.1
  * @date 2020-12-21
  *
@@ -15,17 +15,14 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "jsons.h"
-#include <assert.h>
+#include "test_hook.h"
 
-#include <stdio.h> /* sprintf */
+#include <assert.h>
 
 int main(void)
 {
-    char         json[250];
-    const char   fmt = "{\"powerMode\":\"read\"}";
-    int          i;
-    unsigned int json_len = sprintf(json, fmt);
-    int          retval   = json_parse(json, json_len);
+    uint8_t json[] = "{\"hwVersion\":\"read\"}";
+    int  retval = json_parse(json, sizeof(json));
     assert(retval == 0);
     return 0;
 }

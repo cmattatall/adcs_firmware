@@ -14,14 +14,15 @@
 #error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
 #endif /* #if defined(TARGET_MCU) */
 
-
 #include "jsons.h"
+#include "test_hook.h"
+
 #include <assert.h>
 
 int main(void)
 {
     uint8_t json[] = "{\"fwVersion\":\"read\"}";
-    int     retval = json_parse(json, sizeof(json));
+    int  retval = json_parse(json, sizeof(json));
     assert(retval == 0);
     return 0;
 }

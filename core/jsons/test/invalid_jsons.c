@@ -17,6 +17,10 @@
 #include <assert.h>
 #include <string.h>
 
+#include "jsons.h"
+#include "test_hook.h"
+
+
 #warning THE ACTUAL TESTING LOGIC FOR THIS MODULE IS NOT COMPLETTE YET
 
 static const char *invalid_jsons[] = {

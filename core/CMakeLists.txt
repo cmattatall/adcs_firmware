@@ -13,7 +13,7 @@ project(
     LANGUAGES C ASM
 )
 
-set(EXE "${PROJECT_NAME}")
+set(EXE "${PROJECT_NAME}_executable")
 
 if(NOT CMAKE_CROSSCOMPILING)
     add_subdirectory(emulated)

@@ -15,6 +15,8 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "jsons.h"
+#include "test_hook.h"
+
 #include <assert.h>
 
 #include <stdio.h> /* sprintf */
@@ -23,14 +25,14 @@ int main(void)
 {
     char *keyValues[] = {"lowPower", "sleep", "blah"};
 
-    char       json[250];
-    const char fmt = "{\"powerMode\":\"write\", \"value\":\"%s\"}";
-    int        i;
+    char json[250];
+    int  i;
     for (i = 0; i < 3; i++)
     {
-        char *       mode     = keyValues[i];
-        unsigned int json_len = sprintf(json, fmt, mode);
-        int          retval   = json_parse(json, json_len);
+        char *       mode = keyValues[i];
+        unsigned int json_len =
+            sprintf(json, "{\"powerMode\":\"write\", \"value\":\"%s\"}", mode);
+        int retval = json_parse((uint8_t *)json, json_len);
         assert(retval == 0);
     }
     return 0;
