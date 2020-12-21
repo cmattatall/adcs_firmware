@@ -98,7 +98,7 @@
         {
             "id": "native_executable",
             //"default": "adcs_executable",
-            "default": "ADCS_JSONS_pwm_rw_x_write_check",
+            "default": "ADCS_REACTIONWHEELS_reactionwheel_x_dir_set_check",
             "description": "Path to the native executable",
             "type": "promptString"
         }
