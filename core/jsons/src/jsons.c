@@ -96,8 +96,10 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
             /* Go through command table and check if we have a registered
              * command for the key */
             t++;
-            for (k = 0;
-                 k < sizeof(json_parse_table) / sizeof(*json_parse_table); k++)
+
+            unsigned int k_max =
+                sizeof(json_parse_table) / sizeof(*json_parse_table);
+            for (k = 0; k < k_max; k++)
             {
                 /*
                  * If we have a command for the current key,
@@ -110,6 +112,11 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
                         json_parse_table[k].handler(&t);
                     }
                 }
+            }
+
+            if (k == k_max)
+            {
+                json_parse_status = -1;
             }
         }
         else

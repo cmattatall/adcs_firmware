@@ -15,7 +15,7 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "jsons.h"
-#include "test_hook.h"
+#include "json_test_hook.h"
 
 #include <assert.h>
 
@@ -26,6 +26,5 @@ int main(void)
     char         json[250];
     unsigned int json_len = sprintf(json, "{\"powerMode\":\"read\"}");
     int          retval   = json_parse((uint8_t *)json, json_len);
-    assert(retval == 0);
-    return 0;
+    return retval;
 }

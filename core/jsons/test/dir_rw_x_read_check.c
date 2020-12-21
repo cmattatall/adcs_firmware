@@ -2,23 +2,28 @@
 #error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
 #endif /* #if defined(TARGET_MCU) */
 
-#include "jsons.h"
-#include "test_hook.h"
-#include <assert.h>
-
 #include <stdio.h> /* sprintf */
 #include <stdlib.h>
 #include <limits.h>
 
+#include "jsons.h"
+#include "json_test_hook.h"
+
+
+
 int main(void)
 {
     char json[250];
-    int     i;
+    int  i;
+    int  retval = 0;
     for (i = 0; i < 2; i++)
     {
         int json_len = sprintf(json, "{\"dir_rw_x\": \"read\"}");
-        int retval   = json_parse((uint8_t *)json, json_len);
-        assert(retval == 0);
+        retval       = json_parse((uint8_t *)json, json_len);
+        if (retval)
+        {
+            break;
+        }
     }
-    return 0;
+    return retval;
 }

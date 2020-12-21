@@ -14,12 +14,10 @@
 #error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
 #endif /* #if defined(TARGET_MCU) */
 
-#include "jsons.h"
-#include "test_hook.h"
-
-#include <assert.h>
-
 #include <stdio.h> /* sprintf */
+
+#include "jsons.h"
+#include "json_test_hook.h"
 
 int main(void)
 {
@@ -27,13 +25,17 @@ int main(void)
 
     char json[250];
     int  i;
+    int  retval = 0;
     for (i = 0; i < 3; i++)
     {
         char *       mode = keyValues[i];
         unsigned int json_len =
             sprintf(json, "{\"powerMode\":\"write\", \"value\":\"%s\"}", mode);
-        int retval = json_parse((uint8_t *)json, json_len);
-        assert(retval == 0);
+        retval = json_parse((uint8_t *)json, json_len);
+        if (retval)
+        {
+            break;
+        }
     }
-    return 0;
+    return retval;
 }

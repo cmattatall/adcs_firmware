@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include "jsons.h"
-#include "test_hook.h"
+#include "json_test_hook.h"
 
 
 #warning THE ACTUAL TESTING LOGIC FOR THIS MODULE IS NOT COMPLETTE YET
@@ -29,9 +29,10 @@ static const char *invalid_jsons[] = {
 
 int main(void)
 {
-    int max_i = sizeof(invalid_jsons) / sizeof(*invalid_jsons);
+    int max_i  = sizeof(invalid_jsons) / sizeof(*invalid_jsons);
+    int retval = 0;
     for (unsigned int i = 0; i < max_i; i++)
     {
     }
-    return 0;
+    return retval;
 }
