@@ -146,9 +146,6 @@ def compile_the_project():
         os.system("ctest")
         os.chdir(current_dir)
 
-def run_tests():
-    print("running tests")
-
 if __name__ == "__main__":
     checkPythonVersion()
     compile_the_project()
