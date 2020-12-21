@@ -2,7 +2,7 @@
 ## DEVELOPMENT DEPENDENCIES
 
 - Python3
-- CMake 3.16 or newer (It may work on versions as old as 3.10 but I haven't tested those)
+- CMake 3.16 or newer (It may work on versions as old as 3.10 but I haven't tested those) https://cmake.org/download/
 - msp430-elf-gcc (provided by the toolchain install script)
 - msp430 TI device header support files (provided by the toolchain install script)
 - gcc (on windows, this means you'll have to install mingw)
