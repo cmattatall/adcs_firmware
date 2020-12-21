@@ -8,6 +8,7 @@ import platform
 import sys
 import pathlib
 import argparse
+import shutil
 
 toolchain_file = "toolchain.cmake" # just going to hard-code this for now
 
@@ -88,19 +89,49 @@ def configure_for_apple(sdir=".", bdir="build", btype="Debug", cross=False, defs
     print("Apple is not yet supported!!")
     exit(1)
 
-def compile_the_project():
+
+def configure_the_project(sdir=".", bdir="build", btype="Debug", cross=False, defs=[], t=False):
+    if platform.system() == "Windows":
+        configure_for_windows(cross=cross, btype=btype, defs=defs, t=t)
+    elif platform.system() == "Linux":
+        configure_for_linux(cross=cross, btype=btype, defs=defs, t=t)
+    elif platform.system() == "Apple":
+        configure_for_apple(cross=cross, btype=btype, defs=defs, t=t)
+    else:
+        print(platform.system() + " is not a supported platform!!")
+        exit(1)
+
+def build_the_project(bdir):
+    os.system("cmake --build \"%s\"" % (bdir))
+
+def run_tests(bdir, verbose = False):
+    current_dir = os.getcwd()
+    os.chdir(bdir)
+    if verbose:
+        os.system("ctest -V")
+    else:
+        os.system("ctest")
+    os.chdir(current_dir)
+
+
+def main():
+    checkPythonVersion()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--cross-compile", action="store_true", dest="cross_compile", help="Option to cross compile for the target device")
     parser.add_argument("--build-type", action="store", dest="build_type", choices=["Debug", "Release"], default ="Debug", help="String indicating the cmake build type")
     parser.add_argument("--definitions", action="store", dest="definitions", help="string of key-value pairs to be used for definitions. NOTE: NOT THOROUGHLY TESTED!", default="")
     parser.add_argument("--test", action="store_true", dest="test", help="option to build and run the automated tests as well as the project source")
+    parser.add_argument("--rebuild", action="store_true", default=False, dest="rebuild", help="Option to build clean")
+    parser.add_argument("--build-dir", action="store", default="build", dest="bdir", help="String for the build directory")
 
     args = parser.parse_args()
     cross_compile = args.cross_compile
     build_type = args.build_type
     my_defs = args.definitions
     test=args.test
+    rebuild=args.rebuild
+    build_dir=args.bdir
 
     ############################################################################
     # okay, so for now, we're going to rebuild everything from scratch each 
@@ -125,30 +156,21 @@ def compile_the_project():
     #    for the last few months) 
     ############################################################################
 
-    build_dir = "build"
+    if rebuild:
+        if os.path.exists(build_dir):
+            shutil.rmtree(build_dir)
+            os.mkdir(build_dir)
 
-    os.system("rm -r %s" % (build_dir))
 
-    if platform.system() == "Windows":
-        configure_for_windows(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
-    elif platform.system() == "Linux":
-        configure_for_linux(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
-    elif platform.system() == "Apple":
-        configure_for_apple(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
-    else:
-        print(platform.system() + " is not a supported platform!!")
-        exit(1)
-    os.system("cmake --build build")
+    configure_the_project(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
+
+    build_the_project(build_dir)    
+
+    # TODO make this one a command line option
+    verbose_test = False
 
     if(test):
-        current_dir = os.getcwd()
-        os.chdir(build_dir)
-        os.system("ctest")
-        os.chdir(current_dir)
-
-def run_tests():
-    print("running tests")
+        run_tests(build_dir, verbose=verbose_test)
 
 if __name__ == "__main__":
-    checkPythonVersion()
-    compile_the_project()
+    main()

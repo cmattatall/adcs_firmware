@@ -24,7 +24,9 @@
 #include "bufferlib.h"
 
 #if !defined(TARGET_MCU)
+
 #include <pthread.h>
+static pthread_mutex_t OBC_IF_rxflag_lock;
 #endif /* !defined(TARGET_MCU) */
 
 #define OBC_INTERFACE_BUFFER_SIZE 2000
@@ -47,12 +49,9 @@ static void OBC_IF_receive_byte_internal(uint8_t byte);
 
 static OBC_IF_fops   ops           = {NULL};
 static volatile bool OBC_IF_rxflag = false;
-static ringbuf_t     obc_rxbuf_handle;
+static ringbuf_t     OBC_IF_rxbuf_handle_internal;
 static uint8_t       obcTxBuf[OBC_INTERFACE_BUFFER_SIZE];
 
-#if !defined(TARGET_MCU)
-static pthread_t OBC_IF_rxflag_lock;
-#endif /* !defined(TARGET_MCU) */
 
 int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx)
 {
@@ -61,10 +60,10 @@ int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx)
     ops.deinit = deinit;
     ops.tx     = tx;
 
-    obc_rxbuf_handle = ringbuf_ctor(OBC_INTERFACE_BUFFER_SIZE);
+    OBC_IF_rxbuf_handle_internal = ringbuf_ctor(OBC_INTERFACE_BUFFER_SIZE);
 
 #if !defined(TARGET_MCU)
-    pthread_mutex_init(&OBC_IF_rxflag, NULL);
+    pthread_mutex_init(&OBC_IF_rxflag_lock, NULL);
 #endif /* !defined(TARGET_MCU) */
 
     if (ops.init != NULL)
@@ -92,10 +91,10 @@ void OBC_IF_clear_config(void)
         ops.deinit = NULL;
     }
 
-    ringbuf_dtor(obc_rxbuf_handle);
+    ringbuf_dtor(OBC_IF_rxbuf_handle_internal);
 
 #if !defined(TARGET_MCU)
-    pthread_mutex_destroy(&OBC_IF_rxflag);
+    pthread_mutex_destroy(&OBC_IF_rxflag_lock);
 #endif /* !defined(TARGET_MCU) */
 }
 
@@ -115,11 +114,19 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
     uint_fast16_t i           = 0;
     do
     {
-        buf[i] = ringbuf_read_next(obc_rxbuf_handle);
-        if (buf[i] == OBC_MSG_DELIM)
+        char *tmp = ringbuf_read_next(OBC_IF_rxbuf_handle_internal);
+        if (tmp != NULL)
         {
-            buf[i]      = '\0';
-            found_delim = true;
+            buf[i] = *tmp;
+            if (buf[i] == OBC_MSG_DELIM)
+            {
+                buf[i]      = '\0';
+                found_delim = true;
+            }
+        }
+        else
+        {
+            break;
         }
     } while (!found_delim && ++i < buflen);
 
@@ -142,13 +149,13 @@ bool OBC_IF_dataRxFlag_read(void)
     bool flag_state;
 
 #if !defined(TARGET_MCU)
-    pthread_mutex_lock(&OBC_IF_rxflag);
+    pthread_mutex_lock(&OBC_IF_rxflag_lock);
 #endif /* #if defined(TARGET_MCU) */
 
     flag_state = OBC_IF_rxflag;
 
 #if !defined(TARGET_MCU)
-    pthread_mutex_unlock(&OBC_IF_rxflag);
+    pthread_mutex_unlock(&OBC_IF_rxflag_lock);
 #endif /* #if defined(TARGET_MCU) */
 
     return flag_state;
@@ -157,26 +164,24 @@ bool OBC_IF_dataRxFlag_read(void)
 void OBC_IF_dataRxFlag_write(bool data_state)
 {
 #if !defined(TARGET_MCU)
-    pthread_mutex_lock(&OBC_IF_rxflag);
+    pthread_mutex_lock(&OBC_IF_rxflag_lock);
 #endif /* #if defined(TARGET_MCU) */
 
     OBC_IF_rxflag = data_state;
 
 #if !defined(TARGET_MCU)
-    pthread_mutex_unlock(&OBC_IF_rxflag);
+    pthread_mutex_unlock(&OBC_IF_rxflag_lock);
 #endif /* #if defined(TARGET_MCU) */
 }
 
 
 static void OBC_IF_receive_byte_internal(uint8_t byte)
 {
-    inPtr_write(byte);
-    if (inPtr_read() == OBC_MSG_DELIM)
+    ringbuf_write_next_byte(OBC_IF_rxbuf_handle_internal, byte);
+    if (byte == OBC_MSG_DELIM)
     {
-        inPtr_write('\0');
         OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_SET);
     }
-    inPtr_advance();
 }
 
 
