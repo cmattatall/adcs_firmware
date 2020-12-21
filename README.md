@@ -23,7 +23,10 @@
 4. Start an administrator instance of powershell, navigate to this directory and launch the python installer
 5. The installer can be executed with 
 
+    
     #python3 .\install_msp430_toolchain.py
+
+
 ## Building
 
 run python3 ./compile.py
