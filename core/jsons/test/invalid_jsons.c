@@ -20,9 +20,6 @@
 #include "jsons.h"
 #include "json_test_hook.h"
 
-
-#warning THE ACTUAL TESTING LOGIC FOR THIS MODULE IS NOT COMPLETTE YET
-
 static const char *invalid_jsons[] = {
     "{\"blah\"",
 };
@@ -33,6 +30,14 @@ int main(void)
     int retval = 0;
     for (unsigned int i = 0; i < max_i; i++)
     {
+        retval =
+            json_parse((uint8_t *)invalid_jsons[i], strlen(invalid_jsons[i]));
+        if (retval == 0)
+        {
+            break;
+        }
     }
-    return retval;
+    /* we EXPECT these tests to fail.
+    If parser treats them as valid it's a problem */
+    return !retval;
 }
