@@ -48,7 +48,6 @@ set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--relax")
 set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--gc-sections")
 
 
-set(TOOLCHAIN_SHARED_FLAGS "-ffunction-sections -fdata-sections")
 
 if(CMAKE_CROSSCOMPILING)
     set(TOOLCHAIN_PREFIX "msp430-elf")
@@ -125,11 +124,6 @@ if(CMAKE_CROSSCOMPILING)
     set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},-T,${LINKER_SCRIPT}")
     set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--undefined=__mspabi_mpyi -lmul_f5")
 
-
-
-
-    
-
     include(CheckLinkerFlag)
 else()
     set(TOOLCHAIN_PREFIX "")
@@ -145,33 +139,12 @@ else()
 endif(CMAKE_CROSSCOMPILING)
 
 
-set(CMAKE_C_FLAGS_INIT "${TOOLCHAIN_SHARED_FLAGS}"
-CACHE INTERNAL "Initial flags for C compiler")
 
-set(CMAKE_CXX_FLAGS_INIT 
-"${TOOLCHAIN_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
-CACHE INTERNAL "Initial flags for C++ compiler")
-
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG ${TOOLCHAIN_LINKER_FLAGS})
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE ${TOOLCHAIN_LINKER_FLAGS})
-set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL ${TOOLCHAIN_LINKER_FLAGS})
-set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${TOOLCHAIN_LINKER_FLAGS})
-
-# I'd like to configure this in the toolchain file, BUT, we don't actually
-# have access to project variables when cmake processes the toolchain file
-# since the top-level "project" instruction is actually what triggers
-# toolchain configuration.
-# Thus, we have to set this after we process the toolchain, but before
-# we add any executable/library targets to the project
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
 
 if(NOT EXECUTABLE_SUFFIX)
     abort("EXECUTABLE_SUFFIX IS NOT DEFINED!")
 else()
     set(CMAKE_EXECUTABLE_SUFFIX "${EXECUTABLE_SUFFIX}" CACHE INTERNAL "")
-    mark_as_advanced(FORCE CMAKE_EXECUTABLE_SUFFIX)
 endif(NOT EXECUTABLE_SUFFIX)
 
 set(CMAKE_C_COMPILER_NAME ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
@@ -231,8 +204,20 @@ find_program(
     REQUIRED
 )
 
+set(TOOLCHAIN_BASE_FLAGS "-ffunction-sections -fdata-sections")
+set(CMAKE_C_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS} -fno-rtti -fno-exceptions")
+
+set(CMAKE_EXE_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
+#set(CMAKE_STATIC_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
+
 set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -O0 -g3 -ggdb -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
+
+
+
+
+
 
 ###############################################################################
 # END SCRIPT, START EXPORTED FUNCTIONS

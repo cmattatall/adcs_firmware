@@ -92,7 +92,7 @@ function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)
         msp430_add_executable(${target} ${ARGN})
     else()  # NOT CROSS COMPILING
-        add_executable(${target} STATIC ${ARGN})
+        add_executable(${target} ${ARGN})
     endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_executable target)
 
