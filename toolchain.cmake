@@ -43,6 +43,8 @@ else()
     abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
 
+set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
+
 if(CMAKE_CROSSCOMPILING)
     set(TOOLCHAIN_PREFIX "msp430-elf")
     set(TOOLCHAIN_PREFIX_INTERNAL "${TOOLCHAIN_PREFIX}-")
@@ -104,24 +106,13 @@ if(CMAKE_CROSSCOMPILING)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-    set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
-
-    set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
-        CACHE INTERNAL "Initial flags for C compiler")
-
-    set(CMAKE_CXX_FLAGS_INIT 
-        "${CMAKE_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
-        CACHE INTERNAL "Initial flags for C++ compiler")
-
     # so aparently, even code composer studio was broken with the switch to gcc 9.2 backend in 2016
     # see https://e2e.ti.com/support/tools/ccs/f/81/t/504524?Linker-error-with-latest-msp430-gcc
     #
     # current workaround is to force gcc to link against the correct multiplication lib
     # code composer is doing this same thing behind the scenes but it's a shame that the maintainers of 
     # the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
-    set(CMAKE_EXE_LINKER_FLAGS_INIT
-        "-Wl,--relax,--gc-sections,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5"
-        CACHE INTERNAL "Initial options for linker the VERY first time a CMake build tree is configured")
+    set(TARGET_LINKER_FLAGS "-Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
         
     include(CheckLinkerFlag)
 else()
@@ -136,6 +127,15 @@ else()
         abort("${CMAKE_HOST_SYSTEM_NAME} is not currently a supported platform")
     endif()
 endif(CMAKE_CROSSCOMPILING)
+
+set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections ${TARGET_LINKER_FLAGS}")
+
+set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
+CACHE INTERNAL "Initial flags for C compiler")
+
+set(CMAKE_CXX_FLAGS_INIT 
+"${CMAKE_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
+CACHE INTERNAL "Initial flags for C++ compiler")
 
 # I'd like to configure this in the toolchain file, BUT, we don't actually
 # have access to project variables when cmake processes the toolchain file
