@@ -43,9 +43,9 @@ else()
     abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
 
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--relax")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--gc-sections")
+set(TOOLCHAIN_LINKER_FLAGS "-Wl")
+set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--relax")
+set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--gc-sections")
 
 
 set(TOOLCHAIN_SHARED_FLAGS "-ffunction-sections -fdata-sections")
@@ -122,8 +122,13 @@ if(CMAKE_CROSSCOMPILING)
     # the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
     #set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections -Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
 
-    set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},-T,${LINKER_SCRIPT}")
-    set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--undefined=__mspabi_mpyi -lmul_f5")
+    set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},-T,${LINKER_SCRIPT}")
+    set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--undefined=__mspabi_mpyi -lmul_f5")
+
+
+
+
+    
 
     include(CheckLinkerFlag)
 else()
@@ -146,6 +151,11 @@ CACHE INTERNAL "Initial flags for C compiler")
 set(CMAKE_CXX_FLAGS_INIT 
 "${TOOLCHAIN_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
 CACHE INTERNAL "Initial flags for C++ compiler")
+
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG ${TOOLCHAIN_LINKER_FLAGS})
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE ${TOOLCHAIN_LINKER_FLAGS})
+set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL ${TOOLCHAIN_LINKER_FLAGS})
+set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${TOOLCHAIN_LINKER_FLAGS})
 
 # I'd like to configure this in the toolchain file, BUT, we don't actually
 # have access to project variables when cmake processes the toolchain file
