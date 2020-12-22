@@ -283,15 +283,6 @@ function(msp430_add_library library)
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
-
-    add_custom_target(${library}_postbuild ALL DEPENDS ${library})
-    add_custom_command( 
-        TARGET ${library}_postbuild
-        POST_BUILD
-        DEPENDS ${executable}
-        COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
-        COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${library}.lss"
-    )
 endfunction(msp430_add_library library)
 
 

@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     for btype in build_types:
         if test:
-            os.system("python3 ./compile.py --rebuild --cross-compile --build-type \"%s\" --test" % (btype))
+            os.system("python3 ./compile.py --rebuild --cross-compile --build-type \"%s\" " % (btype))
             os.system("python3 ./compile.py --rebuild --build-type \"%s\" --test" % (btype))
         else:
             os.system("python3 ./compile.py --rebuild --cross-compile --build-type \"%s\"" % (btype))
