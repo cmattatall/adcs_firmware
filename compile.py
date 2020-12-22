@@ -160,6 +160,13 @@ def main():
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
             os.mkdir(build_dir)
+    elif platform.system() == "Windows":
+        if test:
+            # test hooks don't override weak symbols for static
+            # libraries on windows so we have to rebuild :(
+            if os.path.exists(build_dir):
+                shutil.rmtree(build_dir)
+                os.mkdir(build_dir)
 
 
     configure_the_project(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
