@@ -32,6 +32,8 @@
 #include "obc_interface.h"
 
 
+#define SET_ATTR_NOW TCSANOW
+
 static pthread_t OBC_EMU_pthread;
 
 static void *OBC_EMU(void *args);
@@ -52,24 +54,31 @@ void OBC_EMU_start(void)
     /* Configure terminal to read raw, unbuffered input */
     struct termios new_tio;
     tcgetattr(STDIN_FILENO, &new_tio);
+    struct termios old_tio = new_tio;
     new_tio.c_lflag &= (~ICANON & ~ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
+    tcsetattr(STDIN_FILENO, SET_ATTR_NOW, &new_tio);
 #elif defined(_WIN32) || defined(WIN32)
 
 #endif /* defined(linux) || defined(__unix__) */
-    char msg[] = "OBC UART EMULATOR. \nTYPE INTO THE TERMINAL TO SEND RAW "
-                 "UNBUFFERED BYTES TO THE OBC INTERFACE MODULE\n";
+    char msg[250];
+    sprintf(msg,
+            "OBC UART EMULATOR\n"
+            "TYPE INTO THE TERMINAL TO SEND RAW BYTES TO OBC INTERFACE\n"
+            "PRESS ^C (CTRL + C) TO QUIT\n"
+            "CURRENTLY, THE OBC RECEIVE DELIMITER IS >%c<\n",
+            OBC_MSG_DELIM);
     OBC_EMU_tx((uint8_t *)msg, (uint_least16_t)sizeof(msg));
 
     /* Start listener thread */
     int ret;
-    ret = pthread_create(&OBC_EMU_pthread, NULL, OBC_EMU, NULL);
+    ret = pthread_create(&OBC_EMU_pthread, NULL, OBC_EMU, &old_tio);
     CONFIG_ASSERT(ret == 0);
 }
 
 static void *OBC_EMU(void *args)
 {
-    char tmp;
+    struct termios old_tio = *(struct termios *)args;
+    char           tmp;
     do
     {
         tmp = getchar();
@@ -77,6 +86,14 @@ static void *OBC_EMU(void *args)
         {
             OBC_IF_receive_byte(tmp);
         }
+        else
+        {
+            break;
+        }
     } while (true);
+
+    /* restore old terminal settings */
+    fflush(stdin);
+    tcsetattr(STDIN_FILENO, SET_ATTR_NOW, &old_tio);
     return NULL;
 }

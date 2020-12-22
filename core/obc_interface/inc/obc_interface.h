@@ -18,8 +18,12 @@ extern "C"
 
 #include "injection_api.h"
 
+#ifndef OBC_MSG_DELIM
 
-#define OBC_MSG_DELIM '!' /* for now we can just use ! */
+#define OBC_MSG_DELIM ((char)'!') /* for now we can just use ! */
+
+#endif /* ifndef OBC_MSG_DELIM */
+
 
 #define OBC_IF_DATA_RX_FLAG_SET true
 #define OBC_IF_DATA_RX_FLAG_CLR false
