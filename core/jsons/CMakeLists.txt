@@ -26,10 +26,10 @@ list(REMOVE_DUPLICATES ${LIB}_public_include_dirs)
 target_include_directories(${LIB} PUBLIC ${${LIB}_public_include_dirs})
 
 # Link against the necessary things
-target_link_libraries(${LIB} PUBLIC JTOK)
-target_link_libraries(${LIB} PUBLIC ADCS_OBC_INTERFACE)
-target_link_libraries(${LIB} PUBLIC ADCS_REACTIONWHEELS)
-target_link_libraries(${LIB} PUBLIC ADCS_MAGNETORQUERS)
+target_link_libraries(${LIB} PRIVATE JTOK)
+target_link_libraries(${LIB} PRIVATE ADCS_OBC_INTERFACE)
+target_link_libraries(${LIB} PRIVATE ADCS_REACTIONWHEELS)
+target_link_libraries(${LIB} PRIVATE ADCS_MAGNETORQUERS)
 
 if(BUILD_TESTING)
     enable_testing()
