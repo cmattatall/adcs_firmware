@@ -43,6 +43,10 @@ else()
     abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
 
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--relax")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--gc-sections")
+
 set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
 
 if(CMAKE_CROSSCOMPILING)
@@ -112,8 +116,13 @@ if(CMAKE_CROSSCOMPILING)
     # current workaround is to force gcc to link against the correct multiplication lib
     # code composer is doing this same thing behind the scenes but it's a shame that the maintainers of 
     # the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
-    set(TARGET_LINKER_FLAGS "-Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
-        
+    #set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections -Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
+
+    set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},-T,${LINKER_SCRIPT}")
+    set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--undefined=__mspabi_mpyi -lmul_f5")
+
+    message("CMAKE_EXE_LINKER_FLAGS_INIT == ${CMAKE_EXE_LINKER_FLAGS_INIT}")
+
     include(CheckLinkerFlag)
 else()
     set(TOOLCHAIN_PREFIX "")
@@ -128,7 +137,6 @@ else()
     endif()
 endif(CMAKE_CROSSCOMPILING)
 
-set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections ${TARGET_LINKER_FLAGS}")
 
 set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
 CACHE INTERNAL "Initial flags for C compiler")
