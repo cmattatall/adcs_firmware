@@ -166,6 +166,8 @@ def install_linux():
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_linux64"
 
+    ## @todo MAKE PYTHON INSTALL PIP3 AND THEN DO pip3 install wget
+
     os.system("apt-get update -y")
     os.system("apt-get install -y libusb-dev")
     

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 
 option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
 
