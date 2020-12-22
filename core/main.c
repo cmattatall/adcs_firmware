@@ -55,12 +55,12 @@ int main(void)
             if (JSON_PARSE_ERROR(parse_status))
             {
                 uint8_t error_message[] = "{\"error\" : \"json format\"}\n";
-                OBC_IF_tx(error_message, sizeof(error_message));
+                OBC_IF_printf("%s\n", error_message);
             }
             else if (JSON_PARSE_UNK(parse_status))
             {
                 uint8_t message[] = "{\"ADCS\" : \"unknown command\"}\n";
-                OBC_IF_tx(message, sizeof(message));
+                OBC_IF_printf("%s\n", message);
             }
             else
             {
