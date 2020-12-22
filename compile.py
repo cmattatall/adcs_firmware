@@ -34,7 +34,10 @@ def configure_for_windows(sdir=".", bdir="build", btype="Debug", cross=False, de
 
 
     if not os.path.exists(bdir):
+        # if we could check the return value of this, I would be sooo happy :(
         os.mkdir(bdir)
+        if not os.path.exists(bdir):
+            return -1
     
     configure_string += space_args("-B %s" % (bdir))
     configure_string += space_args("-G \"MinGW Makefiles\"") 
@@ -53,7 +56,7 @@ def configure_for_windows(sdir=".", bdir="build", btype="Debug", cross=False, de
 
     for d in defs:
         configure_string += space_args("-D%s" % (d))
-    os.system(configure_string)
+    return os.system(configure_string)
 
 def configure_for_linux(sdir=".", bdir="build", btype="Debug", cross=False, defs=[], t=False):
     configure_string = space_args("cmake")
@@ -64,7 +67,10 @@ def configure_for_linux(sdir=".", bdir="build", btype="Debug", cross=False, defs
 
     configure_string += space_args("-S %s" % (sdir))
     if not os.path.exists(bdir):
+        # if we could check the return value of this, I would be sooo happy :(
         os.mkdir(bdir)
+        if not os.path.exists(bdir):
+            return -1
 
     configure_string += space_args("-B %s" % (bdir))
     configure_string += space_args("-G \"Unix Makefiles\"")
@@ -83,7 +89,10 @@ def configure_for_linux(sdir=".", bdir="build", btype="Debug", cross=False, defs
 
     for d in defs:
         configure_string += space_args("-D%s" % (d))
-    os.system(configure_string)
+    retval = os.system(configure_string)
+
+
+    return retval
 
 def configure_for_apple(sdir=".", bdir="build", btype="Debug", cross=False, defs=[], t=False):
     print("Apple is not yet supported!!")
@@ -92,26 +101,29 @@ def configure_for_apple(sdir=".", bdir="build", btype="Debug", cross=False, defs
 
 def configure_the_project(sdir=".", bdir="build", btype="Debug", cross=False, defs=[], t=False):
     if platform.system() == "Windows":
-        configure_for_windows(cross=cross, btype=btype, defs=defs, t=t)
+        retval = configure_for_windows(cross=cross, btype=btype, defs=defs, t=t)
     elif platform.system() == "Linux":
-        configure_for_linux(cross=cross, btype=btype, defs=defs, t=t)
+        retval = configure_for_linux(cross=cross, btype=btype, defs=defs, t=t)
     elif platform.system() == "Apple":
-        configure_for_apple(cross=cross, btype=btype, defs=defs, t=t)
+        retval = configure_for_apple(cross=cross, btype=btype, defs=defs, t=t)
     else:
         print(platform.system() + " is not a supported platform!!")
-        exit(1)
+        exit(-1)
+    return retval
 
 def build_the_project(bdir):
-    os.system("cmake --build \"%s\"" % (bdir))
+    retval = os.system("cmake --build \"%s\"" % (bdir))
+    return retval
 
 def run_tests(bdir, verbose = False):
     current_dir = os.getcwd()
     os.chdir(bdir)
     if verbose:
-        os.system("ctest -V")
+        retval = os.system("ctest -V")
     else:
-        os.system("ctest")
+        retval = os.system("ctest")
     os.chdir(current_dir)
+    return retval
 
 
 def main():
@@ -124,6 +136,7 @@ def main():
     parser.add_argument("--test", action="store_true", dest="test", help="option to build and run the automated tests as well as the project source")
     parser.add_argument("--rebuild", action="store_true", default=False, dest="rebuild", help="Option to build clean")
     parser.add_argument("--build-dir", action="store", default="build", dest="bdir", help="String for the build directory")
+    parser.add_argument("--verbose", action="store_true", default=False, dest="verbose", help="Option to emit verbose information during configuration, build, and test steps")
 
     args = parser.parse_args()
     cross_compile = args.cross_compile
@@ -132,6 +145,7 @@ def main():
     test=args.test
     rebuild=args.rebuild
     build_dir=args.bdir
+    verbose=args.verbose
 
     ############################################################################
     # okay, so for now, we're going to rebuild everything from scratch each 
@@ -160,6 +174,10 @@ def main():
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
             os.mkdir(build_dir)
+            if not os.path.exists(build_dir):
+                if verbose:
+                    print("COULD NOT CREATE DIRECTORY %s" % (build_dir))
+                exit(1)
     elif platform.system() == "Windows":
         if test:
             # test hooks don't override weak symbols for static
@@ -167,17 +185,30 @@ def main():
             if os.path.exists(build_dir):
                 shutil.rmtree(build_dir)
                 os.mkdir(build_dir)
+                if not os.path.exists(build_dir):
+                    if verbose:
+                        print("COULD NOT CREATE DIRECTORY %s" % (build_dir))
+                    exit(1)
 
 
-    configure_the_project(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
+    cfg_retval = configure_the_project(cross=cross_compile, btype=build_type, defs=my_defs, t=test)
+    if 0 != cfg_retval:
+        if verbose:
+            print("\nError configuring project! Process exited with code: " + str(cfg_retval) + "\n")
+        exit(cfg_retval)
 
-    build_the_project(build_dir)    
-
-    # TODO make this one a command line option
-    verbose_test = False
+    build_retval = build_the_project(build_dir)
+    if 0 != build_retval:
+        if verbose:
+            print("\nError building the project! Process exited with code:" + str(build_retval) + "\n")
+        exit(15)
 
     if(test):
-        run_tests(build_dir, verbose=verbose_test)
+        test_retval = run_tests(build_dir, verbose=verbose)
+        if 0 != test_retval:
+            if verbose:
+                print("\nOne or more automated tests did not pass! Exited with code:" + str(test_retval) + "\n")
+            exit(test_retval)
 
 if __name__ == "__main__":
     main()
