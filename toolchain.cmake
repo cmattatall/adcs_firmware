@@ -47,12 +47,16 @@ set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl")
 set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--relax")
 set(CMAKE_EXE_LINKER_FLAGS_INIT "${CMAKE_EXE_LINKER_FLAGS_INIT},--gc-sections")
 
-set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
+
+set(TOOLCHAIN_SHARED_FLAGS "-ffunction-sections -fdata-sections")
 
 if(CMAKE_CROSSCOMPILING)
     set(TOOLCHAIN_PREFIX "msp430-elf")
     set(TOOLCHAIN_PREFIX_INTERNAL "${TOOLCHAIN_PREFIX}-")
     set(EXECUTABLE_SUFFIX ".elf")
+
+    set(CMAKE_STATIC_LIBRARY_SUFFIX_C ".statlib")
+
 
     set(TOOLCHAIN_GCC_EXE ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
     execute_process(
@@ -136,11 +140,11 @@ else()
 endif(CMAKE_CROSSCOMPILING)
 
 
-set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
+set(CMAKE_C_FLAGS_INIT "${TOOLCHAIN_SHARED_FLAGS}"
 CACHE INTERNAL "Initial flags for C compiler")
 
 set(CMAKE_CXX_FLAGS_INIT 
-"${CMAKE_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
+"${TOOLCHAIN_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
 CACHE INTERNAL "Initial flags for C++ compiler")
 
 # I'd like to configure this in the toolchain file, BUT, we don't actually
@@ -227,8 +231,7 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 function(msp430_add_executable executable)
     msp430_check_defines_macro()
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
-    add_executable(${executable})
-    target_sources(${executable} PRIVATE ${ARGN})
+    add_executable(${executable} ${ARGN})
     target_compile_definitions(${executable} PRIVATE "F_CPU=${MSP430_MCU_FREQ}")
     target_compile_definitions(${executable} PRIVATE "__${UPPERCASE_MCU_MPN}__")
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
@@ -241,8 +244,6 @@ function(msp430_add_executable executable)
         PROPERTIES
         SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
     )
-
-    message("CMAKE_RUNTIME_OUTPUT_DIRECTORY = ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
     add_custom_command( 
@@ -279,6 +280,9 @@ function(msp430_add_executable executable)
 
 endfunction(msp430_add_executable executable)
 
+
+
+
 function(msp430_add_library library)
     msp430_check_defines_macro()
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
@@ -289,6 +293,17 @@ function(msp430_add_library library)
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
+
+
+    #add_custom_target(${library}_postbuild ALL DEPENDS ${library})
+    #add_custom_command( 
+        #TARGET ${library}_postbuild
+        #POST_BUILD
+        #DEPENDS ${library}
+        #COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
+        #COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${library}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$  {library}.lss"
+    #)
+
 endfunction(msp430_add_library library)
 
 

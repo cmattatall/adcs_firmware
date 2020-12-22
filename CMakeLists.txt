@@ -92,15 +92,15 @@ function(ADCS_add_executable target)
     if(CMAKE_CROSSCOMPILING)
         msp430_add_executable(${target} ${ARGN})
     else()  # NOT CROSS COMPILING
-        add_executable(${target} ${ARGN})
+        add_executable(${target} STATIC ${ARGN})
     endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_executable target)
 
 function(ADCS_add_library target)
     if(CMAKE_CROSSCOMPILING)
-        msp430_add_library(${target} ${ARGN})
+        msp430_add_library(${target} STATIC ${ARGN})
     else()  # NOT CROSS COMPILING
-        add_library(${target} ${ARGN})
+        add_library(${target} STATIC ${ARGN})
     endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_library target)
 
