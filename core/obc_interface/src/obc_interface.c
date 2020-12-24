@@ -49,7 +49,7 @@ static void OBC_IF_receive_byte_internal(uint8_t byte);
 
 static OBC_IF_fops   ops           = {NULL};
 static volatile bool OBC_IF_rxflag = false;
-static ringbuf_t     OBC_IF_rxbuf_handle_internal;
+static buffer_handle obc_buf_handle;
 static uint8_t       obcTxBuf[OBC_INTERFACE_BUFFER_SIZE];
 
 
@@ -60,7 +60,7 @@ int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx)
     ops.deinit = deinit;
     ops.tx     = tx;
 
-    OBC_IF_rxbuf_handle_internal = ringbuf_ctor(OBC_INTERFACE_BUFFER_SIZE);
+    obc_buf_handle = bufferlib_ringbuf(OBC_INTERFACE_BUFFER_SIZE);
 
 #if !defined(TARGET_MCU)
     pthread_mutex_init(&OBC_IF_rxflag_lock, NULL);
@@ -68,6 +68,7 @@ int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx)
 
     if (ops.init != NULL)
     {
+        /* Inject LL comms protocol interface with OBC interface byte rx */
         ops.init(OBC_IF_receive_byte_internal);
     }
 
@@ -91,7 +92,7 @@ void OBC_IF_clear_config(void)
         ops.deinit = NULL;
     }
 
-    ringbuf_dtor(OBC_IF_rxbuf_handle_internal);
+    obc_buf_handle.delete(obc_buf_handle.this);
 
 #if !defined(TARGET_MCU)
     pthread_mutex_destroy(&OBC_IF_rxflag_lock);
@@ -114,10 +115,10 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
     uint_fast16_t i           = 0;
     do
     {
-        char *tmp = ringbuf_read_next(OBC_IF_rxbuf_handle_internal);
-        if (tmp != NULL)
+        int tmp = obc_buf_handle.read_next(obc_buf_handle.this);
+        if (tmp != BUFFERLIB_READ_FAILURE)
         {
-            buf[i] = *tmp;
+            buf[i] = (char)tmp;
             if (buf[i] == OBC_MSG_DELIM)
             {
                 buf[i]      = '\0';
@@ -178,7 +179,7 @@ void OBC_IF_dataRxFlag_write(bool data_state)
 
 static void OBC_IF_receive_byte_internal(uint8_t byte)
 {
-    ringbuf_write_next_byte(OBC_IF_rxbuf_handle_internal, byte);
+    obc_buf_handle.write_next(obc_buf_handle.this, byte);
     if (byte == OBC_MSG_DELIM)
     {
         OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_SET);
