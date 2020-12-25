@@ -1,7 +1,7 @@
 /**
  * @file fw_version_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Test to check response to firmware version request from OBC
+ * @brief Test to check parsing of firmware version request from OBC
  * @version 0.1
  * @date 2020-12-21
  *

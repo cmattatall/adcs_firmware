@@ -1,7 +1,7 @@
 /**
  * @file fw_version_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Test to check response to hardware version request from OBC
+ * @brief Test to check parsing of hardware version request from OBC
  * @version 0.1
  * @date 2020-12-21
  *
@@ -21,5 +21,5 @@ int main(void)
 {
     uint8_t json[] = "{\"hwVersion\":\"read\"}";
     int     retval = json_parse(json, sizeof(json));
-    return   retval;
+    return retval;
 }
