@@ -43,10 +43,19 @@ else()
     abort("${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
 
+set(TOOLCHAIN_LINKER_FLAGS "-Wl")
+set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--relax")
+set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--gc-sections")
+
+
+
 if(CMAKE_CROSSCOMPILING)
     set(TOOLCHAIN_PREFIX "msp430-elf")
     set(TOOLCHAIN_PREFIX_INTERNAL "${TOOLCHAIN_PREFIX}-")
     set(EXECUTABLE_SUFFIX ".elf")
+
+    set(CMAKE_STATIC_LIBRARY_SUFFIX_C ".statlib")
+
 
     set(TOOLCHAIN_GCC_EXE ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
     execute_process(
@@ -104,25 +113,16 @@ if(CMAKE_CROSSCOMPILING)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-    set(CMAKE_SHARED_FLAGS "-ffunction-sections -fdata-sections")
-
-    set(CMAKE_C_FLAGS_INIT "${CMAKE_SHARED_FLAGS}"
-        CACHE INTERNAL "Initial flags for C compiler")
-
-    set(CMAKE_CXX_FLAGS_INIT 
-        "${CMAKE_SHARED_FLAGS} -fno-rtti -fno-exceptions" 
-        CACHE INTERNAL "Initial flags for C++ compiler")
-
     # so aparently, even code composer studio was broken with the switch to gcc 9.2 backend in 2016
     # see https://e2e.ti.com/support/tools/ccs/f/81/t/504524?Linker-error-with-latest-msp430-gcc
     #
     # current workaround is to force gcc to link against the correct multiplication lib
     # code composer is doing this same thing behind the scenes but it's a shame that the maintainers of 
     # the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
-    set(CMAKE_EXE_LINKER_FLAGS_INIT
-        "-Wl,--relax,--gc-sections,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5"
-        CACHE INTERNAL "Initial options for linker the VERY first time a CMake build tree is configured")
-        
+    #set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections -Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
+
+    set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},-T,${LINKER_SCRIPT}")
+    set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--undefined=__mspabi_mpyi -lmul_f5")
     include(CheckLinkerFlag)
 else()
     set(TOOLCHAIN_PREFIX "")
@@ -137,21 +137,13 @@ else()
     endif()
 endif(CMAKE_CROSSCOMPILING)
 
-# I'd like to configure this in the toolchain file, BUT, we don't actually
-# have access to project variables when cmake processes the toolchain file
-# since the top-level "project" instruction is actually what triggers
-# toolchain configuration.
-# Thus, we have to set this after we process the toolchain, but before
-# we add any executable/library targets to the project
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR} CACHE INTERNAL "" FORCE)
+
+
 
 if(NOT EXECUTABLE_SUFFIX)
     abort("EXECUTABLE_SUFFIX IS NOT DEFINED!")
 else()
     set(CMAKE_EXECUTABLE_SUFFIX "${EXECUTABLE_SUFFIX}" CACHE INTERNAL "")
-    mark_as_advanced(FORCE CMAKE_EXECUTABLE_SUFFIX)
 endif(NOT EXECUTABLE_SUFFIX)
 
 set(CMAKE_C_COMPILER_NAME ${TOOLCHAIN_PREFIX_INTERNAL}gcc)
@@ -211,8 +203,16 @@ find_program(
     REQUIRED
 )
 
+set(TOOLCHAIN_BASE_FLAGS "-ffunction-sections -fdata-sections")
+set(CMAKE_C_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS} -fno-rtti -fno-exceptions")
+
+set(CMAKE_EXE_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
+#set(CMAKE_STATIC_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
+
 set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -O0 -g3 -ggdb -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
+
 
 ###############################################################################
 # END SCRIPT, START EXPORTED FUNCTIONS
@@ -221,8 +221,7 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 function(msp430_add_executable executable)
     msp430_check_defines_macro()
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
-    add_executable(${executable})
-    target_sources(${executable} PRIVATE ${ARGN})
+    add_executable(${executable} ${ARGN})
     target_compile_definitions(${executable} PRIVATE "F_CPU=${MSP430_MCU_FREQ}")
     target_compile_definitions(${executable} PRIVATE "__${UPPERCASE_MCU_MPN}__")
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
@@ -235,8 +234,6 @@ function(msp430_add_executable executable)
         PROPERTIES
         SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
     )
-
-    message("CMAKE_RUNTIME_OUTPUT_DIRECTORY = ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
     add_custom_command( 
@@ -273,6 +270,9 @@ function(msp430_add_executable executable)
 
 endfunction(msp430_add_executable executable)
 
+
+
+
 function(msp430_add_library library)
     msp430_check_defines_macro()
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
@@ -283,6 +283,17 @@ function(msp430_add_library library)
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
+
+
+    #add_custom_target(${library}_postbuild ALL DEPENDS ${library})
+    #add_custom_command( 
+        #TARGET ${library}_postbuild
+        #POST_BUILD
+        #DEPENDS ${library}
+        #COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
+        #COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${library}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$  {library}.lss"
+    #)
+
 endfunction(msp430_add_library library)
 
 

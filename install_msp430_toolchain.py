@@ -165,6 +165,11 @@ def install_linux():
         toolchain_folder = "msp430-gcc-9.2.0.50_linux32"
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_linux64"
+
+    ## @todo MAKE PYTHON INSTALL PIP3 AND THEN DO pip3 install wget
+
+    os.system("apt-get update -y")
+    os.system("apt-get install -y libusb-dev")
     
     # some string literals that have been abstracted out. May want to make 
     # these configurable in the future
@@ -177,7 +182,7 @@ def install_linux():
 
     # delete old installation
     if os.path.exists(linux_install_dir):
-        os.remove(linux_install_dir)
+        shutil.rmtree(linux_install_dir)
     os.mkdir(linux_install_dir)
     os.chdir(linux_install_dir)
 

@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 
 option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
 
 project(
     ADCS_OBC_INTERFACE 
     VERSION 1.0 
-    DESCRIPTION "ADCS <-> OBC JSON COMMUNICATION LIBRARY FOR LORRIS PROJECT"
+    DESCRIPTION "ADCS <-> OBC JSON COMMUNICATION INTERFACE FOR LORRIS PROJECT"
     LANGUAGES C ASM
 )
 set(LIB "${PROJECT_NAME}")
@@ -35,15 +35,13 @@ if(NOT CMAKE_CROSSCOMPILING)
     if(Threads_FOUND) 
         if(WIN32)
             if(CMAKE_USE_WIN32_THREADS_INIT)
-                target_link_libraries(${LIB} PUBLIC pthread)
-                target_compile_options(${LIB} PUBLIC "-lpthread")
+                target_link_libraries(${LIB} PRIVATE pthread)
             else()
                 message(FATAL_ERROR "BLAHHH ")
             endif()
         elseif(UNIX)
             if(CMAKE_USE_PTHREADS_INIT)
-                target_link_libraries(${LIB} PUBLIC pthread)
-                target_compile_options(${LIB} PUBLIC "-lpthread")
+                target_link_libraries(${LIB} PRIVATE pthread)
             else()
                 message(FATAL_ERROR "BLAHHH ")
             endif()

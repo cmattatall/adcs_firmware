@@ -27,5 +27,11 @@ add_subdirectory(obc_interface)
 # FIRMWARE EXECUTABLE 
 ADCS_add_executable(${EXE})
 target_sources(${EXE} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/main.c")
-target_link_libraries(${EXE} PUBLIC ADCS_JSONS)
-target_link_libraries(${EXE} PUBLIC ADCS_OBC_INTERFACE)
+target_link_libraries(${EXE} PRIVATE ADCS_JSONS)
+target_link_libraries(${EXE} PRIVATE ADCS_OBC_INTERFACE)
+if(NOT CMAKE_CROSSCOMPILING)
+    target_link_libraries(${EXE} PRIVATE ADCS_IF_EMU)
+else()
+    target_link_libraries(${EXE} PRIVATE ADCS_DRIVERS)
+endif(NOT CMAKE_CROSSCOMPILING)
+

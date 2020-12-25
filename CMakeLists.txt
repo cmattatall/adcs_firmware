@@ -98,9 +98,9 @@ endfunction(ADCS_add_executable target)
 
 function(ADCS_add_library target)
     if(CMAKE_CROSSCOMPILING)
-        msp430_add_library(${target} ${ARGN})
+        msp430_add_library(${target} STATIC ${ARGN})
     else()  # NOT CROSS COMPILING
-        add_library(${target} ${ARGN})
+        add_library(${target} STATIC ${ARGN})
     endif(CMAKE_CROSSCOMPILING)
 endfunction(ADCS_add_library target)
 
@@ -110,8 +110,10 @@ execute_process(
     RESULT_VARIABLE GIT_SUBMODULE_UPDATE_FAILED
     OUTPUT_VARIABLE GIT_SUBMODULE_UPDATE_OUTPUT
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    ECHO_OUTPUT_VARIABLE
+    #ECHO_OUTPUT_VARIABLE
     )
+
+    message("${GIT_SUBMODULE_UPDATE_OUTPUT}")
 
 
 if(GIT_SUBMODULE_UPDATE_FAILED)
