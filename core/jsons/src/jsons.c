@@ -41,7 +41,7 @@ typedef struct
 } json_parse_table_item;
 
 
-static jtoktok_t     tkns[JSON_TKN_CNT];
+static jtok_tkn_t    tkns[JSON_TKN_CNT];
 static jtok_parser_t parser;
 static char          value_holder[50];
 
