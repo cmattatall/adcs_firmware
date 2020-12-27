@@ -11,7 +11,7 @@ import argparse
 import shutil
 import multiprocessing
 
-toolchain_file = "toolchain.cmake" # just going to hard-code this for now
+toolchain_file = "msp430toolchain.cmake" # just going to hard-code this for now
 
 ################################################################################
 # SCRIPT START. DON'T TOUCH STUFF BEYOND THIS POINT
