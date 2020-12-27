@@ -1,8 +1,8 @@
 /**
  * @file dir_rw_x_write_response_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Source module to test the response to {"dir_rw_x":"write", "value":
- * >NUMBER<} OBC request
+ * @brief Source module to test the response to
+ * {"dir_rw_x":"write", "value": >"clock"/"antiClock"<} OBC request
  * @version 0.1
  * @date 2020-12-27
  *

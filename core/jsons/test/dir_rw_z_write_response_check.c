@@ -1,8 +1,8 @@
 /**
- * @file dir_rw_y_write_response_check.c
+ * @file dir_rw_z_write_response_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module to test the response to
- * {"dir_rw_y":"write", "value": >"clock"/"antiClock"<} OBC request
+ * {"dir_rw_z":"write", "value": >"clock"/"antiClock"<} OBC request
  * @version 0.1
  * @date 2020-12-27
  *
@@ -40,7 +40,7 @@ int main(void)
     {
         char *dir_str = reacwheel_dir_str(rw_dirs[i]);
         snprintf((char *)json, sizeof(json),
-                 "{\"dir_rw_y\":\"write\", \"value\":\"%s\"}", dir_str);
+                 "{\"dir_rw_z\":\"write\", \"value\":\"%s\"}", dir_str);
         printf("Testing ADCS response to OBC Request %s ...  ", json);
         int retval = json_parse(json, sizeof(json));
         if (retval != 0)
@@ -52,7 +52,7 @@ int main(void)
         {
             /* Command was processed by JSON module correctly.
              * Now check response against response mandated by design spec */
-            snprintf(expect, sizeof(expect), "{\"dir_rw_y\": \"written\" }");
+            snprintf(expect, sizeof(expect), "{\"dir_rw_z\": \"written\" }");
             p1 = jtok_new_parser(expect);
 
             JTOK_PARSE_STATUS_t status;
