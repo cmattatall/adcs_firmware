@@ -200,7 +200,6 @@ static void *parse_pwm_rw_x(json_handler_args args)
             else
             {
                 reacwheel_set_wheel_pwm(REACTION_WHEEL_x, new_value);
-
                 OBC_IF_printf("{\"pwm_rw_x\":\"written\"}");
             }
             memset(value_holder, 0, sizeof(value_holder));
@@ -255,6 +254,7 @@ static void *parse_pwm_rw_y(json_handler_args args)
             else
             {
                 reacwheel_set_wheel_pwm(REACTION_WHEEL_y, new_value);
+                OBC_IF_printf("{\"pwm_rw_y\":\"written\"}");
             }
             memset(value_holder, 0, sizeof(value_holder));
         }
