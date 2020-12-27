@@ -7,7 +7,6 @@
  *
  * @copyright Copyright (c) 2020 DSS - LORIS project
  *
- * @note
  */
 #include "targets.h"
 

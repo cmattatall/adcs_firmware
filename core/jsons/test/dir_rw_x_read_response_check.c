@@ -73,8 +73,15 @@ int main(void)
         }
         else
         {
-            if (!jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
+            if (jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
             {
+                printf("passed.\n");
+            }
+            else
+            {
+                printf("expected >%s< but received response = >%s<\n", expect,
+                       OBC_MESSAGE_SIPHON_BUFFER);
+                printf("failed.\n");
                 return -1;
             }
         }
