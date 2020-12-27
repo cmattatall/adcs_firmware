@@ -10,7 +10,7 @@ do
         exit -1
     fi
 
-    python3 ./compile.py --rebuild --build-type ${type} --test
+    python3 ./compile.py --rebuild --build-type ${type} --run-tests
     if [ "$?" -ne 0 ]; then
         exit -1
     fi

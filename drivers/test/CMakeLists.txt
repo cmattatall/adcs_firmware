@@ -3,6 +3,9 @@
 # @brief CMAKE TEST SCRIPT FOR ADCS DRIVERS
 # @author Carl Mattatall (cmattatall2@gmail.com)
 #
+#
+# @todo NEED TO AUTOMATE some sort of "pre-launch" command
+#
 ################################################################################
 cmake_minimum_required(VERSION 3.16)
 
@@ -29,7 +32,7 @@ if(CMAKE_CROSSCOMPILING)
             target_link_libraries(${test_target} PRIVATE ${LIB})
             add_test(
                 NAME ${test_target}
-                COMMAND valgrind ${CMAKE_CURRENT_BINARY_DIR}/${test_target}
+                COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${test_target}
                 --build-generator "${CMAKE_GENERATOR}"
                 --test-command "${CMAKE_CTEST_COMMAND}"
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

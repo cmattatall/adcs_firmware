@@ -13,8 +13,7 @@
                 "externalConsole": false,
             },
             "linux": {
-                //"program": "${workspaceFolder}/build/${input:native_executable}",
-                "program": "${workspaceRoot}/build/core/jsons/test/ADCS_JSONS_hw_version_response_check",
+                "program": "${workspaceFolder}/build/${input:native_executable}",
                 "miDebuggerPath": "gdb",
             },
             "osx": {
