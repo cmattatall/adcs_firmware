@@ -81,6 +81,8 @@ int main(void)
                     }
                     else
                     {
+                        printf("expected >%s< but received response = >%s<\n",
+                               expect, OBC_MESSAGE_SIPHON_BUFFER);
                         printf("failed.\n");
                         return -1;
                     }
