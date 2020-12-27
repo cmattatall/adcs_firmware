@@ -177,8 +177,8 @@ static void *parse_pwm_rw_x(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        pwm_t current_x_pwm = get_reaction_wheel_pwm(REACTION_WHEEL_x);
-        OBC_IF_printf("{\"pwm_rw_x\" : \"%d\"}", current_x_pwm);
+        pwm_t current_x_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_x);
+        OBC_IF_printf("{\"pwm_rw_x\" : %u}", current_x_pwm);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -200,7 +200,7 @@ static void *parse_pwm_rw_x(json_handler_args args)
             }
             else
             {
-                set_reaction_wheel_pwm(REACTION_WHEEL_x, new_value);
+                reacwheel_set_wheel_pwm(REACTION_WHEEL_x, new_value);
             }
             memset(value_holder, 0, sizeof(value_holder));
         }
@@ -232,8 +232,8 @@ static void *parse_pwm_rw_y(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        pwm_t current_y_pwm = get_reaction_wheel_pwm(REACTION_WHEEL_y);
-        OBC_IF_printf("{\"pwm_rw_y\" : \"%d\"}", current_y_pwm);
+        pwm_t current_y_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_y);
+        OBC_IF_printf("{\"pwm_rw_y\" : %u}", current_y_pwm);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -253,7 +253,7 @@ static void *parse_pwm_rw_y(json_handler_args args)
             }
             else
             {
-                set_reaction_wheel_pwm(REACTION_WHEEL_y, new_value);
+                reacwheel_set_wheel_pwm(REACTION_WHEEL_y, new_value);
             }
             memset(value_holder, 0, sizeof(value_holder));
         }
@@ -285,8 +285,8 @@ static void *parse_pwm_rw_z(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        pwm_t current_z_pwm = get_reaction_wheel_pwm(REACTION_WHEEL_z);
-        OBC_IF_printf("{\"pwm_rw_z\" : \"%d\"}", current_z_pwm);
+        pwm_t current_z_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_z);
+        OBC_IF_printf("{\"pwm_rw_z\" : %u}", current_z_pwm);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -306,7 +306,7 @@ static void *parse_pwm_rw_z(json_handler_args args)
             }
             else
             {
-                set_reaction_wheel_pwm(REACTION_WHEEL_z, new_value);
+                reacwheel_set_wheel_pwm(REACTION_WHEEL_z, new_value);
             }
             memset(value_holder, 0, sizeof(value_holder));
         }
@@ -339,25 +339,8 @@ static void *parse_dir_rw_x(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        RW_DIR_t current_dir = get_reaction_wheel_pwm(REACTION_WHEEL_x);
-        switch (current_dir)
-        {
-            case RW_DIR_clockwise:
-            {
-                OBC_IF_printf("{\"dir_rw_x\" : \"%s\"}", "clock");
-            }
-            break;
-            case RW_DIR_anticlockwise:
-            {
-                OBC_IF_printf("{\"dir_rw_x\" : \"%s\"}", "antiClock");
-            }
-            break;
-            case RW_DIR_invalid:
-            {
-                OBC_IF_printf("{\"dir_rw_x\" : \"%s\"}", "invalid");
-            }
-            break;
-        }
+        RW_DIR_t current_dir = reacwheel_get_wheel_pwm(REACTION_WHEEL_x);
+        OBC_IF_printf("{\"dir_rw_x\": \"%s\"}", reacwheel_dir_str(current_dir));
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -368,11 +351,11 @@ static void *parse_dir_rw_x(json_handler_args args)
             *t += 1;
             if (jtok_tokcmp("clock", &tkns[*t]))
             {
-                set_reaction_wheel_dir(REACTION_WHEEL_x, RW_DIR_clockwise);
+                reacwheel_set_wheel_dir(REACTION_WHEEL_x, RW_DIR_clockwise);
             }
             else if (jtok_tokcmp("antiClock", &tkns[*t]))
             {
-                set_reaction_wheel_dir(REACTION_WHEEL_x, RW_DIR_anticlockwise);
+                reacwheel_set_wheel_dir(REACTION_WHEEL_x, RW_DIR_anticlockwise);
             }
             else
             {
@@ -382,6 +365,8 @@ static void *parse_dir_rw_x(json_handler_args args)
                  */
                 return JSON_HANDLER_RETVAL_ERROR;
             }
+
+            OBC_IF_printf("{\"dir_rw_x\":\"written\"}");
         }
         else
         {
@@ -412,7 +397,7 @@ static void *parse_dir_rw_y(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        RW_DIR_t current_dir = get_reaction_wheel_pwm(REACTION_WHEEL_y);
+        RW_DIR_t current_dir = reacwheel_get_wheel_pwm(REACTION_WHEEL_y);
         switch (current_dir)
         {
             case RW_DIR_clockwise:
@@ -441,11 +426,11 @@ static void *parse_dir_rw_y(json_handler_args args)
             *t += 1;
             if (jtok_tokcmp("clock", &tkns[*t]))
             {
-                set_reaction_wheel_dir(REACTION_WHEEL_y, RW_DIR_clockwise);
+                reacwheel_set_wheel_dir(REACTION_WHEEL_y, RW_DIR_clockwise);
             }
             else if (jtok_tokcmp("antiClock", &tkns[*t]))
             {
-                set_reaction_wheel_dir(REACTION_WHEEL_y, RW_DIR_anticlockwise);
+                reacwheel_set_wheel_dir(REACTION_WHEEL_y, RW_DIR_anticlockwise);
             }
             else
             {
@@ -455,6 +440,8 @@ static void *parse_dir_rw_y(json_handler_args args)
                  */
                 return JSON_HANDLER_RETVAL_ERROR;
             }
+
+            OBC_IF_printf("{\"dir_rw_y\":\"written\"}");
         }
         else
         {
@@ -485,7 +472,7 @@ static void *parse_dir_rw_z(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        RW_DIR_t current_dir = get_reaction_wheel_pwm(REACTION_WHEEL_z);
+        RW_DIR_t current_dir = reacwheel_get_wheel_pwm(REACTION_WHEEL_z);
         switch (current_dir)
         {
             case RW_DIR_clockwise:
@@ -514,11 +501,11 @@ static void *parse_dir_rw_z(json_handler_args args)
             *t += 1;
             if (jtok_tokcmp("clock", &tkns[*t]))
             {
-                set_reaction_wheel_dir(REACTION_WHEEL_z, RW_DIR_clockwise);
+                reacwheel_set_wheel_dir(REACTION_WHEEL_z, RW_DIR_clockwise);
             }
             else if (jtok_tokcmp("antiClock", &tkns[*t]))
             {
-                set_reaction_wheel_dir(REACTION_WHEEL_z, RW_DIR_anticlockwise);
+                reacwheel_set_wheel_dir(REACTION_WHEEL_z, RW_DIR_anticlockwise);
             }
             else
             {
@@ -528,6 +515,8 @@ static void *parse_dir_rw_z(json_handler_args args)
                  */
                 return JSON_HANDLER_RETVAL_ERROR;
             }
+
+            OBC_IF_printf("{\"dir_rw_z\":\"written\"}");
         }
         else
         {

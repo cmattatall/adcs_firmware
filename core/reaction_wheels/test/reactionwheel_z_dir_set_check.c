@@ -10,8 +10,8 @@ int main(void)
     int      i;
     for (i = 0; i < 2; i++)
     {
-        set_reaction_wheel_dir(REACTION_WHEEL_z, dirs[i]);
-        if (dirs[i] != get_reaction_wheel_dir(REACTION_WHEEL_z))
+        reacwheel_set_wheel_dir(REACTION_WHEEL_z, dirs[i]);
+        if (dirs[i] != reacwheel_get_wheel_dir(REACTION_WHEEL_z))
         {
             return -1;
         }
@@ -22,7 +22,7 @@ int main(void)
      */
     for (i = RW_DIR_invalid; i < INT_MAX; i++)
     {
-        if (RW_DIR_invalid != set_reaction_wheel_dir(REACTION_WHEEL_z, i))
+        if (RW_DIR_invalid != reacwheel_set_wheel_dir(REACTION_WHEEL_z, i))
         {
             return i;
         }

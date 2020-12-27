@@ -30,6 +30,9 @@ else()
 
             target_link_libraries(${test_target} PRIVATE ${LIB})
             target_link_libraries(${test_target} PRIVATE JTOK)
+            target_link_libraries(${test_target} PRIVATE ADCS_REACTIONWHEELS)
+            target_link_libraries(${test_target} PRIVATE ADCS_MAGNETORQUERS)
+
             add_test(
                 NAME ${test_target}
                 COMMAND valgrind ${CMAKE_CURRENT_BINARY_DIR}/${test_target}

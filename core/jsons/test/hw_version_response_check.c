@@ -1,7 +1,7 @@
 /**
- * @file fw_version_response_check.c
+ * @file hw_version_response_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Source module to test the response to {"fwVersion":"read"} OBC request
+ * @brief Source module to test the response to {"hwVersion":"read"} OBC request
  * @version 0.1
  * @date 2020-12-26
  *
@@ -9,7 +9,6 @@
  *
  * @note
  *
- * @todo THIS TEST NEEDS TO BE REWRITTEN I'M PRETTY SURE
  */
 
 #include <stdio.h>
@@ -31,7 +30,7 @@ static jtok_parser_t p2;
 
 int main(void)
 {
-    uint8_t json[] = "{\"fwVersion\":\"read\"}";
+    uint8_t json[] = "{\"hwVersion\":\"read\"}";
     printf("Testing ADCS response to OBC Request %s\n", json);
     int retval = json_parse(json, sizeof(json));
     if (retval != 0)
@@ -40,7 +39,7 @@ int main(void)
     }
 
     char expect[250];
-    snprintf(expect, sizeof(expect), "{\"fwVersion\":%s}", FW_VERSION);
+    snprintf(expect, sizeof(expect), "{\"hwVersion\":%s}", HW_VERSION);
     p1 = jtok_new_parser(expect);
 
     JTOK_PARSE_STATUS_t status;

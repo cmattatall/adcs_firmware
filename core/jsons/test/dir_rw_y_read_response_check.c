@@ -1,15 +1,13 @@
 /**
- * @file hw_version_response_check.c
+ * @file dir_rw_y_read_response_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Source module to test the response to {"hwVersion":"read"} OBC request
+ * @brief Source module to test the response to {"dir_rw_y":"read"} OBC request
  * @version 0.1
- * @date 2020-12-26
+ * @date 2020-12-27
  *
  * @copyright Copyright (c) 2020 Carl Mattatall
  *
  * @note
- *
- * @todo THIS TEST NEEDS TO BE REWRITTEN I'M PRETTY SURE
  */
 
 #include <stdio.h>
@@ -18,6 +16,8 @@
 #include "jtok.h"
 #include "jsons.h"
 #include "json_test_hook.h"
+
+#include "reaction_wheels.h"
 
 #include "version.h"
 
@@ -31,7 +31,7 @@ static jtok_parser_t p2;
 
 int main(void)
 {
-    uint8_t json[] = "{\"hwVersion\":\"read\"}";
+    uint8_t json[] = "{\"dir_rw_y\" : \"read\" }";
     printf("Testing ADCS response to OBC Request %s\n", json);
     int retval = json_parse(json, sizeof(json));
     if (retval != 0)
@@ -39,8 +39,19 @@ int main(void)
         return retval;
     }
 
-    char expect[250];
-    snprintf(expect, sizeof(expect), "{\"hwVersion\":%s}", HW_VERSION);
+
+    reacwheel_set_wheel_dir(REACTION_WHEEL_y, RW_DIR_clockwise);
+
+    char  expect[250];
+    char *dir_string = reacwheel_dir_str(RW_DIR_clockwise);
+    if (dir_string == NULL)
+    {
+        snprintf(expect, sizeof(expect), "{\"dir_rw_y\": \"(NULL)\" }");
+    }
+    else
+    {
+        snprintf(expect, sizeof(expect), "{\"dir_rw_y\": \"%s\" }", dir_string);
+    }
     p1 = jtok_new_parser(expect);
 
     JTOK_PARSE_STATUS_t status;
