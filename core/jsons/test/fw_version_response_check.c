@@ -52,7 +52,7 @@ int main(void)
     }
     else
     {
-        p2     = jtok_new_parser(OBC_MESSAGE_SIPHON_BUFFER);
+        p2     = jtok_new_parser((char *)OBC_MESSAGE_SIPHON_BUFFER);
         status = jtok_parse(&p2, tokens2, TKN_POOL_SIZE);
         if (status != JTOK_PARSE_STATUS_PARSE_OK)
         {
