@@ -55,9 +55,10 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
     else:
         configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
 
-    if verbose:
-        configure_string += space_args("-DCMAKE_VERBOSE_MAKEFILE=ON")
+    #if verbose:
+        #configure_string += space_args("-DCMAKE_VERBOSE_MAKEFILE=ON")
 
+    
     return os.system(configure_string)
 
 def build(bdir):

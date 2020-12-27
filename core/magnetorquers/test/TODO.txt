@@ -1,0 +1,19 @@
+NEED TO ADD:
+
+This means creating some sort of magnetorquer hardware emulation
+
+- rw_x_get_current_measurement
+- rw_y_get_current_measurement
+- rw_z_get_current_measurement
+
+- pwm_mtqr_x_read_parse_check
+- pwm_mtqr_x_read_response_check
+- pwm_mtqr_x_write_response_check
+
+- pwm_mtqr_y_read_parse_check
+- pwm_mtqr_y_read_response_check
+- pwm_mtqr_y_write_response_check
+
+- pwm_mtqr_z_read_parse_check
+- pwm_mtqr_z_read_response_check
+- pwm_mtqr_z_write_response_check
