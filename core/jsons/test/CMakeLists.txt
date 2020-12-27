@@ -17,6 +17,7 @@ else()
         add_executable(${test_name})
         target_sources(${test_name} PRIVATE ${src})
         target_link_libraries(${test_name} PRIVATE ${LIB})
+        target_link_libraries(${test_name} PRIVATE JTOK)
         add_test(
             NAME ${test_name}_TEST
             COMMAND ${test_name}
