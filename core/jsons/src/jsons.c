@@ -515,6 +515,8 @@ static void *parse_dir_rw_z(json_handler_args args)
                  */
                 return JSON_HANDLER_RETVAL_ERROR;
             }
+
+            OBC_IF_printf("{\"dir_rw_z\":\"written\"}");
         }
         else
         {
