@@ -9,7 +9,6 @@
  *
  * @note
  *
- * @todo THIS TEST NEEDS TO BE REWRITTEN I'M PRETTY SURE
  */
 
 #include <stdio.h>

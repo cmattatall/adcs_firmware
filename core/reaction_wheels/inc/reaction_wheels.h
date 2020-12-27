@@ -10,6 +10,7 @@ extern "C"
 #include <stdint.h>
 #include "pwm.h"
 
+
 typedef enum
 {
     REACTION_WHEEL_x,
@@ -24,14 +25,18 @@ typedef enum
     RW_DIR_invalid, /* <-- USED TO INDICATE API ERROR TO CALLER */
 } RW_DIR_t;
 
+#define RW_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
 
 
-pwm_t set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
-RW_DIR_t set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir);
+pwm_t    reacwheel_set_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
+RW_DIR_t reacwheel_set_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir);
 
 
-pwm_t    get_reaction_wheel_pwm(REACTION_WHEEL_t wheel);
-RW_DIR_t get_reaction_wheel_dir(REACTION_WHEEL_t wheel);
+pwm_t    reacwheel_get_wheel_pwm(REACTION_WHEEL_t wheel);
+RW_DIR_t reacwheel_get_wheel_dir(REACTION_WHEEL_t wheel);
+
+char *reacwheel_dir_str(RW_DIR_t dir);
+
 
 #ifdef __cplusplus
 /* clang-format off */

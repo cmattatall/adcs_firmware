@@ -16,18 +16,25 @@
 #include "reaction_wheels.h"
 #include "targets.h"
 
+
+static const char *rw_dir_jsonvalue_string[] = {
+    [RW_DIR_clockwise]     = "clock",
+    [RW_DIR_anticlockwise] = "antiClock",
+    [RW_DIR_invalid]       = "invalid",
+};
+
 static struct
 {
     pwm_t    pwm;
     RW_DIR_t dir;
 } reaction_wheel_configs[] = {
-    [REACTION_WHEEL_x] = {.pwm = 0, .dir = RW_DIR_clockwise},
-    [REACTION_WHEEL_y] = {.pwm = 0, .dir = RW_DIR_clockwise},
-    [REACTION_WHEEL_z] = {.pwm = 0, .dir = RW_DIR_clockwise},
+    [REACTION_WHEEL_x] = {.pwm = PWM_DEFAULT, .dir = RW_DIR_clockwise},
+    [REACTION_WHEEL_y] = {.pwm = PWM_DEFAULT, .dir = RW_DIR_clockwise},
+    [REACTION_WHEEL_z] = {.pwm = PWM_DEFAULT, .dir = RW_DIR_clockwise},
 };
 
 
-pwm_t set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
+pwm_t reacwheel_set_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
 {
     pwm_t set_value = PWM_INVALID;
     switch (wheel)
@@ -48,7 +55,7 @@ pwm_t set_reaction_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
     return set_value;
 }
 
-pwm_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel)
+pwm_t reacwheel_get_wheel_pwm(REACTION_WHEEL_t wheel)
 {
     pwm_t value = PWM_INVALID;
     switch (wheel)
@@ -69,7 +76,7 @@ pwm_t get_reaction_wheel_pwm(REACTION_WHEEL_t wheel)
 }
 
 
-RW_DIR_t set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir)
+RW_DIR_t reacwheel_set_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir)
 {
     RW_DIR_t set_value = RW_DIR_invalid;
     switch (wheel)
@@ -108,7 +115,7 @@ RW_DIR_t set_reaction_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir)
 }
 
 
-RW_DIR_t get_reaction_wheel_dir(REACTION_WHEEL_t wheel)
+RW_DIR_t reacwheel_get_wheel_dir(REACTION_WHEEL_t wheel)
 {
     RW_DIR_t dir = RW_DIR_invalid;
     switch (wheel)
@@ -125,4 +132,22 @@ RW_DIR_t get_reaction_wheel_dir(REACTION_WHEEL_t wheel)
         }
     }
     return dir;
+}
+
+
+char *reacwheel_dir_str(RW_DIR_t dir)
+{
+    switch (dir)
+    {
+        case RW_DIR_clockwise:
+        case RW_DIR_anticlockwise:
+        {
+            return (char *)rw_dir_jsonvalue_string[dir];
+        }
+        break;
+        default:
+        {
+            return (char *)rw_dir_jsonvalue_string[RW_DIR_invalid];
+        }
+    }
 }
