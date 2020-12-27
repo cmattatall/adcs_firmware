@@ -10,12 +10,12 @@ declare -a build_types=("Debug" "Release")
 
 for type in "${build_types[@]}"
 do
-    python3 ./compile.py --rebuild --cross-compile --build-type ${type}
+    python3 ./compile.py --rebuild --cross-compile --build-type ${type} --verbose
     if [ "$?" -ne 0 ]; then
         exit -1
     fi
 
-    python3 ./compile.py --rebuild --build-type ${type} --run-tests
+    python3 ./compile.py --rebuild --build-type ${type} --run-tests --verbose
     if [ "$?" -ne 0 ]; then
         exit -1
     fi

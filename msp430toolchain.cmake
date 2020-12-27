@@ -213,10 +213,10 @@ set(CMAKE_EXE_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -O0 -g3 -ggdb -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 
-
 ###############################################################################
 # END SCRIPT, START EXPORTED FUNCTIONS
 ###############################################################################
+
 
 function(msp430_add_executable executable)
     msp430_check_defines_macro()
@@ -228,6 +228,7 @@ function(msp430_add_executable executable)
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
+
 
     set_target_properties(
         ${executable}
