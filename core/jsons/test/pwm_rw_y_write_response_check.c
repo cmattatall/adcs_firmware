@@ -1,8 +1,8 @@
 /**
- * @file dir_rw_z_write_response_check.c
+ * @file pwm_rw_y_write_response_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module to test the response to
- * {"dir_rw_z":"write", "value": >"clock"/"antiClock"<} OBC request
+ * {"pwm_rw_y":"write", "value": >NUMBER<} OBC request
  * @version 0.1
  * @date 2020-12-27
  *
@@ -14,6 +14,7 @@
 #error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
 #endif /* #if defined(TARGET_MCU) */
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -35,16 +36,15 @@ static jtok_parser_t p2;
 
 int main(void)
 {
-    uint8_t      json[125];
-    char         expect[125];
-    RW_DIR_t     rw_dirs[2] = {RW_DIR_clockwise, RW_DIR_anticlockwise};
-    unsigned int i;
-    for (i = 0; i < 2; i++)
+    uint8_t json[125];
+    char    expect[125];
+    pwm_t   pwm_from_obc;
+    for (pwm_from_obc = PWM_MIN; pwm_from_obc < PWM_MAX; pwm_from_obc++)
     {
-        char *dir_str = reacwheel_dir_str(rw_dirs[i]);
         snprintf((char *)json, sizeof(json),
-                 "{\"dir_rw_z\":\"write\", \"value\":\"%s\"}", dir_str);
+                 "{\"pwm_rw_y\":\"write\", \"value\":%u}", pwm_from_obc);
         printf("Testing ADCS response to OBC Request %s ...  ", json);
+
         int retval = json_parse(json, sizeof(json));
         if (retval != 0)
         {
@@ -55,7 +55,7 @@ int main(void)
         {
             /* Command was processed by JSON module correctly.
              * Now check response against response mandated by design spec */
-            snprintf(expect, sizeof(expect), "{\"dir_rw_z\": \"written\" }");
+            snprintf(expect, sizeof(expect), "{\"pwm_rw_y\": \"written\" }");
             p1 = jtok_new_parser(expect);
 
             JTOK_PARSE_STATUS_t status;
@@ -80,6 +80,9 @@ int main(void)
                 {
                     if (jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
                     {
+                        pwm_t current_pwm =
+                            reacwheel_get_wheel_pwm(REACTION_WHEEL_y);
+                        assert(current_pwm == pwm_from_obc);
                         printf("passed. Response was %s\n",
                                OBC_MESSAGE_SIPHON_BUFFER);
                     }
@@ -94,6 +97,5 @@ int main(void)
             }
         }
     }
-
     return 0;
 }

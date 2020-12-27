@@ -1,3 +1,16 @@
+/**
+ * @file dir_rw_z_write_parse_check.c
+ * @author Carl Mattatall (cmattatall2@gmail.com)
+ * @brief Source module to confirm that incoming json from OBC
+ * {"dir_rw_z": "write", "value": "clock"/"antiClock"} gets parsed correctly
+ * @version 0.1
+ * @date 2020-12-27
+ *
+ * @copyright Copyright (c) 2020 Carl Mattatall
+ *
+ * @note
+ */
+
 #if defined(TARGET_MCU)
 #error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
 #endif /* #if defined(TARGET_MCU) */

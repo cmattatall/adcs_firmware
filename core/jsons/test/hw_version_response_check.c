@@ -10,6 +10,9 @@
  * @note
  *
  */
+#if defined(TARGET_MCU)
+#error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
+#endif /* #if defined(TARGET_MCU) */
 
 #include <stdio.h>
 #include <string.h>
@@ -63,7 +66,7 @@ int main(void)
         {
             if (jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
             {
-                printf("passed.\n");
+                printf("passed. Response was %s\n", OBC_MESSAGE_SIPHON_BUFFER);
             }
             else
             {
