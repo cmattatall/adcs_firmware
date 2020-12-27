@@ -41,7 +41,7 @@ int main(void)
         char *dir_str = reacwheel_dir_str(rw_dirs[i]);
         snprintf((char *)json, sizeof(json),
                  "{\"dir_rw_x\":\"write\", \"value\":\"%s\"}", dir_str);
-        printf("Testing ADCS response to OBC Request %s\n", json);
+        printf("Testing ADCS response to OBC Request %s ...  ", json);
         int retval = json_parse(json, sizeof(json));
         if (retval != 0)
         {
@@ -75,8 +75,13 @@ int main(void)
                 }
                 else
                 {
-                    if (!jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
+                    if (jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
                     {
+                        printf("passed.\n");
+                    }
+                    else
+                    {
+                        printf("failed.\n");
                         return -1;
                     }
                 }
