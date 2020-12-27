@@ -33,7 +33,7 @@ For spacecraft with mission critical pointing requirements, Attitude Determinati
 ![Alt Text](https://github.com/cmattatall/adcs_firmware/tree/images/nadir_pointing.jpg)
 
 
-![Alt Text](https://github.com/cmattatall/adcs_firmware/tree/images/detumbling.gif)
+![Alt Text](https://github.com/cmattatall/adcs_firmware/blob/dev/images/detumbling.gif)
 
 # DEVELOPMENT ENVIRONMENT
 
