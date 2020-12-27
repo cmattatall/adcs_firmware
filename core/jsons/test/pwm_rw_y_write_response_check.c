@@ -10,6 +10,9 @@
  *
  * @note
  */
+#if defined(TARGET_MCU)
+#error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
+#endif /* #if defined(TARGET_MCU) */
 
 #include <assert.h>
 #include <stdio.h>
