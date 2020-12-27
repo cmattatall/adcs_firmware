@@ -80,7 +80,8 @@ int main(void)
                         pwm_t current_pwm =
                             reacwheel_get_wheel_pwm(REACTION_WHEEL_x);
                         assert(current_pwm == pwm_from_obc);
-                        printf("passed.\n");
+                        printf("passed. Response was %s\n",
+                               OBC_MESSAGE_SIPHON_BUFFER);
                     }
                     else
                     {
