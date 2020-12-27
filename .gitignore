@@ -1,5 +1,3 @@
-# MISC PROJECT STUFF
-images
 
 
 # SPECIFIC VSCODE STUFF
@@ -13,6 +11,8 @@ Testing/*
 *Makefile
 *cmake_install*
 *CMakeCache
+
+
 
 # PYTHON
 *.pyc
