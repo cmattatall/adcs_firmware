@@ -144,7 +144,7 @@ static void *parse_firmware_json(json_handler_args args)
     *t += 1;
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        OBC_IF_printf("{\"fwVersion\" : \"%s\"}", FW_VERSION);
+        OBC_IF_printf("{\"fwVersion\" : %s}", FW_VERSION);
         return (void *)t;
     }
     else
@@ -160,7 +160,7 @@ static void *parse_hardware_json(json_handler_args args)
     *t += 1;
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        OBC_IF_printf("{\"hwVersion\" : \"%s\"}", HW_VERSION);
+        OBC_IF_printf("{\"hwVersion\" : %s}", HW_VERSION);
         return (void *)t;
     }
     else

@@ -113,7 +113,11 @@ execute_process(
     #ECHO_OUTPUT_VARIABLE
     )
 
-    message("${GIT_SUBMODULE_UPDATE_OUTPUT}")
+message("${GIT_SUBMODULE_UPDATE_OUTPUT}")
+
+execute_process(
+    COMMAND "sync"
+)
 
 
 if(GIT_SUBMODULE_UPDATE_FAILED)
