@@ -1,5 +1,5 @@
 /**
- * @file dir_rw_x_write_response_check.c
+ * @file pwm_rw_x_write_response_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module to test the response to
  * {"pwm_rw_x":"write", "value": >NUMBER<} OBC request

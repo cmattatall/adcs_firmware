@@ -1,8 +1,8 @@
 /**
- * @file pwm_rw_y_write_response_check.c
+ * @file pwm_rw_z_write_response_check.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module to test the response to
- * {"pwm_rw_y":"write", "value": >NUMBER<} OBC request
+ * {"pwm_rw_z":"write", "value": >NUMBER<} OBC request
  * @version 0.1
  * @date 2020-12-27
  *
@@ -39,7 +39,7 @@ int main(void)
     for (pwm_from_obc = PWM_MIN; pwm_from_obc < PWM_MAX; pwm_from_obc++)
     {
         snprintf((char *)json, sizeof(json),
-                 "{\"pwm_rw_y\":\"write\", \"value\":%u}", pwm_from_obc);
+                 "{\"pwm_rw_z\":\"write\", \"value\":%u}", pwm_from_obc);
         printf("Testing ADCS response to OBC Request %s ...  ", json);
 
         int retval = json_parse(json, sizeof(json));
@@ -52,7 +52,7 @@ int main(void)
         {
             /* Command was processed by JSON module correctly.
              * Now check response against response mandated by design spec */
-            snprintf(expect, sizeof(expect), "{\"pwm_rw_y\": \"written\" }");
+            snprintf(expect, sizeof(expect), "{\"pwm_rw_z\": \"written\" }");
             p1 = jtok_new_parser(expect);
 
             JTOK_PARSE_STATUS_t status;
@@ -78,7 +78,7 @@ int main(void)
                     if (jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
                     {
                         pwm_t current_pwm =
-                            reacwheel_get_wheel_pwm(REACTION_WHEEL_y);
+                            reacwheel_get_wheel_pwm(REACTION_WHEEL_z);
                         assert(current_pwm == pwm_from_obc);
                         printf("passed. Response was %s\n",
                                OBC_MESSAGE_SIPHON_BUFFER);
