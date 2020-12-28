@@ -61,7 +61,7 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
     
     return os.system(configure_string)
 
-def build(bdir):
+def make(bdir):
     retval = os.system("cmake --build \"%s\"" % (bdir))
     return retval
 
@@ -126,7 +126,7 @@ def main():
             print("\nError configuring project!\n")
         exit(-1)
     
-    if 0 != build(args.bdir):
+    if 0 != make(args.bdir):
         if args.verbose:
             print("\nError building the project!\n")
         exit(-1)
