@@ -45,6 +45,7 @@
             "miDebuggerServerAddress": "localhost:2000",
             "miDebuggerArgs": "",
 
+
             //"preLaunchTask": "Flash MCU",
             "serverStarted": "Now waiting for connection...",
 
@@ -76,10 +77,6 @@
                 "order": 1
             },
 
-            "symbolLoadInfo": {
-                "loadAll": true,
-                "exceptionList": ""
-            },
             "filterStdout": true,
             "filterStderr": false,
         }
@@ -92,7 +89,7 @@
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "id": "elf_file",
             "type": "promptString",
-            "default": "build/adcs.elf"
+            "default": "build/adcs_executable.elf"
         },
 
         {

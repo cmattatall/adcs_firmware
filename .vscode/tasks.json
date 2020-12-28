@@ -47,7 +47,7 @@
             "detail": "Build the project for a target device",
             "group": "build",
             "type": "shell",
-            "command" : "python3 ./compile.py --cross-compile --build-type=${input:build_type}",
+            "command" : "python3 ./compile.py --cross-compile --build-type=${input:build_type} --rebuild",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -77,7 +77,7 @@
             "id": "elf_file",
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "type": "promptString",
-            "default": "build/adcs.elf"
+            "default": "build/adcs_executable.elf"
         }
     ]
 

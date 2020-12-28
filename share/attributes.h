@@ -11,6 +11,7 @@ extern "C"
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #define __TEST_HOOKABLE __weak
 #elif defined(__GNUC__)
+#define __irq_default(isr_code) __attribute__((weak, interrupt(isr_code)))
 #define __TEST_HOOKABLE __attribute__((weak))
 #else
 #error Compiler not supported!
