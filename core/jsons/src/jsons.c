@@ -24,7 +24,7 @@
 #include "reaction_wheels.h"
 
 #define BASE_10 10
-#define JSON_TKN_CNT 250
+#define JSON_TKN_CNT 20
 #define JSON_HANDLER_RETVAL_ERROR NULL
 
 typedef uint_fast16_t token_index_t;
@@ -35,7 +35,7 @@ typedef json_handler_retval (*json_handler)(json_handler_args);
 
 typedef struct
 {
-    char         key[50];
+    char         key[25];
     json_handler handler;
 } json_parse_table_item;
 
@@ -78,9 +78,9 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
 
     int json_parse_status = 0;
 
-    parser = jtok_new_parser((char *)json);
-
+    parser          = jtok_new_parser((char *)json);
     int jtok_retval = jtok_parse(&parser, tkns, JSON_TKN_CNT);
+
     if (jtok_retval != JTOK_PARSE_STATUS_PARSE_OK)
     {
         json_parse_status = jtok_retval;
@@ -123,7 +123,7 @@ int json_parse(uint8_t *json, uint_least16_t json_len)
             }
 
             /* No match with supported json keys */
-            if (k == k_max)
+            if (k >= k_max)
             {
                 json_parse_status = -1;
             }

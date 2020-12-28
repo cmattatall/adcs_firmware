@@ -49,472 +49,263 @@
  * - Carl
  *
  */
-#if defined(TEXAS_INSTRUMENTS_MICROCONTROLLERS_ARE_ACTUALLY_GOOD)
-#undef TEXAS_INSTRUMENTS_MICROCONTROLLERS_ARE_ACTUALLY_GOOD
-#error I D RATHER SHOOT MYSELF IN THE FOOT THAN WORK WITH TI CHIPS \
-IN INDUSTRY AGAIN
-#endif
+
+#if 0
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = RTC_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(RTC_VECTOR)
-#else
-__attribute__((interrupt(RTC_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void RTC_VECTOR_ISR(void)
+__attribute__((used, interrupt(RTC_VECTOR))) void RTC_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = PORT2_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(PORT2_VECTOR)
-#else
-__attribute__((interrupt(PORT2_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void PORT2_VECTOR_ISR(void)
+
+__attribute__((used, interrupt(PORT2_VECTOR))) void PORT2_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER2_A1_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER2_A1_VECTOR)
-#else
-__attribute__((interrupt(TIMER2_A1_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER2_A1_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER2_A1_VECTOR))) void TIMER2_A1_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER2_A0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER2_A0_VECTOR)
-#else
-__attribute__((interrupt(TIMER2_A0_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER2_A0_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER2_A0_VECTOR))) void TIMER2_A0_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USCI_B1_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(USCI_B1_VECTOR)
-#else
-__attribute__((interrupt(USCI_B1_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void USCI_B1_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(USCI_B1_VECTOR))) void USCI_B1_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USCI_A1_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(USCI_A1_VECTOR)
-#else
-__attribute__((interrupt(USCI_A1_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void USCI_A1_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(USCI_A1_VECTOR))) void USCI_A1_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = PORT1_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(PORT1_VECTOR)
-#else
-__attribute__((interrupt(PORT1_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void PORT1_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(PORT1_VECTOR))) void PORT1_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER1_A1_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER1_A1_VECTOR)
-#else
-__attribute__((interrupt(TIMER1_A1_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER1_A1_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER1_A1_VECTOR))) void TIMER1_A1_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER1_A0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER1_A0_VECTOR)
-#else
-__attribute__((interrupt(TIMER1_A0_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER1_A0_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER1_A0_VECTOR))) void TIMER1_A0_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = DMA_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(DMA_VECTOR)
-#else
-__attribute__((interrupt(DMA_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void DMA_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(DMA_VECTOR))) void DMA_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USB_UBM_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(USB_UBM_VECTOR)
-#else
-__attribute__((interrupt(USB_UBM_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void USB_UBM_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(USB_UBM_VECTOR))) void USB_UBM_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER0_A1_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER0_A1_VECTOR)
-#else
-__attribute__((interrupt(TIMER0_A1_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER0_A1_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER0_A1_VECTOR))) void TIMER0_A1_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER0_A0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER0_A0_VECTOR)
-#else
-__attribute__((interrupt(TIMER0_A0_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER0_A0_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER0_A0_VECTOR))) void TIMER0_A0_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = ADC12_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(ADC12_VECTOR)
-#else
-__attribute__((interrupt(ADC12_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void ADC12_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(ADC12_VECTOR))) void ADC12_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USCI_B0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(USCI_B0_VECTOR)
-#else
-__attribute__((interrupt(USCI_B0_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void USCI_B0_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(USCI_B0_VECTOR))) void USCI_B0_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USCI_A0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(USCI_A0_VECTOR)
-#else
-__attribute__((interrupt(USCI_A0_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void USCI_A0_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(USCI_A0_VECTOR))) void USCI_A0_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = WDT_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(WDT_VECTOR)
-#else
-__attribute__((interrupt(WDT_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void WDT_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(WDT_VECTOR))) void WDT_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER0_B1_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER0_B1_VECTOR)
-#else
-__attribute__((interrupt(TIMER0_B1_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER0_B1_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER0_B1_VECTOR))) void TIMER0_B1_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER0_B0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(TIMER0_B0_VECTOR)
-#else
-__attribute__((interrupt(TIMER0_B0_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void TIMER0_B0_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(TIMER0_B0_VECTOR))) void TIMER0_B0_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = COMP_B_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(COMP_B_VECTOR)
-#else
-__attribute__((interrupt(COMP_B_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void COMP_B_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(COMP_B_VECTOR))) void COMP_B_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = UNMI_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(UNMI_VECTOR)
-#else
-__attribute__((interrupt(UNMI_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void UNMI_VECTOR_ISR(void)
+
+
+
+__attribute__((used, interrupt(UNMI_VECTOR))) void UNMI_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
 
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = SYSNMI_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-#if defined(TI_IS_NOT_GARBAGE)
-__irq_default(SYSNMI_VECTOR)
-#else
-__attribute__((interrupt(SYSNMI_VECTOR)))
-#endif
-#else
-#error Compiler not supported!
-#endif
-void SYSNMI_VECTOR_ISR(void)
+__attribute__((used, interrupt(SYSNMI_VECTOR))) void SYSNMI_IRQ(void)
 {
     while(1)
     {
-        /* default implementation is just to hang as opposed to running amock */
+        /* do nothing */
     }
 }
 
-
+#endif

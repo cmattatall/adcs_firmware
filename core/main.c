@@ -55,8 +55,7 @@ int main(void)
 
             if (0 != json_parse(msg, strnlen((char *)msg, sizeof(msg))))
             {
-                uint8_t error_message[] = "{\"error\" : \"json format\"}\n";
-                OBC_IF_printf("%s\n", error_message);
+                OBC_IF_printf("{\"error\" : \"json format\"}\n");
             }
 
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);

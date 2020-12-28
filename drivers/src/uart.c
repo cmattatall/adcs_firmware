@@ -15,6 +15,8 @@
 #include <stdint.h>
 #include <string.h> /* memcpy */
 
+#include "attributes.h"
+
 #include "targets.h"
 
 #if defined(TARGET_MCU)
@@ -86,17 +88,7 @@ int uart_transmit(uint8_t *buf, uint_least16_t buflen)
 }
 
 
-/* clang-format off */
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USCI_A0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-__attribute__((interrupt(USCI_A0_VECTOR)))
-#else
-#error Compiler not supported!
-#endif
-void USCI_A0_ISR(void)
-/* clang-format on */
+__attribute__((used, interrupt(USCI_A0_VECTOR))) void USCI_A0_VECTOR_ISR(void)
 {
     switch (UCA0IV)
     {
