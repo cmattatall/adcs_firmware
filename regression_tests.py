@@ -9,4 +9,5 @@ if __name__ == "__main__":
         retval = os.system("python3 ./compile.py --rebuild --build-type %s --run-tests" % (btype))
         if 0 != retval:
             exit(retval)    
+            
     
