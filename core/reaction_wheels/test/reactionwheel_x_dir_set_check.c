@@ -14,6 +14,7 @@
 #error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
 #endif /* #if defined(TARGET_MCU) */
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
