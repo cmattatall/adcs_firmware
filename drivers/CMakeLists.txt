@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 if(CMAKE_CROSSCOMPILING)
 
+    option(BUILD_TESTING "[ON/OFF] Build tests in addition to library" OFF)
+    option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
+
     ################################################################################
     #  BUILD TYPE CHECK
     ################################################################################
@@ -102,6 +105,23 @@ if(CMAKE_CROSSCOMPILING)
                 add_subdirectory(test)
             endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
         endif()
-    endif()
+    endif(BUILD_TESTING)
+
+
+    if(BUILD_EXAMPLES)
+        if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+            add_subdirectory(examples)
+        endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+    else()
+        if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+            add_compile_options("-Wall")
+            add_compile_options("-Wextra")
+            enable_testing()
+            include(CTest)
+            if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+                add_subdirectory(examples)
+            endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+        endif()
+    endif(BUILD_EXAMPLES)
 
 endif(CMAKE_CROSSCOMPILING)

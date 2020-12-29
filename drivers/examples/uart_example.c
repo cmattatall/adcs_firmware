@@ -10,13 +10,37 @@
  * @note
  */
 #include <msp430.h>
+#include <stdint.h>
+#include <stdbool.h>
 
-static int uart_transmit(uint8_t *buf, uint_least16_t buflen);
+static int  uart_transmit(uint8_t *buf, uint_least16_t buflen);
+static void uart_init(void);
 
 static volatile bool tx_cplt = false;
+static volatile bool rx_cplt = false;
 
 
 int main(void)
+{
+    uart_init();
+
+    char msg[] = "Hello World!\r\n";
+    while (1)
+    {
+        /* If transmitter is busy */
+        if (!tx_cplt)
+        {
+            uart_transmit((uint8_t*)msg, sizeof(msg));
+        }
+
+        if (rx_cplt)
+        {
+        }
+    }
+}
+
+
+static void uart_init(void)
 {
     WDTCTL = WDTPW + WDTHOLD;               // Stop WDT
     P3SEL  = BIT3 + BIT4;                   // P3.4,5 = USCI_A0 TXD/RXD
@@ -28,16 +52,11 @@ int main(void)
                                             // over sampling
     UCA0CTL1 &= ~UCSWRST;                   // **Initialize USCI state machine**
     UCA0IE |= UCRXIE;                       // Enable USCI_A0 RX interrupt
-    log_trace("initialized uart\n");
-    CONFIG_ASSERT(rx != NULL);
-    uart_receive_byte = rx;
 }
-
 
 
 static int uart_transmit(uint8_t *buf, uint_least16_t buflen)
 {
-    CONFIG_ASSERT(buf != NULL);
     tx_cplt         = true;
     uint_fast16_t i = 0;
     do
@@ -49,6 +68,7 @@ static int uart_transmit(uint8_t *buf, uint_least16_t buflen)
         }
         UCA0TXBUF = buf[i]; /* load into transmit buffer after */
     } while (i <= buflen);
+    tx_cplt = false;
     return i;
 }
 
@@ -62,18 +82,16 @@ __attribute__((used, interrupt(USCI_A0_VECTOR))) void USCI_A0_VECTOR_ISR(void)
         break;
         case 2: /* RX interrupt  */
         {
-            uart_receive_byte(UCA0RXBUF);
+            rx_cplt = true;
         }
         break;
         case 4: /* TX interrupt */
         {
-            CONFIG_ASSERT(tx_cplt != true);
             tx_cplt = true;
         }
         break;
         default: /* not sure what happened here */
         {
-            CONFIG_ASSERT(0);
         }
         break;
     }
