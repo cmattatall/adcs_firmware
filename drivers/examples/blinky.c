@@ -11,6 +11,15 @@
 
 #include <msp430.h>
 
+static void blocking_delay(void)
+{
+    volatile unsigned int i; // volatile to prevent optimization
+    i = 10000;               // SW Delay
+    do
+        i--;
+    while (i != 0);
+}
+
 int main(void)
 {
     WDTCTL = WDTPW | WDTHOLD; // Stop watchdog timer
@@ -18,15 +27,11 @@ int main(void)
 
     for (;;)
     {
-        volatile unsigned int i; // volatile to prevent optimization
-
+        blocking_delay();
         P1OUT ^= 0x01; // Toggle P1.0 using exclusive-OR
-
-        i = 10000; // SW Delay
-        do
-            i--;
-        while (i != 0);
     }
 
     return 0;
 }
+
+

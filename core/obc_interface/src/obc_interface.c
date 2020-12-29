@@ -29,7 +29,7 @@
 static pthread_mutex_t OBC_IF_rxflag_lock;
 #endif /* !defined(TARGET_MCU) */
 
-#define OBC_INTERFACE_BUFFER_SIZE 2000
+#define OBC_INTERFACE_BUFFER_SIZE 500
 
 typedef struct
 {

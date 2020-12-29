@@ -169,17 +169,7 @@ unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 }
 
 
-/* clang-format off */
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USCI_B0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-__attribute__((interrupt(USCI_B0_VECTOR)))
-#else
-#error Compiler not supported!
-#endif
-void USCI_B0_ISR(void)
-/* clang-format on */
+__attribute__((used, interrupt(USCI_B0_VECTOR))) void USCI_B0_VECTOR_ISR(void)
 {
     /* If receive interrupt is pending*/
     if (UCB0IV & 0X02)

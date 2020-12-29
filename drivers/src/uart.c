@@ -15,6 +15,8 @@
 #include <stdint.h>
 #include <string.h> /* memcpy */
 
+#include "attributes.h"
+
 #include "targets.h"
 
 #if defined(TARGET_MCU)
@@ -33,8 +35,7 @@ static void (*uart_receive_byte)(uint8_t);
 
 void uart_init(receive_func rx)
 {
-    WDTCTL = WDTPW + WDTHOLD;               // Stop WDT
-    P3SEL  = BIT3 + BIT4;                   // P3.4,5 = USCI_A0 TXD/RXD
+    P3SEL = BIT3 + BIT4;                    // P3.4,5 = USCI_A0 TXD/RXD
     UCA0CTL1 |= UCSWRST;                    // **Put state machine in reset**
     UCA0CTL1 |= UCSSEL_2;                   // SMCLK
     UCA0BR0  = 6;                           // 1MHz 9600 (see User's Guide)
@@ -86,17 +87,7 @@ int uart_transmit(uint8_t *buf, uint_least16_t buflen)
 }
 
 
-/* clang-format off */
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = USCI_A0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-__attribute__((interrupt(USCI_A0_VECTOR)))
-#else
-#error Compiler not supported!
-#endif
-void USCI_A0_ISR(void)
-/* clang-format on */
+__attribute__((used, interrupt(USCI_A0_VECTOR))) void USCI_A0_VECTOR_ISR(void)
 {
     switch (UCA0IV)
     {

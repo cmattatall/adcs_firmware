@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if defined(TARGET_MCU)
 #include "spi.h"
@@ -19,7 +20,7 @@
 
 /* NOTE THESE 2 HEADERS ARE JUST TEMPORARY STUFF  */
 
-static uint8_t json_buffer[500];
+static uint8_t msg[500];
 
 
 int main(void)
@@ -45,27 +46,18 @@ int main(void)
 
     while (1)
     {
-
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
+
             /* get command json string from OBC interface */
-            OCB_IF_get_command_string(json_buffer, sizeof(json_buffer));
+            OCB_IF_get_command_string(msg, sizeof(msg));
             /* Parse command json string */
-            int parse_status = json_parse(json_buffer, sizeof(json_buffer));
-            if (JSON_PARSE_ERROR(parse_status))
+
+            if (0 != json_parse(msg, strnlen((char *)msg, sizeof(msg))))
             {
-                uint8_t error_message[] = "{\"error\" : \"json format\"}\n";
-                OBC_IF_printf("%s\n", error_message);
+                OBC_IF_printf("{\"error\" : \"json format\"}\n");
             }
-            else if (JSON_PARSE_UNK(parse_status))
-            {
-                uint8_t message[] = "{\"ADCS\" : \"unknown command\"}\n";
-                OBC_IF_printf("%s\n", message);
-            }
-            else
-            {
-                /* successful, don't do anything */
-            }
+
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
     }
