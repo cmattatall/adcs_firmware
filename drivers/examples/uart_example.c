@@ -18,32 +18,28 @@ static void uart_init(void);
 
 static volatile bool tx_cplt = false;
 static volatile bool rx_cplt = false;
-
+static volatile bool delay_expired = false;
 
 int main(void)
 {
+    WDTCTL = WDTPW | WDTHOLD; // Stop watchdog timer
+    P1DIR |= 0x01;            // Set P1.0 to output direction
     uart_init();
+
+    _BIS_SR(LPM0_bits + GIE); // Enter LPM0 w/ interrupt
 
     char msg[] = "Hello World!\r\n";
     while (1)
     {
-        /* If transmitter is busy */
-        if (!tx_cplt)
-        {
-            uart_transmit((uint8_t*)msg, sizeof(msg));
-        }
-
-        if (rx_cplt)
-        {
-        }
+        // uart_transmit((uint8_t *)msg, sizeof(msg));
+        P1OUT ^= 0x01; // Toggle P1.0 using exclusive-OR
     }
 }
 
 
 static void uart_init(void)
 {
-    WDTCTL = WDTPW + WDTHOLD;               // Stop WDT
-    P3SEL  = BIT3 + BIT4;                   // P3.4,5 = USCI_A0 TXD/RXD
+    P3SEL = BIT3 + BIT4;                    // P3.4,5 = USCI_A0 TXD/RXD
     UCA0CTL1 |= UCSWRST;                    // **Put state machine in reset**
     UCA0CTL1 |= UCSSEL_2;                   // SMCLK
     UCA0BR0  = 6;                           // 1MHz 9600 (see User's Guide)
@@ -96,3 +92,5 @@ __attribute__((used, interrupt(USCI_A0_VECTOR))) void USCI_A0_VECTOR_ISR(void)
         break;
     }
 }
+
+

@@ -40,13 +40,11 @@
             "name": "(msp430-elf-gdb) msp430 remote debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/${input:elf_file}",
+            "program": "${workspaceRoot}/build/${input:elf_file}",
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
             "miDebuggerArgs": "",
 
-
-            //"preLaunchTask": "Flash MCU",
             "serverStarted": "Now waiting for connection...",
 
             "cwd": "${workspaceFolder}", 
@@ -89,7 +87,8 @@
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "id": "elf_file",
             "type": "promptString",
-            "default": "build/adcs_executable.elf"
+            //"default": "adcs_executable.elf"
+            "default": "drivers/examples/ADCS_DRIVERS_uart_example.elf"
         },
 
         {
