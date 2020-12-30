@@ -223,6 +223,9 @@ def install_linux():
     os.chdir(current_workdir) 
 
 
+    os.system("apt-get install -y valgrind")
+
+
 # @brief install toolchain on apple
 # @todo ACTUALLY IMPLEMENT THE DAMN THING 
 #      (I don't have a macbook so idk what to do yet)
