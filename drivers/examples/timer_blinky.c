@@ -67,10 +67,10 @@ static void TIMERA0_init(void)
     TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
     TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
 
-    /* 1100000 * (1/8) * (1/8) == 17187.5 */
+    /* 1000000 * (1/8) * (1/8) == 15625 */
     /* If we want to blink once per second, we need to interrupt twice per sec*/
     /* (because toggle) */
-    /* thus, TA0CCR0 should be 17188/2 == 8593 if we want to blink once per
+    /* thus, TA0CCR0 should be 15625/2 == 7812 if we want to blink once per
      * sec*/
     /*
      * BUT, FOR SOME REASON, WHEN I DO THIS, THE DAMN THING BLINKS LIKE 13

@@ -8,30 +8,42 @@
  * @copyright Copyright (c) 2020 DSS Loris project
  *
  * @note
- * @todo
+ * The example periodically transmits "Hello World\r\n" through the tx line
+ * at 9600 baud with a 1.8% bitrate error.
+ *
+ * When '!' is received, the message "message received!\r\n" is then
+ * echoed back
  */
 #include <stdlib.h>
 #include <msp430.h>
 #include <stdint.h>
 
-static volatile int rx_cplt_flag;
-
-
-static uint8_t *    tx_buf; /* buffer index of currently transmitting buffer */
-static volatile int tx_idx; /* buffer index of next byte to load into uart */
-static volatile int tx_cnt;
-static volatile int timer_expired_flag;
-
+#define MSG_DELIM '!'
 
 static void stop_watchdog(void);
 static void red_led_init(void);
 static void enable_interrupts(void);
 static void TIMERA0_init(void);
 static void uart_init(void);
-static void uart_transmit_async(uint8_t *msg, uint_least16_t msglen);
+
+static void uart_receive_byte(void);
+static void uart_transmit_byte(void);
+static void uart_transmit_start(uint8_t *msg, uint_least16_t msglen);
+
+static volatile int timer_flag;
+static volatile int msg_received;
+
+static uint8_t *             tx_buf;
+static volatile unsigned int tx_idx;
+static unsigned int          tx_max;
+
 
 static char         rx_buf[250];
-static unsigned int rx_buf_idx = 0;
+static unsigned int rx_buf_idx;
+
+static void (*uart_rx_cb)(void);
+static void (*uart_tx_cb)(void);
+
 
 int main(void)
 {
@@ -41,22 +53,27 @@ int main(void)
     uart_init();
     enable_interrupts();
 
+    uart_tx_cb = uart_transmit_byte;
+    uart_rx_cb = uart_receive_byte;
+
     while (1)
     {
-        if (timer_expired_flag)
+        if (timer_flag)
         {
             P1OUT ^= 0x01;
-            timer_expired_flag = 0;
-
-            uint8_t msg[] = "hi\r\n";
-            uart_transmit_async(msg, sizeof(msg));
+            timer_flag    = 0;
+            uint8_t msg[] = "Hello World\r\n";
+            uart_transmit_start(msg, sizeof(msg));
         }
 
-        if (rx_cplt_flag)
+        if (msg_received)
         {
-            rx_buf[rx_buf_idx] = UCA0RXBUF;
-            rx_buf_idx   = (rx_buf_idx > sizeof(rx_buf)) ? 0 : (rx_buf_idx + 1);
-            rx_cplt_flag = 0;
+            /* Do stuff with message */
+
+            uint8_t msg[] = "message recevied!\r\n";
+            uart_transmit_start(msg, sizeof(msg));
+
+            msg_received = 0;
         }
     }
 }
@@ -64,7 +81,14 @@ int main(void)
 
 __interrupt_vec(TIMER0_A0_VECTOR) void Timer_A(void)
 {
-    timer_expired_flag = 1;
+    /* Timer compare register is already maxed at ~65000 */
+    /* And I don't want to mess with the prescalers */
+    static volatile int x;
+    if (++x > 3)
+    {
+        x          = 0;
+        timer_flag = 1;
+    }
 }
 
 
@@ -91,46 +115,27 @@ static void TIMERA0_init(void)
     TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
     TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
     TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
-
-    /* 1100000 * (1/8) * (1/8) == 17187.5 */
-    /* If we want to blink once per second, we need to interrupt twice per sec*/
-    /* (because toggle) */
-    /* thus, TA0CCR0 should be 17188/2 == 8593 if we want to blink once per
-     * sec*/
-    /*
-     * BUT, FOR SOME REASON, WHEN I DO THIS, THE DAMN THING BLINKS LIKE 13
-     * TIMES A SECOND....
-     *
-     * SO EITHER THE DATASHEET DOCUMENTATION ON FREQUENCY OF SMCLK IS WRONG, OR
-     * SOMETHING ELSE IS GOING ON...
-     *
-     * TIMERA IS IN SECTION 17.2 OF USER MANUAL
-     * https://www.ti.com/lit/ug/slau208q/slau208q.pdf?ts=1608390374754&ref_url=https%253A%252F%252Fwww.google.com%252F
-     *
-     * for now, just setting the compare value to 50k so we get a heartbeat
-     * blink. The entire purpose of the heartbeat blink is to have a visual
-     * indication of lockup (since if a chip hardfaults the debugger would
-     * also become nonresponsive)
-     */
-    TA0CCR0 = 65000;
+    TA0CCR0  = 65000;
 }
 
 static void uart_init(void)
 {
-    P3SEL = BIT3 + BIT4;  /* P3.4,5 = USCI_A0 TXD/RXD */
-    UCA0CTL1 |= UCSWRST;  /* **Put state machine in reset** */
-    UCA0CTL1 |= UCSSEL_2; /* SMCLK */
+    P3SEL = BIT3 + BIT4; /* P3.4,5 = USCI_A0 TXD/RXD */
+    UCA0CTL1 |= UCSWRST; /* **Put state machine in reset** */
+
+    UCA0CTL1 |= UCSSEL__SMCLK; /* SMCLK */
 
     UCA0BR0 = 6; /* 1MHz 9600 (see User's Guide) */
     UCA0BR1 = 0; /* 1MHz 9600 */
 
-    /** @note
-     * There is something wrong with the modulation control settings
-     * I can transmit SOME stuff but it never goes through coherently...
-     */
-    UCA0MCTL = UCBRS_0 + UCBRF_13 + UCOS16; /* Modln UCBRSx=0, UCBRFx=0, */
-                                            /* over sampling */
-    UCA0CTL1 &= ~UCSWRST;                   /* Initialize USCI state machine */
+    /* These settings should give maximum tx error of 1.8%  */
+    UCA0MCTL = UCOS16;   /* oversample for 16 periods */
+    UCA0MCTL |= UCBRS_0; /* Second stage modulation settings */
+    UCA0MCTL |= UCBRF_8; /* Stage 1 modulation settings. see table 36-2 */
+
+    /* Modln UCBRSx=0, UCBRFx=0, */
+    /* over sampling */
+    UCA0CTL1 &= ~UCSWRST; /* Initialize USCI state machine */
 
     UCA0IE |= UCRXIE; /* Enable USCI_A0 RX interrupt */
 }
@@ -138,26 +143,40 @@ static void uart_init(void)
 
 __attribute__((used, interrupt(USCI_A0_VECTOR))) void USCI_A0_VECTOR_ISR(void)
 {
+    /* See table 39-19 */
     switch (UCA0IV)
     {
-        case 0: /* no interrupt */
+        case 0x02: /* Receive buffer full */
+        {
+            uart_rx_cb();
+        }
+        break;
+        case 0x04: /* Transmit buffer empty */
+        {
+            /*
+             * This occurs when last bit of UCxTFBUF is shifted into
+             * UDR (uart data register). This register is not accessible
+             * via memory map (part of silicon state machine).
+             *
+             * Effectively this interrupt tells us when we can write the
+             * next byte to UCAxTFBUF
+             */
+            uart_tx_cb();
+        }
+        break;
+        case 0x06: /* Start bit received */
         {
         }
         break;
-        case 2: /* RX interrupt  */
+        case 0x08: /* Transmit complete */
         {
-            rx_cplt_flag = 1;
-        }
-        break;
-        case 4: /* TX interrupt */
-        {
-            /* Load next byte and check for completion */
-            tx_idx++;
-            UCA0TXBUF = tx_buf[tx_idx];
-            if (tx_idx == tx_cnt)
-            {
-                UCA0IE &= ~UCTXIE; /* Disable Transmit complete interrupt */
-            }
+            /*
+             * This occurs when last bit from hardware shift register
+             * is sent DOWN the line. Typically we would use this
+             * to relinquish control of the line in a half-duplex
+             * scenario. For UART it's not that useful because the bus
+             * is full duplex
+             */
         }
         break;
         default: /* not sure what happened here */
@@ -167,15 +186,40 @@ __attribute__((used, interrupt(USCI_A0_VECTOR))) void USCI_A0_VECTOR_ISR(void)
     }
 }
 
-
-static void uart_transmit_async(uint8_t *msg, uint_least16_t msglen)
+static void uart_receive_byte(void)
 {
-    if (!(UCA0IE & UCTXIE)) /* If No currently ongoing transmit */
+    rx_buf[rx_buf_idx] = UCA0RXBUF;
+    if (rx_buf[rx_buf_idx] == MSG_DELIM)
     {
-        tx_buf    = msg;    /* set tx buffer to start of msg buffer */
-        tx_cnt    = msglen; /* set remaining count to message length */
+        msg_received = 1;
+    }
+    rx_buf_idx = (rx_buf_idx > sizeof(rx_buf)) ? 0 : (rx_buf_idx + 1);
+}
+
+
+static void uart_transmit_byte(void)
+{
+    if (tx_idx < tx_max)
+    {
+        UCA0TXBUF = tx_buf[++tx_idx];
+    }
+    else
+    {
+        tx_max = 0;
+        tx_idx = 0;
+        UCA0IE &= ~UCTXIE;
+    }
+}
+
+
+static void uart_transmit_start(uint8_t *msg, uint_least16_t msglen)
+{
+    if (!(UCA0IE & UCTXIE) && !(UCA0STAT & UCBUSY))
+    {
+        tx_buf    = msg;
         tx_idx    = 0;
-        UCA0TXBUF = tx_buf[tx_idx]; /* load first byte into transmit buffer */
-        UCA0IE |= UCTXIE;           /* Enable USCI_A0 TX complete interrupt */
+        tx_max    = msglen;
+        UCA0TXBUF = tx_buf[tx_idx];
+        UCA0IE |= UCTXIE;
     }
 }
