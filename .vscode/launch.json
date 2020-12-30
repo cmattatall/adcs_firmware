@@ -92,8 +92,8 @@
 
         {
             "id": "native_executable",
-            //"default": "adcs_executable",
-            "default": "JTOK/test/JTOK_object_sibling_test",
+            "default": "adcs_executable",
+            //"default": "JTOK/test/JTOK_object_sibling_test",
             "description": "Path to the native executable",
             "type": "promptString"
         }
