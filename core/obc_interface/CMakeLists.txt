@@ -51,6 +51,12 @@ target_include_directories(${LIB} PUBLIC ${${LIB}_public_include_dirs})
 target_link_libraries(${LIB} PUBLIC INJECTION_API)
 target_link_libraries(${LIB} PUBLIC BUFFERLIB)
 
+if(NOT CMAKE_CROSSCOMPILING)
+    target_link_libraries(${LIB} PRIVATE ADCS_IF_EMU)
+else()
+    target_link_libraries(${LIB} PRIVATE ADCS_DRIVERS)
+endif(NOT CMAKE_CROSSCOMPILING)
+
 
 if(NOT CMAKE_CROSSCOMPILING)
     find_package(Threads REQUIRED)

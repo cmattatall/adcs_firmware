@@ -20,13 +20,16 @@
 #include "targets.h"
 
 #include "obc_interface.h"
-
 #include "bufferlib.h"
+#include "injection_api.h"
 
 #if !defined(TARGET_MCU)
-
+#include "obc_emulator.h"
 #include <pthread.h>
 static pthread_mutex_t OBC_IF_rxflag_lock;
+#else
+#include "uart.h"
+#include "spi.h"
 #endif /* !defined(TARGET_MCU) */
 
 #define OBC_INTERFACE_BUFFER_SIZE 500
@@ -46,14 +49,51 @@ typedef struct
  */
 static void OBC_IF_receive_byte_internal(uint8_t byte);
 
+static int OBC_IF_config_internal(rx_injector_func init, deinit_func deinit,
+                                  transmit_func tx);
+
 
 static OBC_IF_fops   ops           = {NULL};
 static volatile bool OBC_IF_rxflag = false;
 static buffer_handle obc_buf_handle;
 static uint8_t       obcTxBuf[OBC_INTERFACE_BUFFER_SIZE];
 
+int OBC_IF_config(OBC_IF_PHY_CFG_t cfg_mode)
+{
+    int retval = 1;
+    switch (cfg_mode)
+    {
+        case OBC_IF_PHY_CFG_UART:
+        {
+#if defined(TARGET_MCU)
+            retval =
+                OBC_IF_config_internal(uart_init, uart_deinit, uart_transmit);
+#else
+            CONFIG_ASSERT(0); /* best we can do is hang */
 
-int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx)
+#endif /* #if defined(TARGET_MCU) */
+        }
+        break;
+        case OBC_IF_PHY_CFG_EMULATED:
+        {
+#if defined(TARGET_MCU)
+            CONFIG_ASSERT(0); /* best we can do is hang */
+#else
+            retval = OBC_IF_config_internal(NULL, NULL, OBC_EMU_tx);
+            OBC_EMU_start();
+#endif /* #if defined(TARGET_MCU) */
+        }
+        break;
+        default:
+        {
+        }
+        break;
+    }
+    return retval;
+}
+
+static int OBC_IF_config_internal(rx_injector_func init, deinit_func deinit,
+                                  transmit_func tx)
 {
     int status = 0;
     ops.init   = init;

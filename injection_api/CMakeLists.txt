@@ -1,7 +1,7 @@
 # @brief CMAKE LIBRARY PROJECT TEMPLATE
 # @author Carl Mattatall (cmattatall2@gmail.com)
 
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 ################################################################################
 #  OPTIONS GO HERE
 ################################################################################

@@ -72,7 +72,7 @@ static const json_parse_table_item json_parse_table[] = {
 /* clang-format on */
 
 
-int json_parse(uint8_t *json, uint_least16_t json_len)
+int json_parse(uint8_t *json, uint_least16_t json_strlen)
 {
     CONFIG_ASSERT(json != NULL);
 

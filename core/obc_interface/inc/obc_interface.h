@@ -8,6 +8,12 @@ extern "C"
 #endif /* Start C linkage */
 
 
+typedef enum
+{
+    OBC_IF_PHY_CFG_UART,
+    OBC_IF_PHY_CFG_EMULATED,
+} OBC_IF_PHY_CFG_t;
+
 #include <stdint.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -16,7 +22,6 @@ extern "C"
 #include <pthread.h>
 #endif /* #if !defined(TARGET_MCU) */
 
-#include "injection_api.h"
 
 #ifndef OBC_MSG_DELIM
 
@@ -31,14 +36,12 @@ extern "C"
 #define OBC_TX_BUFFER_SIZE 500
 
 /**
- * @brief Configure OBC interface for communication via dependency injection
+ * @brief Configure the OBC Communication interface
  *
- * @param init peripheral initialization function. Accepts
- * @param deinit peripheral deinitialization function
- * @param tx transmit function.
- * @return int return code. returns 0 upon success. non-zero indicates error.
+ * @param config_mode one of OBC_IF_PHY_CONFIG_t
+ * @return int 0 on success, !0 on error
  */
-int OBC_IF_config(rx_injector_func init, deinit_func deinit, transmit_func tx);
+int OBC_IF_config(OBC_IF_PHY_CFG_t config_mode);
 
 /**
  * @brief Clear OBC interface driver configuration

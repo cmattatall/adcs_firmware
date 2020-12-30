@@ -11,7 +11,6 @@ extern "C"
 
 #include <stdint.h>
 
-#define SPI0_LOOPBACK
 
 #define SPI_APPLICATION_BUFFER_SIZE 500
 #define SPI_DELIM_CHAR '\0'
