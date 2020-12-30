@@ -87,8 +87,7 @@
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "id": "elf_file",
             "type": "promptString",
-            //"default": "adcs_executable.elf"
-            "default": "drivers/examples/ADCS_DRIVERS_uart_example.elf"
+            "default": "adcs_executable.elf"
         },
 
         {

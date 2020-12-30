@@ -13,10 +13,9 @@ extern "C"
  * @brief Parse a json and execute commands based on the key : value pairs
  *
  * @param json nul-terminated string in json format
- * @param json_len max length of the json (or its buffer)
  * @return int 0 == success.
  */
-int json_parse(uint8_t *json, uint_least16_t json_len);
+int json_parse(uint8_t *json);
 
 #ifdef __cplusplus
 /* clang-format off */
