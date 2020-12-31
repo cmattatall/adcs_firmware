@@ -31,7 +31,7 @@ int main(void)
     for (unsigned int i = 0; i < max_i; i++)
     {
         retval =
-            json_parse((uint8_t *)invalid_jsons[i], strlen(invalid_jsons[i]));
+            json_parse((uint8_t *)invalid_jsons[i]);
         if (retval == 0)
         {
             break;

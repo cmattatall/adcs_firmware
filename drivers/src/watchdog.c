@@ -11,6 +11,10 @@
  * @todo
  */
 
+#if !defined(TARGET_MCU)
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+#endif /* !defined(TARGET_MCU) */
+
 #include <msp430.h>
 
 #include "targets.h"

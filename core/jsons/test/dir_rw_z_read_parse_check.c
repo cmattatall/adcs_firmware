@@ -25,8 +25,8 @@
 int main(void)
 {
     char json[250];
-    int  retval   = 0;
-    int  json_len = sprintf(json, "{\"dir_rw_z\": \"read\"}");
-    retval        = json_parse((uint8_t *)json, json_len);
+    int  retval = 0;
+    sprintf(json, "{\"dir_rw_z\": \"read\"}");
+    retval = json_parse((uint8_t *)json);
     return retval;
 }

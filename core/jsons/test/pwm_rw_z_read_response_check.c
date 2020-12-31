@@ -44,7 +44,7 @@ int main(void)
         printf("Testing ADCS response to OBC Request %s for a pwm value of "
                "%u  ...  ",
                json, pwm);
-        int retval = json_parse(json, sizeof(json));
+        int retval = json_parse(json);
         if (retval != 0)
         {
             printf("Parse of %s failed with status %d\n", json, retval);

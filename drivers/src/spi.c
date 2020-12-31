@@ -11,17 +11,15 @@
  * @todo
  */
 
-/** @todo THIS SECTION REALLLLLY NEEDS TO BE WRAPPED INTO A SEPARATE
- * THING compiler.h header or something */
-
+#if !defined(TARGET_MCU)
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+#endif /* !defined(TARGET_MCU) */
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h> /* memcpy */
 
 #include "targets.h"
-
-#if defined(TARGET_MCU)
 
 #include <msp430.h>
 #include "spi.h"
@@ -214,4 +212,3 @@ __attribute__((used, interrupt(USCI_B0_VECTOR))) void USCI_B0_VECTOR_ISR(void)
         }
     }
 }
-#endif /* #if defined(TARGET_MCU) */

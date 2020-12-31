@@ -10,6 +10,11 @@
  * @note
  * @todo
  */
+
+#if !defined(TARGET_MCU)
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+#endif /* !defined(TARGET_MCU) */
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -19,7 +24,6 @@
 
 #include "targets.h"
 
-#if defined(TARGET_MCU)
 #include <msp430.h>
 
 #include "uart.h"
@@ -130,8 +134,6 @@ __interrupt_vec(USCI_A0_VECTOR) void USCI_A0_ISR(void)
         break;
     }
 }
-
-#endif /* #if defined(TARGET_MCU) */
 
 
 static void uart_transmit_next_byte(void)

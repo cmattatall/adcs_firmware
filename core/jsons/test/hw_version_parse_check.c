@@ -21,6 +21,6 @@
 int main(void)
 {
     uint8_t json[] = "{\"hwVersion\":\"read\"}";
-    int     retval = json_parse(json, sizeof(json));
+    int     retval = json_parse(json);
     return retval;
 }

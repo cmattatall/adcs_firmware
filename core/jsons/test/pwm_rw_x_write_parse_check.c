@@ -30,9 +30,8 @@ int main(void)
     int                retval = 0;
     for (pwm = 0; pwm < pwm_max; pwm++)
     {
-        int json_len =
-            sprintf(json, "{\"pwm_rw_x\": \"write\", \"value\" : %d}", pwm);
-        retval = json_parse((uint8_t *)json, json_len);
+        sprintf(json, "{\"pwm_rw_x\": \"write\", \"value\" : %d}", pwm);
+        retval = json_parse((uint8_t *)json);
         if (retval)
         {
             break;

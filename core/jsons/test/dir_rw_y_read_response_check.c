@@ -36,7 +36,7 @@ int main(void)
 {
     uint8_t json[] = "{\"dir_rw_y\" : \"read\" }";
     printf("Testing ADCS response to OBC Request %s\n", json);
-    int retval = json_parse(json, sizeof(json));
+    int retval = json_parse(json);
     if (retval != 0)
     {
         return retval;

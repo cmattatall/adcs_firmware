@@ -23,6 +23,6 @@
 int main(void)
 {
     uint8_t json[] = "{\"fwVersion\":\"read\"}";
-    int     retval = json_parse(json, sizeof(json));
+    int     retval = json_parse(json);
     return retval;
 }

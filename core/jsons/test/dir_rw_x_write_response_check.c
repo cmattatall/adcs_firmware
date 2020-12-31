@@ -46,7 +46,7 @@ int main(void)
         snprintf((char *)json, sizeof(json),
                  "{\"dir_rw_x\":\"write\", \"value\":\"%s\"}", dir_str);
         printf("Testing ADCS response to OBC Request %s ...  ", json);
-        int retval = json_parse(json, sizeof(json));
+        int retval = json_parse(json);
         if (retval != 0)
         {
             printf("Parse of %s failed with status %d\n", json, retval);

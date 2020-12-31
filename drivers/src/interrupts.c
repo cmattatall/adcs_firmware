@@ -14,6 +14,10 @@
 
 #include "attributes.h"
 
+#if !defined(TARGET_MCU)
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+#endif /* !defined(TARGET_MCU) */
+
 /* clang-format off */
 
 /* Okay since TI is hot fucking garbage, we aren't allowed to provide 
