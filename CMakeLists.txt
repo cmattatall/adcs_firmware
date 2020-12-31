@@ -85,18 +85,6 @@ message("\nPROJECT : ${CMAKE_PROJECT_NAME}")
 message("BUILD_TARGET : ${CMAKE_SYSTEM_NAME}")
 message("PROCESSOR : ${CMAKE_SYSTEM_PROCESSOR}")
 
-if(NOT ${CMAKE_BUILD_TYPE} IN_LIST SUPPORTED_BUILD_TYPES)
-    message("\n")
-    message("\"${CMAKE_BUILD_TYPE}\" IS NOT A SUPPORTED BUILD TYPE.\nAccepted values:")
-    foreach(type ${SUPPORTED_BUILD_TYPES})
-        message("- \"${type}\"")
-    endforeach(type ${SUPPORTED_BUILD_TYPES})
-    message("\n")
-    return()
-else()
-    message("CMAKE_BUILD_TYPE : \"${CMAKE_BUILD_TYPE}\"")
-endif()
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 

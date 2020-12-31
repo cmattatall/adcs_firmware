@@ -160,16 +160,47 @@ def install_linux():
     else:
         print("installing msp430 toolchain for " + platform.system())
 
+    required_packages = [
+    "wget",
+    "gcc",
+    "make",
+    "nano",
+    "build-essential",
+    "libssl-dev",
+    "tar",
+    "valgrind",
+    "git",
+    "clang",
+    "dos2unix",
+    "curl",
+    "apt-transport-https",
+    "software-properties-common",
+    "gnupg-agent",
+    "ca-certificates",
+    "libusb-1.0.0-dev",
+    "udev",
+    "libtool",
+    "automake",
+    "autotools-dev",
+    "autoconf",
+    "libusb-1.0",
+    "texinfo",
+    "libreadline-dev",
+    "zip",
+    "libusb-dev"]
+
+    os.system("apt-get update -y")
+    for pkg in required_packages:
+        if 0 != os.system("apt-get install -y %s" % (pkg)):
+            print("Error installing package : %s. Please try installing it manually before continuing" % (pkg))
+            exit(1)
+
     archive_ext = ".tar.bz2"
     if systemIs32Bit():
         toolchain_folder = "msp430-gcc-9.2.0.50_linux32"
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_linux64"
 
-    ## @todo MAKE PYTHON INSTALL PIP3 AND THEN DO pip3 install wget
-
-    os.system("apt-get update -y")
-    os.system("apt-get install -y libusb-dev")
     
     # some string literals that have been abstracted out. May want to make 
     # these configurable in the future
@@ -205,9 +236,6 @@ def install_linux():
         #(so a .zip file appears to be a single file, not an archive)
 
     # install mspdebug
-    os.system("apt-get update -y")
-    os.system("apt-get install -y libusb libusb-dev")
-    os.system("apt-get install -y libreadline-dev") # for strange line endings
     os.system("git clone https://github.com/dlbeer/mspdebug.git")
     os.chdir("mspdebug")
     os.system("make && make install")
@@ -220,11 +248,28 @@ def install_linux():
         # plugin, usb, and dialout groups are the ones required
 
     # go back to directory we started in
-    os.chdir(current_workdir) 
+    os.chdir(current_workdir)
 
 
-    os.system("apt-get install -y valgrind")
+    ## INSTALL CMAKE
+    cmake_version="3.18.5"
+    cmake_url="https://cmake.org/files/v3.18/cmake-3.18.5.tar.gz"
 
+    tmpdir = "tmp"
+    os.mkdir(tmpdir)
+    os.chdir(tmpdir)
+    if 0 != os.system("wget %s && tar -xzvf cmake-3.18.5.tar.gz" % (cmake_url)):
+        print("Could not download cmake-%s from %s" % (cmake_version, cmake_url))
+        exit(1)
+    
+    os.chdir("cmake-3.18.5")
+
+    os.system("./bootstrap && make -j $(nproc) && make install -j $(nproc)")
+
+    # go back to directory we started in
+    os.chdir(current_workdir)
+
+    shutil.rmtree(tmpdir)
 
 # @brief install toolchain on apple
 # @todo ACTUALLY IMPLEMENT THE DAMN THING 
