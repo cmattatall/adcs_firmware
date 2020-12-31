@@ -15,6 +15,10 @@
 #include "mcu.h"
 #include "targets.h"
 
+#if !defined(TARGET_MCU)
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+#endif /* !defined(TARGET_MCU) */
+
 
 void enable_interrupts(void)
 {

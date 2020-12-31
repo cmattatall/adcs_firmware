@@ -24,16 +24,14 @@
 
 int main(void)
 {
-    char *directions[] = {"clock", "antiClock"};
+    char *dirs[] = {"clock", "antiClock"};
     char  json[250];
     int   i;
     int   retval = 0;
     for (i = 0; i < 2; i++)
     {
-        int json_len =
-            sprintf(json, "{\"dir_rw_z\": \"write\", \"value\" : \"%s\"}",
-                    directions[i]);
-        retval = json_parse((uint8_t *)json, json_len);
+        sprintf(json, "{\"dir_rw_z\": \"write\", \"value\" : \"%s\"}", dirs[i]);
+        retval = json_parse((uint8_t *)json);
         if (retval)
         {
             break;

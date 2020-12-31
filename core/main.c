@@ -48,7 +48,7 @@ int main(void)
             OCB_IF_get_command_string(msg, sizeof(msg));
 
             /* Parse command json string */
-            if (0 != json_parse(msg, strnlen((char *)msg, sizeof(msg))))
+            if (0 != json_parse(msg))
             {
                 OBC_IF_printf("{\"error\" : \"json format\"}\n");
             }
