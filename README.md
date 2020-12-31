@@ -22,6 +22,8 @@ The goal of this project is to develop, test, and deliver the hardware and firmw
 
 Once deployed, LORIS will orbit the Earth in a low earth orbit (LEO) at an altitude of about 400 km. The satellite mission’s payload is two cameras that will be used to take pictures of the Nova Scotia peninsula. Due to this imaging payload, the mission entails a high accuracy pointing requirement.
 
+For more information, please visit
+https://dalorbits.ca/2019/07/01/loris-2021/
 
 ** INSERT 3D RENDER OF CUBESAT **
 
