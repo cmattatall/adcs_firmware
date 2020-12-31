@@ -160,16 +160,46 @@ def install_linux():
     else:
         print("installing msp430 toolchain for " + platform.system())
 
+    required_packages = [
+    "wget",
+    "gcc",
+    "make",
+    "nano",
+    "build-essential",
+    "libssl-dev",
+    "tar",
+    "cut",
+    "valgrind",
+    "git",
+    "clang",
+    "dos2unix",
+    "curl",
+    "apt-transport-https",
+    "software-properties-common",
+    "gnupg-agent",
+    "ca-certificates",
+    "libusb-1.0.0-dev",
+    "udev",
+    "libtool",
+    "automake",
+    "autotools-dev",
+    "autoconf",
+    "libusb-1.0",
+    "texinfo",
+    "libreadline-dev"]
+
+    os.system("apt-get update -y")
+    for pkg in required_packages:
+        if 0 == os.system("apt-get install -y %s" % (pkg))
+            print("Error installing package : %s. Please try installing it manually before continuing" % (pkg))
+            exit(1)
+
     archive_ext = ".tar.bz2"
     if systemIs32Bit():
         toolchain_folder = "msp430-gcc-9.2.0.50_linux32"
     else:
         toolchain_folder = "msp430-gcc-9.2.0.50_linux64"
 
-    ## @todo MAKE PYTHON INSTALL PIP3 AND THEN DO pip3 install wget
-
-    os.system("apt-get update -y")
-    os.system("apt-get install -y libusb-dev")
     
     # some string literals that have been abstracted out. May want to make 
     # these configurable in the future
@@ -205,9 +235,6 @@ def install_linux():
         #(so a .zip file appears to be a single file, not an archive)
 
     # install mspdebug
-    os.system("apt-get update -y")
-    os.system("apt-get install -y libusb libusb-dev")
-    os.system("apt-get install -y libreadline-dev") # for strange line endings
     os.system("git clone https://github.com/dlbeer/mspdebug.git")
     os.chdir("mspdebug")
     os.system("make && make install")
@@ -220,11 +247,31 @@ def install_linux():
         # plugin, usb, and dialout groups are the ones required
 
     # go back to directory we started in
-    os.chdir(current_workdir) 
+    os.chdir(current_workdir)
 
 
-    os.system("apt-get install -y valgrind")
+    # NOW WE INSTALL DOCKER
+    if 0 != os.system("curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"):
+        print("Could not assign an apt key to the docker repository. Please try installing docker manually")
+        exit (1)
+    
+    if 0 != os.system("apt-key fingerprint 0EBFCD88"):
+        print("Error adding apt-key fingerprint for docker!")
+        exit(1)
 
+    docker_packages = [ "docker-ce","docker-ce-cli","containerd.io"]
+    for docker_pkg in docker_packages:
+        if 0 == os.system("apt-get install -y %s" % (docker_pkg))
+            print("Error installing package : %s. Please try installing it manually before continuing" % (docker_pkg))
+            exit(1)
+
+    if 0 != os.system("docker run hello-world"):
+        print("Docker seems to have installed successfully but the simple helloworld example failed!")
+        exit(1)
+
+    if 0 != os.system("usermod -aG docker $(whoami)"):
+        print("Unable to add the current user to the docker group")
+        exit(1)
 
 # @brief install toolchain on apple
 # @todo ACTUALLY IMPLEMENT THE DAMN THING 
