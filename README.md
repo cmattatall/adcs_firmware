@@ -30,14 +30,9 @@ https://dalorbits.ca/2019/07/01/loris-2021/
 
 # WHAT IS AN ADCS
 
-
-
-For spacecraft with mission critical pointing requirements, Attitude Determination and Control Systems (ADCS) are used. Attitude is the orientation of an aerospace vehicle with respect to an inertial frame of reference, in LORIS’s case the frame of reference is the Earth’s. LORIS requires  a nadir-pointing (the vector pointing to center of Earth) accuracy of ± 5° along the satellite’s Z axis during nominal operation as shown in Figure 3. To successfully meet the mission requirements, the ADCS is a mission critical subsystem for which our capstone team is tasked with completing the design and implementation of the electrical hardware and firmware for the subsystem. 
+For spacecraft with mission critical pointing requirements, Attitude Determination and Control Systems (ADCS) are used. Attitude is the orientation of an aerospace vehicle with respect to an inertial frame of reference, in LORIS’s case this frame of reference is the Earth’s. LORIS requires  a nadir-pointing (the vector pointing to center of Earth) accuracy of ± 5° along the satellite’s Z axis during nominal operation. On a cubesat, the ADCS is one of the most mission critical subsystems.
 
 ![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true)
-
-
-    ** INSERT GIF OF DETUMBLING SIMULATION **
 
 # DEVELOPMENT ENVIRONMENT
 
@@ -98,7 +93,10 @@ If you select "Run tasks", a dropdown will appear of tasks
 
 <B>TODO: EXAMPLE IMAGES OF THE TASKS</B>
 
-## Debugging
+
+## Test plan
+
+Tests are automated using cmake and ctest. To produce software that is maintainable and scalable, as many features are tested independent of the target hardware as possible.
 
 
 
