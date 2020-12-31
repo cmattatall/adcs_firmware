@@ -168,7 +168,6 @@ def install_linux():
     "build-essential",
     "libssl-dev",
     "tar",
-    "cut",
     "valgrind",
     "git",
     "clang",
@@ -186,11 +185,13 @@ def install_linux():
     "autoconf",
     "libusb-1.0",
     "texinfo",
-    "libreadline-dev"]
+    "libreadline-dev",
+    "zip",
+    "libusb-dev"]
 
     os.system("apt-get update -y")
     for pkg in required_packages:
-        if 0 == os.system("apt-get install -y %s" % (pkg))
+        if 0 != os.system("apt-get install -y %s" % (pkg)):
             print("Error installing package : %s. Please try installing it manually before continuing" % (pkg))
             exit(1)
 
@@ -250,28 +251,25 @@ def install_linux():
     os.chdir(current_workdir)
 
 
-    # NOW WE INSTALL DOCKER
-    if 0 != os.system("curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -"):
-        print("Could not assign an apt key to the docker repository. Please try installing docker manually")
-        exit (1)
+    ## INSTALL CMAKE
+    cmake_version="3.18.5"
+    cmake_url="https://cmake.org/files/v3.18/cmake-3.18.5.tar.gz"
+
+    tmpdir = "tmp"
+    os.mkdir(tmpdir)
+    os.chdir(tmpdir)
+    if 0 != os.system("wget %s && tar -xzvf cmake-3.18.5.tar.gz" % (cmake_url)):
+        print("Could not download cmake-%s from %s" % (cmake_version, cmake_url))
+        exit(1)
     
-    if 0 != os.system("apt-key fingerprint 0EBFCD88"):
-        print("Error adding apt-key fingerprint for docker!")
-        exit(1)
+    os.chdir("cmake-3.18.5")
 
-    docker_packages = [ "docker-ce","docker-ce-cli","containerd.io"]
-    for docker_pkg in docker_packages:
-        if 0 == os.system("apt-get install -y %s" % (docker_pkg))
-            print("Error installing package : %s. Please try installing it manually before continuing" % (docker_pkg))
-            exit(1)
+    os.system("./bootstrap && make -j $(nproc) && make install -j $(nproc)")
 
-    if 0 != os.system("docker run hello-world"):
-        print("Docker seems to have installed successfully but the simple helloworld example failed!")
-        exit(1)
+    # go back to directory we started in
+    os.chdir(current_workdir)
 
-    if 0 != os.system("usermod -aG docker $(whoami)"):
-        print("Unable to add the current user to the docker group")
-        exit(1)
+    shutil.rmtree(tmpdir)
 
 # @brief install toolchain on apple
 # @todo ACTUALLY IMPLEMENT THE DAMN THING 
