@@ -25,7 +25,8 @@ Once deployed, LORIS will orbit the Earth in a low earth orbit (LEO) at an altit
 For more information, please visit
 https://dalorbits.ca/2019/07/01/loris-2021/
 
-** INSERT 3D RENDER OF CUBESAT **
+![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/loris.jpg?raw=true)
+
 
 # WHAT IS AN ADCS
 
