@@ -98,7 +98,4 @@ If you select "Run tasks", a dropdown will appear of tasks
 
 Tests are automated using cmake and ctest. To produce software that is maintainable and scalable, as many features are tested independent of the target hardware as possible.
 
-
-[![asciicast](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/captures/regression_test_asciinema_capture.cast)](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/captures/regression_test_asciinema_capture.cast)
-
-
+[![asciicast](https://asciinema.org/a/jMWEML6JvH3Ur1rznNz8hxJm0.png)](https://asciinema.org/a/jMWEML6JvH3Ur1rznNz8hxJm0)
