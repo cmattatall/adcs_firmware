@@ -188,8 +188,6 @@ function(add_executable executable)
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
-
-    # for some reason, this doesn't work... despite what the documentation claims (cmake 3.18 and greater)
     target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
@@ -247,8 +245,6 @@ function(add_library library)
     target_compile_definitions(${library} PRIVATE "TARGET_MCU")
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
-    
-    # for some reason, this doesn't work... despite what the documentation claims (cmake 3.18 and greater)
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
 
 endfunction(add_library library)
