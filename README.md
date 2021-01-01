@@ -37,7 +37,12 @@ https://dalorbits.ca/2019/07/01/loris-2021/
 
 For spacecraft with mission critical pointing requirements, Attitude Determination and Control Systems (ADCS) are used. Attitude is the orientation of an aerospace vehicle with respect to an inertial frame of reference, in LORIS’s case this frame of reference is the Earth’s. LORIS requires  a nadir-pointing (the vector pointing to center of Earth) accuracy of ± 5° along the satellite’s Z axis during nominal operation. On a cubesat, the ADCS is one of the most mission critical subsystems.
 
-![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true)
+
+<p align="center">
+  <img src="https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true" alt="Sublime's custom image"/>
+</p>
+
+#![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true)
 
 # Firmware and Development Environment
 
