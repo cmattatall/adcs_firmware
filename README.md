@@ -42,8 +42,6 @@ For spacecraft with mission critical pointing requirements, Attitude Determinati
   <img src="https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true" alt="Sublime's custom image"/>
 </p>
 
-#![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true)
-
 # Firmware and Development Environment
 
 
