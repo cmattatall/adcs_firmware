@@ -151,7 +151,7 @@ find_program(
 set(CMAKE_C_FLAGS_INIT "-ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS_INIT "-ffunction-sections -fdata-sections -fno-rtti -fno-exceptions")
 
-set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -O0 -g3 -ggdb -DDEBUG" CACHE INTERNAL "")
+set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -Wextra -O0 -g -ggdb -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 
 # so aparently, even code composer studio was broken with the switch to gcc 9.2 backend in 2016
