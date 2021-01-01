@@ -21,7 +21,6 @@ if(MSP430_MCU)
     set(ENV{MSP430_MCU} ${MSP430_MCU})
 endif(MSP430_MCU)
 
-
 if(MINGW OR CYGWIN OR WIN32)
     set(UTIL_SEARCH_COMMAND where)
 elseif(UNIX AND NOT APPLE)
@@ -90,16 +89,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-# so aparently, even code composer studio was broken with the switch to gcc 9.2 backend in 2016
-# see https://e2e.ti.com/support/tools/ccs/f/81/t/504524?Linker-error-with-latest-msp430-gcc
-#
-# current workaround is to force gcc to link against the correct multiplication lib
-# code composer is doing this same thing behind the scenes but it's a shame that the maintainers of 
-# the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
-#set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections -Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
 
-
-include(CheckLinkerFlag)
 
 
 set(CMAKE_C_COMPILER_NAME ${TOOLCHAIN_PREFIX}-gcc)
@@ -160,31 +150,33 @@ find_program(
 )
 
 
-set(TOOLCHAIN_BASE_FLAGS "-ffunction-sections -fdata-sections")
-set(CMAKE_C_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS}")
-set(CMAKE_CXX_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS} -fno-rtti -fno-exceptions")
-
-
-#set(TOOLCHAIN_LINKER_FLAGS "-Wl")
-#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--relax")
-#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--gc-sections")
-#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--undefined=__mspabi_mpyi -lmul_f5")
-#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},-T,${LINKER_SCRIPT}")
-#set(CMAKE_EXE_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
-
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,--undefined=__mspabi_mpyi -lmul_f5")
+set(CMAKE_C_FLAGS_INIT "-ffunction-sections -fdata-sections")
+set(CMAKE_CXX_FLAGS_INIT "-ffunction-sections -fdata-sections -fno-rtti -fno-exceptions")
 
 set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -O0 -g3 -ggdb -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 
-###############################################################################
-# END SCRIPT, START EXPORTED FUNCTIONS
-###############################################################################
+# so aparently, even code composer studio was broken with the switch to gcc 9.2 backend in 2016
+# see https://e2e.ti.com/support/tools/ccs/f/81/t/504524?Linker-error-with-latest-msp430-gcc
+#
+# current workaround is to force gcc to link against the correct multiplication lib
+# code composer is doing this same thing behind the scenes but it's a shame that the maintainers of 
+# the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
+#set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections -Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
+
+if(MSP430_MCU)
+    set(LINKER_SCRIPT "${MSP430_MCU}.ld")
+endif(MSP430_MCU)
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,--undefined=__mspabi_mpyi -lmul_f5,-T,${LINKER_SCRIPT}")
+unset(LINKER_SCRIPT)
+
+
+include(CheckLinkerFlag)
+
 
 
 if(NOT COMMAND _add_executable)
 function(add_executable executable)
-    if(CMAKE_CROSSCOMPILING)
 
     if(NOT MSP430_MCU)
         if(DEFINED ENV{MSP430_MCU}) # check environment
@@ -194,55 +186,54 @@ function(add_executable executable)
         endif(DEFINED ENV{MSP430_MCU})
     endif(NOT MSP430_MCU)
 
-        string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
-        _add_executable(${executable} ${ARGN})
-        target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
-        target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
-        target_compile_options(${executable} PRIVATE "-Wall")
-        target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
-        target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR}")
+    set(LINKER_SCRIPT "${MSP430_MCU}.ld")
+    
+    string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
+    _add_executable(${executable} ${ARGN})
+    target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
+    target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
+    target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
+    target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
 
-        set_target_properties(
-            ${executable}
-            PROPERTIES
-            SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
-        )
+    set_target_properties(
+        ${executable}
+        PROPERTIES
+        SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
+        LINK_DEPENDS ${LINKER_SCRIPT}
+    )
 
-        add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
-        add_custom_command( 
-            TARGET ${executable}_postbuild
-            POST_BUILD
-            DEPENDS ${executable}
-            COMMENT "Built executable ${elf_file} with the following size:"
-            COMMAND ${CMAKE_SIZE} -B "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
-        )
+    add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
+    add_custom_command( 
+        TARGET ${executable}_postbuild
+        POST_BUILD
+        DEPENDS ${executable}
+        COMMENT "Built executable ${elf_file} with the following size:"
+        COMMAND ${CMAKE_SIZE} -B "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
+    )
 
-        add_custom_command( 
-            TARGET ${executable}_postbuild
-            POST_BUILD
-            DEPENDS ${executable}
-            COMMENT "Producing a hex output using ${CMAKE_OBJCOPY}"
-            COMMAND ${CMAKE_OBJCOPY} -O ihex -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.hex"
-        )
+    add_custom_command( 
+        TARGET ${executable}_postbuild
+        POST_BUILD
+        DEPENDS ${executable}
+        COMMENT "Producing a hex output using ${CMAKE_OBJCOPY}"
+        COMMAND ${CMAKE_OBJCOPY} -O ihex -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.hex"
+    )
 
-        add_custom_command( 
-            TARGET ${executable}_postbuild
-            POST_BUILD
-            DEPENDS ${executable}
-            COMMENT "Producing a binary output using ${CMAKE_OBJCOPY}"
-            COMMAND ${CMAKE_OBJCOPY} -O binary -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.bin"
-        )
+    add_custom_command( 
+        TARGET ${executable}_postbuild
+        POST_BUILD
+        DEPENDS ${executable}
+        COMMENT "Producing a binary output using ${CMAKE_OBJCOPY}"
+        COMMAND ${CMAKE_OBJCOPY} -O binary -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.bin"
+    )
 
-        add_custom_command( 
-            TARGET ${executable}_postbuild
-            POST_BUILD
-            DEPENDS ${executable}
-            COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
-            COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.lss"
-        )
-    else()
-        _add_executable(${executable} ${ARGN})
-    endif(CMAKE_CROSSCOMPILING)
+    add_custom_command( 
+        TARGET ${executable}_postbuild
+        POST_BUILD
+        DEPENDS ${executable}
+        COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
+        COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.lss"
+    )
 endfunction(add_executable executable)
 endif(NOT COMMAND _add_executable)
 
@@ -250,28 +241,30 @@ endif(NOT COMMAND _add_executable)
 
 if(NOT COMMAND _add_library)
 function(add_library library)
-    if(CMAKE_CROSSCOMPILING) # If toolchain file has been included
         
-        if(NOT MSP430_MCU)
-            if(DEFINED ENV{MSP430_MCU}) # check environment
-                set(MSP430_MCU $ENV{MSP430_MCU})
-            else()
-                message(FATAL_ERROR "MSP430_MCU NOT DEFINED IN ${CMAKE_CURRENT_LIST_FILE} OR IN ENVIRONMENT.")
-            endif(DEFINED ENV{MSP430_MCU})
-        endif(NOT MSP430_MCU)
+    if(NOT MSP430_MCU)
+        if(DEFINED ENV{MSP430_MCU}) # check environment
+            set(MSP430_MCU $ENV{MSP430_MCU})
+        else()
+            message(FATAL_ERROR "MSP430_MCU NOT DEFINED IN ${CMAKE_CURRENT_LIST_FILE} OR IN ENVIRONMENT.")
+        endif(DEFINED ENV{MSP430_MCU})
+    endif(NOT MSP430_MCU)
 
-        set(LINKER_SCRIPT "${MSP430_MCU}.ld")
+    set(LINKER_SCRIPT "${MSP430_MCU}.ld")
 
-        string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
-        _add_library(${library} ${ARGN})
-        target_compile_definitions(${library} PRIVATE "TARGET_MCU")
-        target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
-        target_compile_options(${library} PRIVATE "-Wall")
-        target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
-        target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
-    else()
-        _add_library(${library} ${ARGN})
-    endif(CMAKE_CROSSCOMPILING)
+    string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
+    _add_library(${library} ${ARGN})
+    target_compile_definitions(${library} PRIVATE "TARGET_MCU")
+    target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
+    target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
+    target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
+
+    #set_target_properties(
+    #    ${library}
+    #    PROPERTIES
+    #    LINK_DEPENDS ${LINKER_SCRIPT}
+    #)
+
 endfunction(add_library library)
 endif(NOT COMMAND _add_library)
 
