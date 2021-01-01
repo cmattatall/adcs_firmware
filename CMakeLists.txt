@@ -30,7 +30,6 @@ cmake_minimum_required(VERSION 3.16)
 option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
 
 set(MSP430_MCU "msp430f5529" CACHE STRING "Lowercase MPN of target MCU. Used by msp430-elf-gcc" FORCE)
-set(MSP430_MCU_FREQ "8000000" CACHE STRING "Frequency of input oscillator to MCU in Hz" FORCE)
 
 ################################################################################
 #                       PROJECT START                                          #
@@ -42,9 +41,6 @@ project(
     DESCRIPTION "ADCS Firmware Project for DSS LORIS Satellite"
     LANGUAGES C ASM
 )
-
-message("RETURNING HERE AS PART OF CARL DEBUG")
-return()
 
 set(SUPPORTED_BUILD_TYPES "")
 list(APPEND SUPPORTED_BUILD_TYPES "Debug")
@@ -126,9 +122,6 @@ endif()
 include_directories(share)
 add_subdirectory(injection_api)
 
-
-message("RETURNING HERE AS PART OF CARL DEBUG")
-return()
 
 add_subdirectory(JTOK)
 add_subdirectory(bufferlib)

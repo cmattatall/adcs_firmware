@@ -2,7 +2,7 @@
 # AUTHOR: Carl Mattatall (cmattatall2@gmail.com) 
 
 
-# @todo THIS PART NEEDS TO BE IMPROVE TO USE SOME SORT OF SEARCH FUNCTIONALITY
+# @todo THIS PART NEEDS TO BE REFACTORED TO ACTUALLY SEARCH FOR THE DIRECTORIES
 if(WIN32)
     set(MCU_HEADER_DIR "C:\\msp430_toolchain\\msp430-gcc-support-files\\include\\")
 elseif(UNIX AND NOT APPLE)
@@ -13,6 +13,15 @@ else()
     message(FATAL_ERROR "${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
 
+# this is a shitty hack to pass msp430_mcu to CMakeDetermineCompilerABI.cmake
+# because sadly, msp430-elf-gcc NEEDS -mmcu flag to compile...
+# For whatever reason, the morons at TI don't allow assumption of a default
+# or base ISA...
+if(MSP430_MCU)
+    set(ENV{MSP430_MCU} ${MSP430_MCU})
+endif(MSP430_MCU)
+
+# @todo THIS SHOULD BE CONFIGURED ON A PER-TARGET BASIS
 set(LINKER_SCRIPT "${MSP430_MCU}.ld")
 
 if(MINGW OR CYGWIN OR WIN32)
@@ -75,10 +84,7 @@ list(APPEND BINUTILS_SEARCH_HINTS "${TOOLCHAIN_BIN_DIR}")
 
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR MSP430)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-add_compile_options("-mmcu=${MSP430_MCU}")
-
 
 set(CMAKE_SYSROOT "${TOOLCHAIN_ROOT}/${TOOLCHAIN_PREFIX}")
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -161,13 +167,14 @@ set(CMAKE_C_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS}")
 set(CMAKE_CXX_FLAGS_INIT "${TOOLCHAIN_BASE_FLAGS} -fno-rtti -fno-exceptions")
 
 
-set(TOOLCHAIN_LINKER_FLAGS "-Wl")
-set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--relax")
-set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--gc-sections")
-set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},-T,${LINKER_SCRIPT}")
-set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--undefined=__mspabi_mpyi -lmul_f5")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
-#set(CMAKE_STATIC_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
+#set(TOOLCHAIN_LINKER_FLAGS "-Wl")
+#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--relax")
+#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--gc-sections")
+#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},--undefined=__mspabi_mpyi -lmul_f5")
+#set(TOOLCHAIN_LINKER_FLAGS "${TOOLCHAIN_LINKER_FLAGS},-T,${LINKER_SCRIPT}")
+#set(CMAKE_EXE_LINKER_FLAGS_INIT "${TOOLCHAIN_LINKER_FLAGS}")
+
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,--undefined=__mspabi_mpyi -lmul_f5")
 
 set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -O0 -g3 -ggdb -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
@@ -180,9 +187,14 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 if(NOT COMMAND _add_executable)
 function(add_executable executable)
     if(CMAKE_CROSSCOMPILING)
-        if(NOT MSP430_MCU)
-            message(FATAL_ERROR "MSP430_MCU NOT DEFINED IN ${CMAKE_CURRENT_LIST_FILE}")
-        endif(NOT MSP430_MCU)
+
+    if(NOT MSP430_MCU)
+        if(DEFINED ENV{MSP430_MCU}) # check environment
+            set(MSP430_MCU $ENV{MSP430_MCU})
+        else()
+            message(FATAL_ERROR "MSP430_MCU NOT DEFINED IN ${CMAKE_CURRENT_LIST_FILE} OR IN ENVIRONMENT.")
+        endif(DEFINED ENV{MSP430_MCU})
+    endif(NOT MSP430_MCU)
 
         string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
         _add_executable(${executable} ${ARGN})
@@ -242,9 +254,13 @@ endif(NOT COMMAND _add_executable)
 if(NOT COMMAND _add_library)
 function(add_library library)
     if(CMAKE_CROSSCOMPILING) # If toolchain file has been included
-
+        
         if(NOT MSP430_MCU)
-            message(FATAL_ERROR "MSP430_MCU NOT DEFINED IN ${CMAKE_CURRENT_LIST_FILE}")
+            if(DEFINED ENV{MSP430_MCU}) # check environment
+                set(MSP430_MCU $ENV{MSP430_MCU})
+            else()
+                message(FATAL_ERROR "MSP430_MCU NOT DEFINED IN ${CMAKE_CURRENT_LIST_FILE} OR IN ENVIRONMENT.")
+            endif(DEFINED ENV{MSP430_MCU})
         endif(NOT MSP430_MCU)
 
         string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
