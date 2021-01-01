@@ -28,43 +28,40 @@ cmake_minimum_required(VERSION 3.16)
 #
 ################################################################################
 option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
-option(CMAKE_CROSSCOMPILING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
 
-
-if(NOT CMAKE_PROJECT_NAME)
-    set(SUPPORTED_BUILD_TYPES "")
-    list(APPEND SUPPORTED_BUILD_TYPES "Debug")
-    list(APPEND SUPPORTED_BUILD_TYPES "Release")
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
-    if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
-    else()
-        if(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
-            message("Build type : ${CMAKE_BUILD_TYPE} is not a supported build type.")
-            message("Supported build types are:")
-            foreach(type ${SUPPORTED_BUILD_TYPES})
-                message("- ${type}")
-            endforeach(type ${SUPPORTED_BUILD_TYPES})
-            message(FATAL_ERROR "The configuration script will now exit.")
-        endif(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
-    endif(NOT CMAKE_BUILD_TYPE)
-endif(NOT CMAKE_PROJECT_NAME)
-
-set(MSP430_MCU "msp430f5529" CACHE STRING "Lowercase MPN of target MCU. Used by msp430-elf-gcc")
-set(MSP430_MCU_FREQ "8000000" CACHE STRING "Frequency of input oscillator to MCU in Hz")
+set(MSP430_MCU "msp430f5529" CACHE STRING "Lowercase MPN of target MCU. Used by msp430-elf-gcc" FORCE)
+set(MSP430_MCU_FREQ "8000000" CACHE STRING "Frequency of input oscillator to MCU in Hz" FORCE)
 
 ################################################################################
 #                       PROJECT START                                          #
 ################################################################################
 
-get_filename_component(MY_TOPLEVEL_PROJECT_NAME ${CMAKE_SOURCE_DIR} NAME)
-
 project(
-    ${MY_TOPLEVEL_PROJECT_NAME}
+    LORIS_ADCS_PROJECT
     VERSION 0.1
     DESCRIPTION "ADCS Firmware Project for DSS LORIS Satellite"
     LANGUAGES C ASM
 )
+
+message("RETURNING HERE AS PART OF CARL DEBUG")
+return()
+
+set(SUPPORTED_BUILD_TYPES "")
+list(APPEND SUPPORTED_BUILD_TYPES "Debug")
+list(APPEND SUPPORTED_BUILD_TYPES "Release")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
+else()
+    if(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
+        message("Build type : ${CMAKE_BUILD_TYPE} is not a supported build type.")
+        message("Supported build types are:")
+        foreach(type ${SUPPORTED_BUILD_TYPES})
+            message("- ${type}")
+        endforeach(type ${SUPPORTED_BUILD_TYPES})
+        message(FATAL_ERROR "The configuration script will now exit.")
+    endif(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
+endif(NOT CMAKE_BUILD_TYPE)
 
 # I'd like to configure this in the toolchain file, BUT, we don't actually
 # have access to project variables when cmake processes the toolchain file
@@ -87,42 +84,25 @@ message("PROCESSOR : ${CMAKE_SYSTEM_PROCESSOR}")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
-function(ADCS_add_executable target)
-    if(CMAKE_CROSSCOMPILING)
-        msp430_add_executable(${target} ${ARGN})
-    else()  # NOT CROSS COMPILING
-        add_executable(${target} ${ARGN})
-    endif(CMAKE_CROSSCOMPILING)
-endfunction(ADCS_add_executable target)
-
-function(ADCS_add_library target)
-    if(CMAKE_CROSSCOMPILING)
-        msp430_add_library(${target} STATIC ${ARGN})
-    else()  # NOT CROSS COMPILING
-        add_library(${target} STATIC ${ARGN})
-    endif(CMAKE_CROSSCOMPILING)
-endfunction(ADCS_add_library target)
-
 message("\n")
 execute_process(
     COMMAND "git" "submodule" "update" "--remote" "--recursive" "--force"
     RESULT_VARIABLE GIT_SUBMODULE_UPDATE_FAILED
     OUTPUT_VARIABLE GIT_SUBMODULE_UPDATE_OUTPUT
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    #ECHO_OUTPUT_VARIABLE
+    ECHO_OUTPUT_VARIABLE
     )
 
-message("${GIT_SUBMODULE_UPDATE_OUTPUT}")
+#if(GIT_SUBMODULE_UPDATE_FAILED)
+#    message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
+#else()
+#    # print output
+#    message("${GIT_SUBMODULE_UPDATE_OUTPUT}")
+#endif(GIT_SUBMODULE_UPDATE_FAILED)
 
 execute_process(
     COMMAND "sync"
 )
-
-
-if(GIT_SUBMODULE_UPDATE_FAILED)
-    message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
-endif(GIT_SUBMODULE_UPDATE_FAILED)
 
 
 if(BUILD_TESTING)
@@ -144,9 +124,15 @@ else()
 endif()
 
 include_directories(share)
-
 add_subdirectory(injection_api)
+
+
+message("RETURNING HERE AS PART OF CARL DEBUG")
+return()
+
 add_subdirectory(JTOK)
 add_subdirectory(bufferlib)
 add_subdirectory(drivers)
 add_subdirectory(core)
+
+

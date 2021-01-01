@@ -39,7 +39,7 @@ if(CMAKE_CROSSCOMPILING)
     if(TARGET ${LIB})
         message(FATAL_ERROR "Target ${LIB} already exists in this project!")
     else()
-        ADCS_add_library(${LIB})
+        add_library(${LIB})
     endif(TARGET ${LIB})
 
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

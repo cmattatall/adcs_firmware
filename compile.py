@@ -42,23 +42,16 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
             return -1
 
     configure_string += space_args("-B %s" % (bdir))
-    configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
     configure_string += space_args("-DCMAKE_BUILD_TYPE=\"%s\"" % (btype))
 
     if cross_compile:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=ON")
-    else:
-        configure_string += space_args("-DCMAKE_CROSSCOMPILING:BOOL=OFF")
+        configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
 
     if build_tests:
         configure_string += space_args("-DBUILD_TESTING:BOOL=ON")
     else:
         configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
 
-    #if verbose:
-        #configure_string += space_args("-DCMAKE_VERBOSE_MAKEFILE=ON")
-
-    
     return os.system(configure_string)
 
 def make(bdir):
