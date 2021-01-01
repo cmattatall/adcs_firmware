@@ -1,3 +1,4 @@
+# Table of Contents
 - [About the LORIS Project](#about-the-loris-project)
 - [What is an ADCS](#what-is-an-adcs)
 - [Firmware and Development Environment](#firmware-and-development-environment)
