@@ -7,8 +7,6 @@
  *
  * @copyright Copyright (c) 2020 DSS Loris project
  *
- * @note
- * @todo
  */
 
 #include <msp430.h>

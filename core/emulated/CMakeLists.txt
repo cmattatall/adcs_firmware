@@ -10,7 +10,7 @@ if(NOT CMAKE_CROSSCOMPILING)
     message("CONFIGURING ${PROJECT_NAME}")
     set(BUILD_TARGET ${PROJECT_NAME})
 
-    ADCS_add_library(${BUILD_TARGET})
+    add_library(${BUILD_TARGET})
     file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
     file(GLOB_RECURSE headers "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
     foreach(hdr ${headers})

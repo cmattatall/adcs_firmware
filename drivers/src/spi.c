@@ -7,8 +7,6 @@
  *
  * @copyright Copyright (c) 2020 LORRIS ADCS
  *
- * @note
- * @todo
  */
 
 #if !defined(TARGET_MCU)

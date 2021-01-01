@@ -1,9 +1,13 @@
-cmake_minimum_required(VERSION 3.16)
+# @brief CMAKE LIBRARY PROJECT TEMPLATE
+# @author Carl Mattatall (cmattatall2@gmail.com)
+cmake_minimum_required(VERSION 3.18)
+
 
 ################################################################################
 #  OPTIONS GO HERE
 ################################################################################
-option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
+option(BUILD_TESTING "[ON/OFF] Build tests in addition to library" OFF)
+option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
 
 ################################################################################
 #  BUILD TYPE CHECK
@@ -27,28 +31,33 @@ if(NOT CMAKE_PROJECT_NAME)
     endif(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_PROJECT_NAME)
 
-
+################################################################################
+#  PROJECT INIT
+################################################################################
 project(
-    ADCS_JSONS 
-    VERSION 1.0 
-    DESCRIPTION "ADCS <-> OBC JSON COMMUNICATION LIBRARY FOR LORRIS PROJECT"
-    LANGUAGES C ASM
+    ADCS_SUN_SENSORS
+    VERSION 1.0
+    DESCRIPTION "SUN SENSOR INTERFACE LIBRARY FOR ADCS FIRMWARE"
+    LANGUAGES C CXX
 )
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # vscode
 
-set(LIB "${PROJECT_NAME}")
+
+################################################################################
+# DETECT SOURCES RECURSIVELY FROM src FOLDER AND ADD TO BUILD TARGET
+################################################################################
+set(LIB "${PROJECT_NAME}") # this is PROJECT_NAME, NOT CMAKE_PROJECT_NAME
 message("CONFIGURING TARGET : ${LIB}")
+
 if(TARGET ${LIB})
     message(FATAL_ERROR "Target ${LIB} already exists in this project!")
 else()
     add_library(${LIB})
 endif(TARGET ${LIB})
 
-################################################################################
-# DETECT SOURCES RECURSIVELY FROM src FOLDER AND ADD TO BUILD TARGET
-################################################################################
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 file(GLOB_RECURSE ${LIB}_sources "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 target_sources(${LIB} PRIVATE ${${LIB}_sources})
+
 
 ################################################################################
 # DETECT PRIVATE HEADERS RECURSIVELY FROM src FOLDER
@@ -62,6 +71,7 @@ endforeach(hdr ${${LIB}_private_headers})
 list(REMOVE_DUPLICATES ${LIB}_private_include_directories)
 target_include_directories(${LIB} PRIVATE ${${LIB}_private_include_directories})
 
+
 ################################################################################
 # DETECT PUBLIC HEADERS RECURSIVELY FROM inc FOLDER
 ################################################################################
@@ -74,14 +84,28 @@ endforeach(hdr ${${LIB}_public_headers})
 list(REMOVE_DUPLICATES ${LIB}_public_include_directories)
 target_include_directories(${LIB} PUBLIC ${${LIB}_public_include_directories})
 
+
+################################################################################
+# SPECIAL AND PROJECT SPECIFIC OPTIONS
+################################################################################
+target_compile_options(${LIB} PRIVATE "-Werror=incompatible-pointer-types")
+target_compile_options(${LIB} PRIVATE "-Wshadow")
+
+
+
+
+
+
 ################################################################################
 # LINK AGAINST THE NECESSARY LIBRARIES 
 ################################################################################
-target_link_libraries(${LIB} PRIVATE JTOK)
-target_link_libraries(${LIB} PRIVATE ADCS_OBC_INTERFACE)
-target_link_libraries(${LIB} PRIVATE ADCS_REACTIONWHEELS)
-target_link_libraries(${LIB} PRIVATE ADCS_MAGNETORQUERS)
-target_link_libraries(${LIB} PRIVATE ADCS_SUN_SENSORS)
+if(NOT CMAKE_CROSSCOMPILING)
+    target_link_libraries(${LIB} PRIVATE ADCS_IF_EMU)
+else()
+    target_link_libraries(${LIB} PRIVATE ADCS_DRIVERS)
+endif(NOT CMAKE_CROSSCOMPILING)
+
+
 
 ################################################################################
 # TEST CONFIGURATION
@@ -103,3 +127,40 @@ else()
         endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
     endif()
 endif()
+
+
+################################################################################
+# EXAMPLE CONFIGURATION
+################################################################################
+if(BUILD_EXAMPLES)
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+        add_subdirectory(examples)
+    endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+else()
+    if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+        add_compile_options("-Wall")
+        add_compile_options("-Wextra")
+        enable_testing()
+        include(CTest)
+        if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+            add_subdirectory(examples)
+        endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples)
+    endif()
+endif(BUILD_EXAMPLES)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

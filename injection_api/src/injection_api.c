@@ -7,8 +7,6 @@
  *
  * @copyright Copyright (c) 2020 LORIS PROJECT
  *
- * @note
- * @todo
  */
 #include <stdlib.h>
 #include "injection_api.h"

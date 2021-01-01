@@ -32,7 +32,7 @@ project(
 )
 set(LIB "${PROJECT_NAME}")
 message("CONFIGURING TARGET : ${LIB}")
-ADCS_add_library("${LIB}")
+add_library("${LIB}")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # vscode
 
 file(GLOB_RECURSE "${LIB}_sources" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")

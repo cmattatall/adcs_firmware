@@ -214,11 +214,7 @@ static void *parse_pwm_rw_x(json_handler_args args)
     }
     else
     {
-        /**
-         * @todo error handle ??
-         * for now, just flagging error and passing responsibility
-         * off to caller
-         */
+
         return JSON_HANDLER_RETVAL_ERROR;
     }
     return t;
@@ -268,11 +264,7 @@ static void *parse_pwm_rw_y(json_handler_args args)
     }
     else
     {
-        /**
-         * @todo error handle ??
-         * for now, just flagging error and passing responsibility
-         * off to caller
-         */
+
         return JSON_HANDLER_RETVAL_ERROR;
     }
     return t;
@@ -323,11 +315,7 @@ static void *parse_pwm_rw_z(json_handler_args args)
     }
     else
     {
-        /**
-         * @todo error handle ??
-         * for now, just flagging error and passing responsibility
-         * off to caller
-         */
+
         return JSON_HANDLER_RETVAL_ERROR;
     }
     return t;
@@ -381,11 +369,7 @@ static void *parse_dir_rw_x(json_handler_args args)
     }
     else
     {
-        /**
-         * @todo error handle ??
-         * for now, just flagging error and passing responsibility
-         * off to caller
-         */
+
         return JSON_HANDLER_RETVAL_ERROR;
     }
     return t;
@@ -456,11 +440,7 @@ static void *parse_dir_rw_y(json_handler_args args)
     }
     else
     {
-        /**
-         * @todo error handle ??
-         * for now, just flagging error and passing responsibility
-         * off to caller
-         */
+
         return JSON_HANDLER_RETVAL_ERROR;
     }
     return t;
@@ -531,11 +511,7 @@ static void *parse_dir_rw_z(json_handler_args args)
     }
     else
     {
-        /**
-         * @todo error handle ??
-         * for now, just flagging error and passing responsibility
-         * off to caller
-         */
+
         return JSON_HANDLER_RETVAL_ERROR;
     }
     return t;
