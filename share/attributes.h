@@ -11,17 +11,19 @@ extern "C"
 
 /* clang-format off */
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#define __TEST_HOOKABLE __weak
 #ifdef __interrupt
 #undef __interrupt
 #endif
 #define __interrupt(isr) _Pragma vector = isr __interrupt
 #elif defined(__GNUC__)
 #define __weak __attribute__((weak))
-#define __TEST_HOOKABLE __attribute__((weak))
 #else
 #error Compiler not supported!
 #endif
+
+#ifndef __EMULATABLE
+#define __EMULATABLE __weak
+#endif /* ifndef __EMULATABLE */
 
 #ifdef __cplusplus
 /* clang-format off */

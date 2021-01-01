@@ -177,7 +177,7 @@ int OCB_IF_get_command_string(uint8_t *buf, uint_least16_t buflen)
 }
 
 
-__TEST_HOOKABLE int OBC_IF_tx(uint8_t *buf, uint_least16_t buflen)
+__EMULATABLE int OBC_IF_tx(uint8_t *buf, uint_least16_t buflen)
 {
     CONFIG_ASSERT(ops.tx != NULL);
     return ops.tx(buf, buflen);
