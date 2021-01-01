@@ -22,15 +22,14 @@ static uint8_t msg[128];
 
 int main(void)
 {
-#if defined(TARGET_MCU)
-
-#if defined(DEBUG)
+#if defined(TARGET_MCU) && defined(DEBUG)
     watchdog_stop();
-#else
+#elif defined(TARGET_MCU) && !defined(DEBUG)
     watchdog_start();
-#endif /* #if defined(DEBUG) */
+#endif
 
 
+#if defined(TARGET_MCU)
     OBC_IF_config(OBC_IF_PHY_CFG_UART);
 
     BSP_init();
@@ -61,9 +60,8 @@ int main(void)
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
 
-
-#if !defined(DEBUG)
+#if defined(TARGET_MCU) && !defined(DEBUG)
         watchdog_kick();
-#endif /* #if !defined(DEBUG) */
+#endif /* #if defined(TARGET_MCU) && !defined(DEBUG)*/
     }
 }
