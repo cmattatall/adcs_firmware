@@ -12,14 +12,18 @@
 
 #include "sun_sensors.h"
 
+#if defined(TARGET_MCU)
+#include "spi.h"
+#else
+#endif /* #if defined(TARGET_MCU) */
 
 
 sun_sensor_bearing_t get_bearing(void)
 {
     sun_sensor_bearing_t bearing;
     bearing.pitch = 0.0f;
-    bearing.roll = 0.0f;
-    bearing.yaw = 0.0f;
+    bearing.roll  = 0.0f;
+    bearing.yaw   = 0.0f;
 
     return bearing;
 }
