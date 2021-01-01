@@ -16,6 +16,9 @@
     + [Nightly builds](#nightly-builds)
     + [On-target tests](#on-target-tests)
     + [Target-independent tests](#target-independent-tests)
+    
+    
+    <script id="asciicast-PX7z1klDIJXAscdKr7vvV4MBJ" src="https://asciinema.org/a/PX7z1klDIJXAscdKr7vvV4MBJ.js" async></script>
 
 # About the LORIS Project
 
