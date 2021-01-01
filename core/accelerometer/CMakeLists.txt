@@ -1,5 +1,3 @@
-# @brief CMAKE LIBRARY PROJECT TEMPLATE
-# @author Carl Mattatall (cmattatall2@gmail.com)
 cmake_minimum_required(VERSION 3.18)
 
 
@@ -9,9 +7,7 @@ cmake_minimum_required(VERSION 3.18)
 option(BUILD_TESTING "[ON/OFF] Build tests in addition to library" OFF)
 option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
 
-################################################################################
-#  BUILD TYPE CHECK
-################################################################################
+
 
 
 ################################################################################
@@ -24,6 +20,10 @@ project(
     LANGUAGES C CXX
 )
 
+
+################################################################################
+#  BUILD TYPE CHECK
+################################################################################
 set(SUPPORTED_BUILD_TYPES "")
 list(APPEND SUPPORTED_BUILD_TYPES "Debug")
 list(APPEND SUPPORTED_BUILD_TYPES "Release")
@@ -93,38 +93,14 @@ target_compile_options(${LIB} PRIVATE "-Wshadow")
 
 
 
-
-
-
 ################################################################################
 # LINK AGAINST THE NECESSARY LIBRARIES 
 ################################################################################
-
-
-######################################
-# EXAMPLE OF LINKINAG AGAINST PTHREAD
-######################################
-
-#   find_package(Threads REQUIRED)
-#   if(Threads_FOUND) 
-#       if(WIN32)
-#           if(CMAKE_USE_WIN32_THREADS_INIT)
-#               target_link_libraries(${LIB} PUBLIC pthread)
-#               target_compile_options(${LIB} PUBLIC "-lpthread")
-#           else()
-#               message(FATAL_ERROR "BLAHHH ")
-#           endif()
-#       elseif(UNIX)
-#           if(CMAKE_USE_PTHREADS_INIT)
-#               target_link_libraries(${LIB} PUBLIC pthread)
-#               target_compile_options(${LIB} PUBLIC "-lpthread")
-#           else()
-#               message(FATAL_ERROR "BLAHHH ")
-#           endif()
-#       endif()
-#   else()
-#       message(FATAL_ERROR "No threading libraries have been found. Aborting!")
-#   endif()
+if(NOT CMAKE_CROSSCOMPILING)
+    target_link_libraries(${LIB} PRIVATE ADCS_IF_EMU)
+else()
+    target_link_libraries(${LIB} PRIVATE ADCS_DRIVERS)
+endif(NOT CMAKE_CROSSCOMPILING)
 
 ################################################################################
 # TEST CONFIGURATION

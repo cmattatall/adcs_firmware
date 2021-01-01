@@ -1,5 +1,3 @@
-# @brief CMAKE LIBRARY PROJECT TEMPLATE
-# @author Carl Mattatall (cmattatall2@gmail.com)
 cmake_minimum_required(VERSION 3.18)
 
 
@@ -8,6 +6,18 @@ cmake_minimum_required(VERSION 3.18)
 ################################################################################
 option(BUILD_TESTING "[ON/OFF] Build tests in addition to library" OFF)
 option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
+
+
+################################################################################
+#  PROJECT INIT
+################################################################################
+project(
+    ADCS_SUN_SENSORS
+    VERSION 1.0
+    DESCRIPTION "SUN SENSOR INTERFACE LIBRARY FOR ADCS FIRMWARE"
+    LANGUAGES C CXX
+)
+
 
 ################################################################################
 #  BUILD TYPE CHECK
@@ -30,16 +40,6 @@ if(NOT CMAKE_PROJECT_NAME)
         endif(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
     endif(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_PROJECT_NAME)
-
-################################################################################
-#  PROJECT INIT
-################################################################################
-project(
-    ADCS_SUN_SENSORS
-    VERSION 1.0
-    DESCRIPTION "SUN SENSOR INTERFACE LIBRARY FOR ADCS FIRMWARE"
-    LANGUAGES C CXX
-)
 
 
 ################################################################################

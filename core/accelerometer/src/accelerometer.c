@@ -21,7 +21,6 @@
 
 #endif /* #if defined(TARGET_MCU) */
 
-
 accelerometer_reading_t accelerometer_get_angular_rate(void)
 {
     accelerometer_reading_t rate;
