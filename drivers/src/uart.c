@@ -7,8 +7,6 @@
  *
  * @copyright Copyright (c) 2020
  *
- * @note
- * @todo
  */
 
 #if !defined(TARGET_MCU)

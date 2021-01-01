@@ -8,8 +8,6 @@
  *
  * @copyright Copyright (c) 2020
  *
- * @note
- * @todo
  */
 
 #include "targets.h"

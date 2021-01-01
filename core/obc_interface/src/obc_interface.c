@@ -8,8 +8,6 @@
  *
  * @copyright Copyright (c) 2020 DSS - LORIS project
  *
- * @note
- * @todo
  */
 #include <stdio.h> /* snprintf */
 #include <string.h>

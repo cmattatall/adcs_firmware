@@ -7,7 +7,19 @@
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
- * @todo
+ * @todo IMPLEMENT THE INTERFACE
  */
 
 #include "sun_sensors.h"
+
+
+
+sun_sensor_bearing_t get_bearing(void)
+{
+    sun_sensor_bearing_t bearing;
+    bearing.pitch = 0.0f;
+    bearing.roll = 0.0f;
+    bearing.yaw = 0.0f;
+
+    return bearing;
+}

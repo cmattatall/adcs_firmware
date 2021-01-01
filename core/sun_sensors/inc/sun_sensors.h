@@ -8,6 +8,24 @@ extern "C"
 #endif /* Start C linkage */
 
 
+typedef struct
+{
+    /* Cylindrical coords centered on ideal nadir orientation?? */
+    float pitch;
+    float yaw;
+    float roll;
+} sun_sensor_bearing_t;
+
+
+/**
+ * @brief Get the current satellite bearing from sun sensors
+ *
+ * @return sun_sensor_bearing_t the current satellite bearing
+ *
+ * @todo NOT IMPLEMENTED YET
+ */
+sun_sensor_bearing_t get_bearing(void);
+
 
 #ifdef __cplusplus
 /* clang-format off */

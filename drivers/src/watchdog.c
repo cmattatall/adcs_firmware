@@ -7,8 +7,6 @@
  *
  * @copyright Copyright (c) 2020 DSS - LORIS project
  *
- * @note
- * @todo
  */
 
 #if !defined(TARGET_MCU)
