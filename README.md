@@ -1,19 +1,6 @@
 # TABLE OF CONTENTS
 
-
-- [TABLE OF CONTENTS](#table-of-contents)
-- [WHAT IS THE LORIS PROJECT](#what-is-the-loris-project)
-- [WHAT IS AN ADCS](#what-is-an-adcs)
-- [DEVELOPMENT ENVIRONMENT](#development-environment)
-  * [DEPENDENCIES](#dependencies)
-  * [TOOLCHAIN INSTALLATION](#toolchain-installation)
-    + [LINUX (UBUNTU 18.04 OR NEWER)](#linux--ubuntu-1804-or-newer-)
-    + [Windows](#windows)
-  * [Building](#building)
-  * [TASKS](#tasks)
-  * [Debugging](#debugging)
-
-# WHAT IS THE LORIS PROJECT
+# About the LORIS Project
 
 
 The Low Orbit Reconnaissance & Imaging Satellite (LORIS) is a student project underway at Dalhousie University funded by the Canadian Space Agency (CSA). Dalhousie Space Systems Lab’s (DSS) mission is to deploy a two-unit CubeSat with the objective of developing skills in the areas of space systems engineering and of deploying a satellite capable of taking pictures of Earth and sending them back to a ground station at Dalhousie University. Since the project’s start, students at Dalhousie have been working on designing the subsystems required for the LORIS mission with guidance from the CSA and Dalhousie Faculty. In orbit, the satellite must be capable of maintaining a nadir pointing accuracy to ensure ground station communication and imaging requirements are met. The Attitude Determination and Control System (ADCS) is the subsystem responsible for determining and maintaining the attitude of the satellite and orienting its attitude with the requirements of the mission objective. Due to the pointing requirements, the ADCS subsystem is mission critical.  
@@ -28,16 +15,16 @@ https://dalorbits.ca/2019/07/01/loris-2021/
 ![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/loris.jpg?raw=true)
 
 
-# WHAT IS AN ADCS
+# What is an ADCS
 
 For spacecraft with mission critical pointing requirements, Attitude Determination and Control Systems (ADCS) are used. Attitude is the orientation of an aerospace vehicle with respect to an inertial frame of reference, in LORIS’s case this frame of reference is the Earth’s. LORIS requires  a nadir-pointing (the vector pointing to center of Earth) accuracy of ± 5° along the satellite’s Z axis during nominal operation. On a cubesat, the ADCS is one of the most mission critical subsystems.
 
 ![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true)
 
-# DEVELOPMENT ENVIRONMENT
+# Firmware and Development Environment
 
 
-## DEPENDENCIES
+## Dependencies
 
 - Python3
 - CMake 3.16 or newer (It may work on versions as old as 3.10 but I haven't tested those) https://cmake.org/download/
@@ -45,9 +32,9 @@ For spacecraft with mission critical pointing requirements, Attitude Determinati
 - msp430 TI device header support files (provided by the toolchain install script)
 - gcc (on windows, this means you'll have to install mingw)
 
-## TOOLCHAIN INSTALLATION
+## Toolchain installation
 
-
+Depending on your platform, toolchain installation step will vary. 
 
 ### LINUX (UBUNTU 18.04 OR NEWER)
 
@@ -69,14 +56,19 @@ For spacecraft with mission critical pointing requirements, Attitude Determinati
 
 ## Building
 
-run python3 ./compile.py
+Internally, the project builds using cmake. To ease non-cmake users into the development environment, a python script (./compile.py) has been provided. Various command line arguments can be provided to the script to configure and build for the target microcontroller (rather than on the developer's native system), set the build type, change the verbosity level, and so on.
 
-The build script has various options available. To view options,
+The build script has various options available. To view options, the --help flag can be used:
 
     $python3 ./compile.py --help
+    
+    
 
 
-## TASKS
+## Visual Studio Code Integration
+
+
+### Tasks and Command Palette
 
 Instead of using the command line, there are also several tasks that have
 been automated using visual studio code integration
@@ -93,9 +85,31 @@ If you select "Run tasks", a dropdown will appear of tasks
 
 <B>TODO: EXAMPLE IMAGES OF THE TASKS</B>
 
+### Debugging
 
-## Test plan
 
-Tests are automated using cmake and ctest. To produce software that is maintainable and scalable, as many features are tested independent of the target hardware as possible.
+### Intellisense
+
+Intellisense is configured using compile_commands.json exported by cmake. For integrated development environments like Microsoft Visual Studio, the method of parsing will vary internally based on the project generator.
+
+
+## Verification and Validation
+
+As a safety critical and mission critical system component, the ADCS firmware for LORIS must be continually validated against stringent behavioural requirements. Ideally, as many of these requirements as possible should be tested indpendent of the target hardware. To achieve this, integration with the ctest test suite is used. Regression tests are configured as part of client side git hooks, where any pushes that do not pass the regression test suite are rejected.
+
+### Regression tests
+
+To run regression tests, a python script called regressions.py is provided. Below you can find a recording of a user manually running the test suite.
 
 [![asciicast](https://asciinema.org/a/jMWEML6JvH3Ur1rznNz8hxJm0.png)](https://asciinema.org/a/jMWEML6JvH3Ur1rznNz8hxJm0)
+
+### Pre-push hooking
+
+### Nightly builds
+
+
+### On-target tests
+
+
+### Target-independent tests
+
