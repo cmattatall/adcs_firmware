@@ -10,16 +10,18 @@
  * @todo ACTUALLY IMPLEMENT THE INTERFACE
  */
 
-#if defined(TARGET_MCU)
 
+#include "accelerometer.h"
+
+#if defined(TARGET_MCU)
 
 /** @todo I DON'T KNOW WHAT PHY INTERFACE IS BEING USED TO TALK TO THE
  * ACCELEROMETER */
 
-#include "accelerometer.h"
 #else
 
 #endif /* #if defined(TARGET_MCU) */
+
 
 accelerometer_reading_t accelerometer_get_angular_rate(void)
 {
@@ -28,4 +30,14 @@ accelerometer_reading_t accelerometer_get_angular_rate(void)
     rate.yaw_rate   = 0.0f;
     rate.roll_rate  = 0.0f;
     return rate;
+
+#if defined(TARGET_MCU)
+
+    /** @todo HARDWARE INTERFACE (READ FROM ACCELEROMETER) */
+
+#else
+
+    /** @todo EMULATE READING AND RETURN DATA */
+
+#endif /* #if defined(TARGET_MCU) */
 }
