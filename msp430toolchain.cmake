@@ -13,8 +13,11 @@ else()
     message(FATAL_ERROR "${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
 
-# this is a shitty hack to pass msp430_mcu to CMakeDetermineCompilerABI.cmake
+
+# this is a shitty hack to pass -msp430_mcu flag 
+# to CMakeDetermineCompilerABI.cmake
 # because sadly, msp430-elf-gcc NEEDS -mmcu flag to compile...
+#
 # For whatever reason, the morons at TI don't allow assumption of a default
 # or base ISA...
 if(MSP430_MCU)
@@ -30,7 +33,6 @@ elseif(APPLE)
 else()
     message(FATAL_ERROR "SYSTEM : ${CMAKE_HOST_SYSTEM_NAME} not supported")
 endif()
-
 
 set(TOOLCHAIN_PREFIX "msp430-elf")
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
@@ -49,10 +51,6 @@ if(TOOLCHAIN_GCC_SYMLINK_NOT_FOUND)
 endif(TOOLCHAIN_GCC_SYMLINK_NOT_FOUND)
 
 if(MINGW OR CYGWIN OR WIN32)
-    # for now, since following shortcuts / aliased targets in windows
-    # is something I wouldn't wish on my worse enemy, we will just 
-    # require that the executable is directly in PATH and not aliased
-    # in PATH...
     set(TOOLCHAIN_GCC_TRUE_PATH ${TOOLCHAIN_GCC_SYMLINK_PATH})
 elseif(UNIX AND NOT APPLE)
     execute_process(
@@ -79,19 +77,19 @@ get_filename_component(TOOLCHAIN_BIN_DIR ${TOOLCHAIN_GCC_TRUE_PATH} DIRECTORY)
 get_filename_component(TOOLCHAIN_ROOT ${TOOLCHAIN_BIN_DIR} DIRECTORY)
 list(APPEND BINUTILS_SEARCH_HINTS "${TOOLCHAIN_BIN_DIR}")
 
+# CROSS COMPILE CONFIG
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR MSP430)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
+# SEARCH OPTIONS
 set(CMAKE_SYSROOT "${TOOLCHAIN_ROOT}/${TOOLCHAIN_PREFIX}")
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-
-
-
+# BINUTILS NAMES
 set(CMAKE_C_COMPILER_NAME ${TOOLCHAIN_PREFIX}-gcc)
 set(CMAKE_ASM_COMPILER_NAME ${TOOLCHAIN_PREFIX}-gcc)
 set(CMAKE_CXX_COMPILER_NAME ${TOOLCHAIN_PREFIX}-g++)
@@ -162,13 +160,9 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 # current workaround is to force gcc to link against the correct multiplication lib
 # code composer is doing this same thing behind the scenes but it's a shame that the maintainers of 
 # the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
-#set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections -Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
-
 set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,--undefined=__mspabi_mpyi -lmul_f5")
 
 include(CheckLinkerFlag)
-
-
 
 if(NOT COMMAND _add_executable)
 function(add_executable executable)
@@ -181,14 +175,16 @@ function(add_executable executable)
         endif(DEFINED ENV{MSP430_MCU})
     endif(NOT MSP430_MCU)
 
-    set(LINKER_SCRIPT "${MSP430_MCU}.ld")
+    set(${executable}_LINKER_SCRIPT "${MSP430_MCU}.ld")
     
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
     _add_executable(${executable} ${ARGN})
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
-    target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
+    target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${${executable}_LINKER_SCRIPT}")
+
+    unset(${executable}_LINKER_SCRIPT)
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
     add_custom_command( 
@@ -238,14 +234,16 @@ function(add_library library)
         endif(DEFINED ENV{MSP430_MCU})
     endif(NOT MSP430_MCU)
 
-    set(LINKER_SCRIPT "${MSP430_MCU}.ld")
+    set(${library}_LINKER_SCRIPT "${MSP430_MCU}.ld")
 
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
     _add_library(${library} ${ARGN})
     target_compile_definitions(${library} PRIVATE "TARGET_MCU")
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
-    target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
+    target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${${library}_LINKER_SCRIPT}")
+
+    unset(${library}_LINKER_SCRIPT)
 
 endfunction(add_library library)
 endif(NOT COMMAND _add_library)
