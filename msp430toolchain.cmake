@@ -164,12 +164,7 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 # the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
 #set(CMAKE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections -Wl,-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
 
-if(MSP430_MCU)
-    set(LINKER_SCRIPT "${MSP430_MCU}.ld")
-endif(MSP430_MCU)
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,--undefined=__mspabi_mpyi -lmul_f5,-T,${LINKER_SCRIPT}")
-unset(LINKER_SCRIPT)
-
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,--undefined=__mspabi_mpyi -lmul_f5")
 
 include(CheckLinkerFlag)
 
@@ -193,14 +188,9 @@ function(add_executable executable)
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
-    target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
 
-    set_target_properties(
-        ${executable}
-        PROPERTIES
-        SUFFIX "$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
-        LINK_DEPENDS ${LINKER_SCRIPT}
-    )
+    # for some reason, this doesn't work... despite what the documentation claims (cmake 3.18 and greater)
+    target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
     add_custom_command( 
@@ -257,13 +247,9 @@ function(add_library library)
     target_compile_definitions(${library} PRIVATE "TARGET_MCU")
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
+    
+    # for some reason, this doesn't work... despite what the documentation claims (cmake 3.18 and greater)
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT}")
-
-    #set_target_properties(
-    #    ${library}
-    #    PROPERTIES
-    #    LINK_DEPENDS ${LINKER_SCRIPT}
-    #)
 
 endfunction(add_library library)
 endif(NOT COMMAND _add_library)

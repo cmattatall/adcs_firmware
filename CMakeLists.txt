@@ -89,13 +89,6 @@ execute_process(
     ECHO_OUTPUT_VARIABLE
     )
 
-#if(GIT_SUBMODULE_UPDATE_FAILED)
-#    message(FATAL_ERROR "Could not update some or all submodules. Aborting build!")
-#else()
-#    # print output
-#    message("${GIT_SUBMODULE_UPDATE_OUTPUT}")
-#endif(GIT_SUBMODULE_UPDATE_FAILED)
-
 execute_process(
     COMMAND "sync"
 )
@@ -119,9 +112,6 @@ endif()
 
 include_directories(share)
 add_subdirectory(injection_api)
-
-message("EXITING HERE BECAUSE CARL DEBUG")
-return()
 
 add_subdirectory(JTOK)
 add_subdirectory(bufferlib)

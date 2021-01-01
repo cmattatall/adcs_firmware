@@ -47,6 +47,9 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
     if cross_compile:
         configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
 
+    if verbose:
+        configure_string += space_args("-DCMAKE_VERBOSE_MAKEFILE=ON")
+        
     if build_tests:
         configure_string += space_args("-DBUILD_TESTING:BOOL=ON")
     else:
