@@ -1,4 +1,21 @@
-# TABLE OF CONTENTS
+- [About the LORIS Project](#about-the-loris-project)
+- [What is an ADCS](#what-is-an-adcs)
+- [Firmware and Development Environment](#firmware-and-development-environment)
+  * [Dependencies](#dependencies)
+  * [Toolchain installation](#toolchain-installation)
+    + [LINUX (UBUNTU 18.04 OR NEWER)](#linux--ubuntu-1804-or-newer-)
+    + [Windows](#windows)
+  * [Building](#building)
+  * [Visual Studio Code Integration](#visual-studio-code-integration)
+    + [Tasks and Command Palette](#tasks-and-command-palette)
+    + [Debugging](#debugging)
+    + [Intellisense](#intellisense)
+  * [Verification and Validation](#verification-and-validation)
+    + [Regression tests](#regression-tests)
+    + [Pre-push hooking](#pre-push-hooking)
+    + [Nightly builds](#nightly-builds)
+    + [On-target tests](#on-target-tests)
+    + [Target-independent tests](#target-independent-tests)
 
 # About the LORIS Project
 
@@ -62,7 +79,9 @@ The build script has various options available. To view options, the --help flag
 
     $python3 ./compile.py --help
     
-    
+As a brief example, the following asciinema recording can be found below:
+
+[![asciicast](https://asciinema.org/a/PX7z1klDIJXAscdKr7vvV4MBJ.png)](https://asciinema.org/a/PX7z1klDIJXAscdKr7vvV4MBJ)
 
 
 ## Visual Studio Code Integration
