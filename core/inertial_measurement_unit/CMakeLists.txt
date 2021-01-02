@@ -7,14 +7,11 @@ cmake_minimum_required(VERSION 3.18)
 option(BUILD_TESTING "[ON/OFF] Build tests in addition to library" OFF)
 option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
 
-
-
-
 ################################################################################
 #  PROJECT INIT
 ################################################################################
 project(
-    ADCS_ACCELEROMETER
+    ADCS_IMU
     VERSION 1.0
     DESCRIPTION "EXAMPLE PROJECT FOR CMAKE PROJECT TEMPLATE REPOSITORY"
     LANGUAGES C CXX
