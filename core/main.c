@@ -55,7 +55,8 @@ int main(void)
             /* Parse command json string */
             if (0 != json_parse(msg))
             {
-                OBC_IF_printf("{\"error\" : \"json format\"}\n");
+                OBC_IF_printf(
+                    "{\"error\" : \"json format\", \"received\":\"%s\"}\n", msg);
             }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
