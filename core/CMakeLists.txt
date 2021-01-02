@@ -43,6 +43,7 @@ add_subdirectory(reaction_wheels)
 add_subdirectory(obc_interface)
 add_subdirectory(sun_sensors)
 add_subdirectory(accelerometer)
+add_subdirectory(inertial_measurement_unit)
 
 # FIRMWARE EXECUTABLE 
 add_executable(${EXE})
@@ -51,6 +52,7 @@ target_link_libraries(${EXE} PRIVATE ADCS_JSONS)
 target_link_libraries(${EXE} PRIVATE ADCS_OBC_INTERFACE)
 target_link_libraries(${EXE} PRIVATE ADCS_SUN_SENSORS)
 target_link_libraries(${EXE} PRIVATE ADCS_ACCELEROMETER)
+target_link_libraries(${EXE} PRIVATE ADCS_IMU)
 
 if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(${EXE} PRIVATE ADCS_IF_EMU)
