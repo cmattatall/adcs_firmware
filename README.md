@@ -128,8 +128,37 @@ To run regression tests, a python script called regressions.py is provided. Belo
 
 ### Pre-push hooking
 
+Although free github does not support serverside hook events, client-side git hooks can be configured to automatically run the regression test suite before pushing. If the regression tests fail, the push will be rejected. To configure git hooks, a file called _pre-push_ in the .git/hooks directory can be configured to automatically run the regression tests as a prerequisite for performing a push. The file snippet of .git/hooks/pre-push is provided below:
+
+```
+# This file is called .git/hooks/pre-push
+# It must also have executable group permissions
+remote="$1"
+url="$2"
+
+
+echo ""
+echo "Executing client side pre-push git hook..."
+echo "If regression tests fail, push to $url will be rejected!"
+echo ""
+
+python3 ./regressions.py
+
+if [ "$?" -ne "0" ]; then
+        echo ""
+        echo "[ERROR] One or more regression tests failed. Push was rejected!"
+        echo ""
+        exit -1
+fi
+```
+
+Once the client-side hooks are configured, all pushes that introduce deltas which fail regression tests will be rejected from the client side.
+
+[![asciicast](https://asciinema.org/a/fWnGNB6YzwGkHdMqTJC3I8Msp.png)](https://asciinema.org/a/fWnGNB6YzwGkHdMqTJC3I8Msp)
+
 ### Nightly builds
 
+We are currently looking for an enterprise server to run the nightly builds. 
 
 ### On-target tests
 
