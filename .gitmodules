@@ -4,3 +4,6 @@
 [submodule "bufferlib"]
 	path = bufferlib
 	url = https://github.com/cmattatall/bufferlib
+[submodule "cmake_project_template"]
+	path = cmake_project_template
+	url = https://github.com/cmattatall/cmake_project_template
