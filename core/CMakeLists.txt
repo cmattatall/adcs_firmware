@@ -43,7 +43,7 @@ add_subdirectory(reaction_wheels)
 add_subdirectory(obc_interface)
 add_subdirectory(sun_sensors)
 add_subdirectory(accelerometer)
-add_subdirectory(intertial_measurement_unit)
+add_subdirectory(inertial_measurement_unit)
 
 # FIRMWARE EXECUTABLE 
 add_executable(${EXE})
