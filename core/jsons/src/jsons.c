@@ -40,9 +40,8 @@ typedef struct
 } json_parse_table_item;
 
 
-static jtok_tkn_t    tkns[JSON_TKN_CNT];
-static jtok_parser_t parser;
-static char          value_holder[50];
+static jtok_tkn_t tkns[JSON_TKN_CNT];
+static char       value_holder[50];
 
 
 /* JSON HANDLER DECLARATIONS */
@@ -78,13 +77,11 @@ int json_parse(uint8_t *json)
 
     int json_parse_status = 0;
 
-    parser          = jtok_new_parser((char *)json);
-    int jtok_retval = jtok_parse(&parser, tkns, JSON_TKN_CNT);
+    int jtok_retval = jtok_parse((char *)json, tkns, JSON_TKN_CNT);
 
-    if (jtok_retval != JTOK_PARSE_STATUS_PARSE_OK)
+    if (jtok_retval != JTOK_PARSE_STATUS_OK)
     {
         json_parse_status = jtok_retval;
-        memset(&parser, 0, sizeof(parser));
         memset(tkns, 0, sizeof(tkns));
     }
     else
