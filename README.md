@@ -130,7 +130,7 @@ To run regression tests, a python script called regressions.py is provided. Belo
 
 Although free github does not support serverside hook events, client-side git hooks can be configured to automatically run the regression test suite before pushing. If the regression tests fail, the push will be rejected. To configure git hooks, a file called _pre-push_ in the .git/hooks directory can be configured to automatically run the regression tests as a prerequisite for performing a push. The file snippet of .git/hooks/pre-push is provided below:
 
-```
+```bash
 # This file is called .git/hooks/pre-push
 # It must also have executable group permissions
 remote="$1"
