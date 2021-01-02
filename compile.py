@@ -46,9 +46,6 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
 
     if cross_compile:
         configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
-
-    if verbose:
-        configure_string += space_args("-DCMAKE_VERBOSE_MAKEFILE=ON")
         
     if build_tests:
         configure_string += space_args("-DBUILD_TESTING:BOOL=ON")
@@ -69,8 +66,8 @@ def run_tests(bdir, verbose = False):
 
     if verbose:
         test_command += space_args("-V")
-    
-    test_command += space_args("-j %d" % (multiprocessing.cpu_count()))
+    else:
+        test_command += space_args("-j %d" % (multiprocessing.cpu_count()))
 
     retval = os.system(test_command)
     os.chdir(current_dir)
@@ -84,7 +81,6 @@ def main():
     parser.add_argument("--cross-compile", action="store_true", dest="cross", help="Option to cross compile for the target device")
     parser.add_argument("--build-type", action="store", dest="btype", choices=["Debug", "Release"], default ="Debug", help="String indicating the cmake build type")
     parser.add_argument("--source-dir", action="store", dest="sdir", default=os.getcwd(), help="name of directory that contains the top level CMakeLists.txt file")
-    parser.add_argument("--definitions", action="store", dest="defs", help="string of key-value pairs to be used for definitions. NOTE: NOT THOROUGHLY TESTED!", default="")
     parser.add_argument("--run-tests", action="store_true", dest="run_tests", help="option to build and run the automated tests as well as the project source")
     parser.add_argument("--build-tests", action="store_true", dest="make_tests", help="Option to build (but not run) tests")
     parser.add_argument("--rebuild", action="store_true", default=False, dest="clean", help="Option to build clean")

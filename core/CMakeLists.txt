@@ -42,6 +42,7 @@ add_subdirectory(magnetorquers)
 add_subdirectory(reaction_wheels)
 add_subdirectory(obc_interface)
 add_subdirectory(sun_sensors)
+add_subdirectory(accelerometer)
 
 # FIRMWARE EXECUTABLE 
 add_executable(${EXE})
@@ -49,6 +50,7 @@ target_sources(${EXE} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/main.c")
 target_link_libraries(${EXE} PRIVATE ADCS_JSONS)
 target_link_libraries(${EXE} PRIVATE ADCS_OBC_INTERFACE)
 target_link_libraries(${EXE} PRIVATE ADCS_SUN_SENSORS)
+target_link_libraries(${EXE} PRIVATE ADCS_ACCELEROMETER)
 
 if(NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(${EXE} PRIVATE ADCS_IF_EMU)

@@ -18,9 +18,9 @@
 #endif /* #if defined(TARGET_MCU) */
 
 
-sun_sensor_bearing_t get_bearing(void)
+sun_vector_t get_sun_vector(void)
 {
-    sun_sensor_bearing_t bearing;
+    sun_vector_t bearing;
     bearing.pitch = 0.0f;
     bearing.roll  = 0.0f;
     bearing.yaw   = 0.0f;

@@ -8,13 +8,15 @@ option(BUILD_TESTING "[ON/OFF] Build tests in addition to library" OFF)
 option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
 
 
+
+
 ################################################################################
 #  PROJECT INIT
 ################################################################################
 project(
-    ADCS_SUN_SENSORS
+    ADCS_ACCELEROMETER
     VERSION 1.0
-    DESCRIPTION "SUN SENSOR INTERFACE LIBRARY FOR ADCS FIRMWARE"
+    DESCRIPTION "EXAMPLE PROJECT FOR CMAKE PROJECT TEMPLATE REPOSITORY"
     LANGUAGES C CXX
 )
 
@@ -22,24 +24,22 @@ project(
 ################################################################################
 #  BUILD TYPE CHECK
 ################################################################################
-if(NOT CMAKE_PROJECT_NAME)
-    set(SUPPORTED_BUILD_TYPES "")
-    list(APPEND SUPPORTED_BUILD_TYPES "Debug")
-    list(APPEND SUPPORTED_BUILD_TYPES "Release")
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
-    if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
-    else()
-        if(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
-            message("Build type : ${CMAKE_BUILD_TYPE} is not a supported build type.")
-            message("Supported build types are:")
-            foreach(type ${SUPPORTED_BUILD_TYPES})
-                message("- ${type}")
-            endforeach(type ${SUPPORTED_BUILD_TYPES})
-            message(FATAL_ERROR "The configuration script will now exit.")
-        endif(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
-    endif(NOT CMAKE_BUILD_TYPE)
-endif(NOT CMAKE_PROJECT_NAME)
+set(SUPPORTED_BUILD_TYPES "")
+list(APPEND SUPPORTED_BUILD_TYPES "Debug")
+list(APPEND SUPPORTED_BUILD_TYPES "Release")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${SUPPORTED_BUILD_TYPES})
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type chosen by the user at configure time")
+else()
+    if(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
+        message("Build type : ${CMAKE_BUILD_TYPE} is not a supported build type.")
+        message("Supported build types are:")
+        foreach(type ${SUPPORTED_BUILD_TYPES})
+            message("- ${type}")
+        endforeach(type ${SUPPORTED_BUILD_TYPES})
+        message(FATAL_ERROR "The configuration script will now exit.")
+    endif(NOT CMAKE_BUILD_TYPE IN_LIST SUPPORTED_BUILD_TYPES)
+endif(NOT CMAKE_BUILD_TYPE)
 
 
 ################################################################################
@@ -93,9 +93,6 @@ target_compile_options(${LIB} PRIVATE "-Wshadow")
 
 
 
-
-
-
 ################################################################################
 # LINK AGAINST THE NECESSARY LIBRARIES 
 ################################################################################
@@ -105,26 +102,24 @@ else()
     target_link_libraries(${LIB} PRIVATE ADCS_DRIVERS)
 endif(NOT CMAKE_CROSSCOMPILING)
 
-
-
 ################################################################################
 # TEST CONFIGURATION
 ################################################################################
 if(BUILD_TESTING)
     enable_testing()
     include(CTest)
-    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
-        add_subdirectory(test)
-    endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+        add_subdirectory(tests)
+    endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 else()
     if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         add_compile_options("-Wall")
         add_compile_options("-Wextra")
         enable_testing()
         include(CTest)
-        if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
-            add_subdirectory(test)
-        endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+            add_subdirectory(tests)
+        endif(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
     endif()
 endif()
 

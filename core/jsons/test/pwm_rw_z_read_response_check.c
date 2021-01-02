@@ -26,11 +26,10 @@
 
 #define TKN_POOL_SIZE (250u)
 
-static jtok_parser_t p1;
-static jtok_tkn_t    tokens1[TKN_POOL_SIZE];
 
-static jtok_tkn_t    tokens2[TKN_POOL_SIZE];
-static jtok_parser_t p2;
+static jtok_tkn_t tokens1[TKN_POOL_SIZE];
+static jtok_tkn_t tokens2[TKN_POOL_SIZE];
+
 
 int main(void)
 {
@@ -52,20 +51,20 @@ int main(void)
         }
 
         snprintf(expect, sizeof(expect), "{\"pwm_rw_z\": %u }", pwm);
-        p1 = jtok_new_parser(expect);
 
         JTOK_PARSE_STATUS_t status;
-        status = jtok_parse(&p1, tokens1, TKN_POOL_SIZE);
-        if (status != JTOK_PARSE_STATUS_PARSE_OK)
+        status = jtok_parse(expect, tokens1, TKN_POOL_SIZE);
+        if (status != JTOK_PARSE_STATUS_OK)
         {
             printf("Parse of %s failed with status %d\n", expect, status);
             return status;
         }
         else
         {
-            p2     = jtok_new_parser((char *)OBC_MESSAGE_SIPHON_BUFFER);
-            status = jtok_parse(&p2, tokens2, TKN_POOL_SIZE);
-            if (status != JTOK_PARSE_STATUS_PARSE_OK)
+
+            status = jtok_parse((char *)OBC_MESSAGE_SIPHON_BUFFER, tokens2,
+                                TKN_POOL_SIZE);
+            if (status != JTOK_PARSE_STATUS_OK)
             {
                 printf("Parse of ADCS response : %s failed with status %d\n",
                        OBC_MESSAGE_SIPHON_BUFFER, status);
@@ -73,7 +72,7 @@ int main(void)
             }
             else
             {
-                if (jtok_toktokcmp(tokens1, tokens1, tokens2, tokens2))
+                if (jtok_toktokcmp(tokens1, tokens2))
                 {
                     printf("passed. Response was %s\n",
                            OBC_MESSAGE_SIPHON_BUFFER);

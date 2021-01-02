@@ -14,17 +14,17 @@ typedef struct
     float pitch;
     float yaw;
     float roll;
-} sun_sensor_bearing_t;
+} sun_vector_t;
 
 
 /**
- * @brief Get the current satellite bearing from sun sensors
+ * @brief Get the current satellite sun vector bearing from sun sensors
  *
- * @return sun_sensor_bearing_t the current satellite bearing
+ * @return sun_vector_t the current satellite bearing
  *
  * @todo NOT IMPLEMENTED YET
  */
-sun_sensor_bearing_t get_bearing(void);
+sun_vector_t get_sun_vector(void);
 
 
 #ifdef __cplusplus
