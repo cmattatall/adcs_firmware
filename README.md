@@ -42,6 +42,12 @@ For spacecraft with mission critical pointing requirements, Attitude Determinati
   <img src="https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/nadir.jpg?raw=true" alt="Sublime's custom image"/>
 </p>
 
+
+
+The primary purpose ot the ADCS system is to maintain the satellite's nadir pointing. There are several modes of operation for the system (Eclipsed, Detumbling, burnwire, and pointing). A gif of the detumbling mode in action has been produces from the orbital simulations of LORIS.
+
+![](https://github.com/cmattatall/adcs_firmware/blob/master/resources/captures/detumbling_sim.gif)
+
 # Firmware and Development Environment
 
 
