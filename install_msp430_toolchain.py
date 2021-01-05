@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 ################################################################################
 # @brief SCRIPT TO INSTALL THE MSP430 TOOLCHAIN AND UTILS ON YOUR SYSTEM       # 
 # @author: Carl Mattatall (cmattatall2@gmail.com)                              # 
