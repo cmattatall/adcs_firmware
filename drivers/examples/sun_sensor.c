@@ -2,8 +2,7 @@
  * @file sun_sensor.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Example executable to demonstrate reading from the sun sensor.
- *        Collects data via spi on UCB0 line, performs some minor
- *        processing and pumps it out UCA0 UART @ 9600 baud w/ 8n1
+ *        Collects data via spi on UCB0 line.
  * @version 0.1
  * @date 2021-01-08
  *
@@ -44,10 +43,6 @@ static int          spi_TX_bytes_loaded;
 static char         spi_TX_buf[250];
 static volatile int spi_TX_complete;
 
-#if 0
-static char uart_TX_buf[250];
-static char spi_TX_buf[250];
-#endif
 
 
 static void stop_watchdog(void);

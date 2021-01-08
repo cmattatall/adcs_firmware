@@ -35,7 +35,6 @@ else()
 endif()
 
 set(TOOLCHAIN_PREFIX "msp430-elf")
-set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 set(CMAKE_STATIC_LIBRARY_SUFFIX_C ".statlib")
 
 set(TOOLCHAIN_GCC_EXE ${TOOLCHAIN_PREFIX}-gcc)
@@ -179,6 +178,10 @@ function(add_executable executable)
     
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
     _add_executable(${executable} ${ARGN})
+
+    set(executable_output_name ${executable}.elf)
+    set_target_properties(${executable} PROPERTIES OUTPUT_NAME ${executable_output_name})
+
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
@@ -192,7 +195,7 @@ function(add_executable executable)
         POST_BUILD
         DEPENDS ${executable}
         COMMENT "Built executable ${elf_file} with the following size:"
-        COMMAND ${CMAKE_SIZE} -B "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}"
+        COMMAND ${CMAKE_SIZE} -B "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable_output_name}"
     )
 
     add_custom_command( 
@@ -200,7 +203,7 @@ function(add_executable executable)
         POST_BUILD
         DEPENDS ${executable}
         COMMENT "Producing a hex output using ${CMAKE_OBJCOPY}"
-        COMMAND ${CMAKE_OBJCOPY} -O ihex -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.hex"
+        COMMAND ${CMAKE_OBJCOPY} -O ihex -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable_output_name}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.hex"
     )
 
     add_custom_command( 
@@ -208,7 +211,7 @@ function(add_executable executable)
         POST_BUILD
         DEPENDS ${executable}
         COMMENT "Producing a binary output using ${CMAKE_OBJCOPY}"
-        COMMAND ${CMAKE_OBJCOPY} -O binary -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.bin"
+        COMMAND ${CMAKE_OBJCOPY} -O binary -I elf32-little "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable_output_name}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.bin"
     )
 
     add_custom_command( 
@@ -216,8 +219,9 @@ function(add_executable executable)
         POST_BUILD
         DEPENDS ${executable}
         COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
-        COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}$CACHE{CMAKE_EXECUTABLE_SUFFIX}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.lss"
+        COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable_output_name}" > "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${executable}.lss"
     )
+
 endfunction(add_executable executable)
 endif(NOT COMMAND _add_executable)
 
