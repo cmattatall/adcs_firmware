@@ -57,16 +57,16 @@ int main(void)
     TIMERA0_init();
     UCB0_SPI_init();
     enable_interrupts();
-    uint8_t msg[] = "Hello";
+    uint8_t msg[] = {0b10101010, '\0'};
     while (1)
     {
         if (timer_expired)
         {
             P1OUT ^= 0x01;
             timer_expired = 0;
-
-            SPI0_transmit_IT(msg, sizeof(msg));
         }
+
+        SPI0_transmit_IT(msg, sizeof(msg));
 
 
         if (spi_RX_complete)
@@ -203,13 +203,15 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     }
 
     /* TX interrupt. indicates when TXBUF can be written */
-    else if ((flags & UCTXIFG) == UCTXIFG)
+    if ((flags & UCTXIFG) == UCTXIFG)
     {
         if (!((UCB0STAT & UCBUSY) == UCBUSY))
         {
             if (spi_TX_count < spi_TX_bytes_loaded)
             {
-                if (UCB0STAT & UCOE)
+
+#if defined(CATCH_OVERRUN)
+                if ((UCB0STAT & UCOE) == UCOE) /* overrun error */
                 {
                     /* Transmit the missed byte if previous transmission overran
                      */
@@ -220,6 +222,9 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
                     /* Transmit the next byte */
                     UCB0TXBUF = spi_TX_buf[++spi_TX_count];
                 }
+#else
+                UCB0TXBUF = spi_TX_buf[++spi_TX_count];
+#endif /* CATCH_OVERRUN */
             }
             else
             {
