@@ -41,7 +41,6 @@ static volatile int  spi_RX_idx;
 static volatile int spi_TX_count;
 static int          spi_TX_bytes_loaded;
 static char         spi_TX_buf[250];
-static volatile int spi_TX_complete;
 
 
 static void stop_watchdog(void);
@@ -49,6 +48,7 @@ static void red_led_init(void);
 static void enable_interrupts(void);
 static void TIMERA0_init(void);
 static void UCB0_SPI_init(void);
+static int  SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
 
 
 int main(void)
@@ -58,6 +58,8 @@ int main(void)
     TIMERA0_init();
     UCB0_SPI_init();
     enable_interrupts();
+
+    uint8_t msg[] = "Hello";
     while (1)
     {
         if (timer_expired)
@@ -67,9 +69,7 @@ int main(void)
         }
 
 
-        if (spi_TX_complete)
-        {
-        }
+        SPI0_transmit_IT(msg, sizeof(msg));
 
 
         if (spi_RX_complete)
@@ -137,30 +137,29 @@ static void UCB0_SPI_init(void)
     /* Re-enable peripheral */
     UCB0CTL1 &= ~UCSWRST; /* Lock the peripheral control register config */
 
-    UCB0STAT &= ~UCLISTEN;
+    /* Configure alternate pin modes */
+    P3SEL |= BIT0; /* P3.0 will be used for MOSI */
+    P3SEL |= BIT1; /* P3.1 will be used for MISO */
+    P3SEL |= BIT2; /* P3.2 will be used for SPICLK */
+
+    /* Configure pin directions */
+    P3DIR |= BIT0;  /* set MOSI pin to output mode */
+    P3DIR &= ~BIT1; /* set MISO pin to input mode */
+    P3DIR |= BIT2;  /* set SPICLK pin to output mode */
+    P2DIR |= BIT3;  /* set CS pin to output mode */
+
+    P2DIR &= ~BIT3; /* set CS_other pin low to select chip */
+    P3OUT |= BIT1;
 
     /* Enable receive complete interrupt */
     UCB0IE |= UCRXIE;
-
-    /* Configure GPIO ports */
-    P3SEL = BIT0 | BIT1 | BIT2; // Configures SPI
-    P2OUT &= ~BIT2;             // select device
-    P3OUT |= BIT1;
-    P2OUT |= BIT2;
-    P2DIR |= BIT2;        // CONFIGURE CS FOR OUTPUT
-    P3DIR |= BIT0 | BIT2; // Set as outputs
-    P3DIR &= ~BIT1;
-
-    P2OUT &= ~BIT2; // Make CS Low
 }
 
 
-unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
+static int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 {
-    if (spi_TX_complete)
+    if (!(UCB0IE & UCTXIE))
     {
-        spi_TX_complete = 0;
-
         uint_fast16_t copy_len = len;
         if (len > sizeof(spi_TX_buf) / sizeof(*spi_TX_buf))
         {
@@ -177,21 +176,21 @@ unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
         UCB0TXBUF = spi_TX_buf[spi_TX_count];
         UCB0IE |= UCTXIE;
 
-        return copy_len; /* return number of bytes loaded into FIFO */
+        return 0;
     }
-    return 0;
+    return -1;
 }
 
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
     /* If receive interrupt is pending*/
-    if (UCB0IV & 0X02)
+    if (UCB0IV & UCRXIFG)
     {
         spi_RX_buf[spi_RX_idx] = UCB0RXBUF;
         spi_RX_idx++;
 
-        if (spi_RX_idx > sizeof(spi_RX_buf) / sizeof(*spi_RX_buf))
+        if (spi_RX_idx > (int)(sizeof(spi_RX_buf) / sizeof(*spi_RX_buf)))
         {
             spi_RX_complete = 1;
             spi_RX_idx      = 0;
@@ -199,7 +198,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     }
 
     /* TX interrupt. indicates when TXBUF can be written */
-    else if (UCB0IV & 0X04)
+    else if (UCB0IV & UCTXIFG)
     {
         if (!(UCB0STAT & UCBUSY))
         {
@@ -221,7 +220,6 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
             {
                 spi_TX_bytes_loaded = 0;
                 spi_TX_count        = 0;
-                spi_TX_complete     = 1;
 
                 /* Disable future SPI tx complete interrupts */
                 UCB0IE &= ~UCTXIE;
