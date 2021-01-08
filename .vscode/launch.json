@@ -86,8 +86,11 @@
         {   
             "description": "Path to the ELF file to debug (relative to workspace folder)",
             "id": "elf_file",
-            "type": "promptString",
-            "default": "adcs_executable.elf"
+            "type": "pickString",
+            "options": [
+                "adcs_executable.elf",
+                "drivers/examples/ADCS_DRIVERS_sun_sensor.elf",
+            ]
         },
 
         {

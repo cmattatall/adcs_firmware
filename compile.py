@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 ################################################################################
 # @brief python script to build the ADCS firmware platform independently
 # @author: Carl Mattatall (cmattatall2@gmail.com)
