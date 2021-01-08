@@ -58,7 +58,9 @@ int main(void)
     TIMERA0_init();
     UCB0_SPI_init();
     enable_interrupts();
-    uint8_t msg[] = {0b10101010, '\0'};
+
+    char     msg     = (char)0b01010101;
+    uint16_t msg_len = sizeof(msg);
     while (1)
     {
         if (timer_expired)
@@ -67,7 +69,7 @@ int main(void)
             timer_expired = 0;
         }
 
-        SPI0_transmit_IT(msg, sizeof(msg));
+        SPI0_transmit_IT(&msg, msg_len);
 
 
         if (spi_RX_complete)
@@ -126,9 +128,6 @@ static void UCB0_SPI_init(void)
     UCB0CTL0 |= UCSYNC;   /* Synchronous mode (transmit clock) */
 
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
-
-    UCB0STAT |= UCLISTEN;
-
 
     /* Configure bitrate registers */
     UCB0BR1 = 0x00;
