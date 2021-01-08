@@ -44,7 +44,6 @@ static char         spi_TX_buf[250];
 static volatile int spi_TX_complete;
 
 
-
 static void stop_watchdog(void);
 static void red_led_init(void);
 static void enable_interrupts(void);
@@ -180,6 +179,7 @@ unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 
         return copy_len; /* return number of bytes loaded into FIFO */
     }
+    return 0;
 }
 
 
