@@ -41,6 +41,7 @@ static volatile int  spi_RX_idx;
 static volatile int spi_TX_count;
 static int          spi_TX_bytes_loaded;
 static char         spi_TX_buf[250];
+static volatile int spi_TX_ready = 1;
 
 static void stop_watchdog(void);
 static void red_led_init(void);
@@ -122,7 +123,7 @@ static void UCB0_SPI_init(void)
     /* Configure control registers */
     UCB0CTL0 |= UCMST;    /* master mode */
     UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
-    // UCB0CTL0 |= UCSYNC;   /* Synchronous mode (transmit clock) */
+    UCB0CTL0 |= UCSYNC;   /* Synchronous mode (transmit clock) */
 
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
@@ -158,7 +159,7 @@ static void UCB0_SPI_init(void)
 
 static int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 {
-    if (!((UCB0IE & UCTXIE) == UCTXIE))
+    if (spi_TX_ready)
     {
         uint_fast16_t copy_len = len;
         if (len > sizeof(spi_TX_buf) / sizeof(*spi_TX_buf))
@@ -173,7 +174,9 @@ static int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 
         /* Load first byte into hardware, enable interrupts, let
          * ISR do the rest */
-        UCB0TXBUF = spi_TX_buf[spi_TX_count];
+        spi_TX_ready = 0;
+        UCB0TXBUF    = spi_TX_buf[spi_TX_count];
+
         UCB0IE |= UCTXIE;
 
         return 0;
@@ -203,7 +206,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     }
 
     /* TX interrupt. indicates when TXBUF can be written */
-    if ((flags & UCTXIFG) == UCTXIFG)
+    else if ((flags & UCTXIFG) == UCTXIFG)
     {
         if (!((UCB0STAT & UCBUSY) == UCBUSY))
         {
@@ -230,6 +233,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
             {
                 spi_TX_bytes_loaded = 0;
                 spi_TX_count        = 0;
+                spi_TX_ready        = 1;
 
                 /* Disable future SPI tx complete interrupts */
                 UCB0IE &= ~UCTXIE;
