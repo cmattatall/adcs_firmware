@@ -14,6 +14,17 @@
  *
  *  - also, on a related note, as of C11, bitfield ordering is still compiler
  *  and not target endianness dependent...
+ *
+ * PINOUT:
+ * *************************************
+ * MSP430                   SUN_SENSOR
+ * 5V --------------------------- 5V
+ * GND -------------------------- GND
+ * P3.0 (UCB0 MOSI) ------------- MOSI
+ * P3.1 (UCB0 MISO) ------------- MISO
+ * P3.2 (UCB0CLK) --------------- CLK
+ * P2.3 (SPICS_other)-------------CS
+ * NC                             3V3
  */
 #include <stdint.h>
 
