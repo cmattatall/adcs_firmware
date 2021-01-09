@@ -80,6 +80,7 @@ void SPI0_deinit(void)
     UCB0IFG &= ~(UCTXIFG | UCRXIFG);
 
     spi_rx_cb = NULL;
+
     log_trace("deitialized SPI on UCB0\n");
 }
 
