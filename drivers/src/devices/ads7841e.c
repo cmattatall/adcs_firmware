@@ -159,7 +159,7 @@ uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
 {
     uint16_t value = 0;
     uint8_t  ctrl_byte;
-    ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_PWRMODE_always_on, conv_mode);
+    ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_PWRMODE_inter_conv, conv_mode);
     SPI0_transmit_IT(&ctrl_byte, sizeof(ctrl_byte));
     return value;
 }
