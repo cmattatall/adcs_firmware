@@ -50,9 +50,9 @@ typedef enum
 static buffer_handle ADS_rx_buf_handle;
 
 
-static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
-                                        ADS7841_PWRMODE_t  mode,
-                                        ADS7841_CONVTYPE_t conv_type);
+static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
+                                 ADS7841_PWRMODE_t  mode,
+                                 ADS7841_CONVTYPE_t conv_type);
 
 static void ADS7841_receive_byte_internal(uint8_t byte);
 
@@ -86,9 +86,9 @@ void ADS7841_driver_deinit(void)
 }
 
 
-static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
-                                        ADS7841_PWRMODE_t  mode,
-                                        ADS7841_CONVTYPE_t conv_type)
+static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
+                                 ADS7841_PWRMODE_t  mode,
+                                 ADS7841_CONVTYPE_t conv_type)
 {
     uint8_t control_byte = 0;
 
@@ -158,12 +158,9 @@ static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
 uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
 {
     uint16_t value = 0;
-
-    uint8_t control_byte =
-        ADS7841_get_control_byte(ch, ADS7841_PWRMODE_inter_conv, conv_mode);
-
-    SPI0_transmit_IT(&control_byte, sizeof(control_byte));
-
+    uint8_t  ctrl_byte;
+    ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_PWRMODE_always_on, conv_mode);
+    SPI0_transmit_IT(&ctrl_byte, sizeof(ctrl_byte));
     return value;
 }
 
