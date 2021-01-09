@@ -51,7 +51,7 @@ static void my_receive_func(uint8_t byte)
 
 int main(void)
 {
-    SPI0_init(my_receive_func);
+    SPI0_init(my_receive_func, SPI_DIR_lsb, SPI_MODE_async);
     enable_interrupts();
 
     uint8_t  msg[]  = "Hello";

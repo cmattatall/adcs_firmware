@@ -31,7 +31,7 @@ static char         spi_TX_buf[250];
 static volatile int spi_TX_ready = 1;
 
 
-void SPI0_init(receive_func rx)
+void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
 {
     spi_rx_cb = rx;
 
@@ -40,7 +40,24 @@ void SPI0_init(receive_func rx)
     /* Configure control registers */
     UCB0CTL0 |= UCMST;    /* master mode */
     UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
-    UCB0CTL0 |= UCSYNC;   /* Synchronous mode (transmit clock) */
+
+    if (dir == SPI_DIR_msb)
+    {
+        UCB0CTL0 |= UCMSB;
+    }
+    else
+    {
+        UCB0CTL0 &= ~UCMSB;
+    }
+
+    if (mode == SPI_MODE_sync)
+    {
+        UCB0CTL0 |= UCSYNC;
+    }
+    else
+    {
+        UCB0CTL0 &= ~UCSYNC;
+    }
 
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 

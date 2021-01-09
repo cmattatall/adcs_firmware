@@ -76,7 +76,7 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
 void ADS7841_driver_init(void)
 {
     ADS_rx_buf_handle = bufferlib_ringbuf(10);
-    SPI0_init(ADS7841_receive_byte_internal);
+    SPI0_init(ADS7841_receive_byte_internal, SPI_DIR_msb, SPI_MODE_async);
 }
 
 void ADS7841_driver_deinit(void)
