@@ -1,3 +1,5 @@
+![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/loris.jpg?raw=true)
+
 # Table of Contents
 - [About the LORIS Project](#about-the-loris-project)
 - [What is an ADCS](#what-is-an-adcs)
@@ -30,7 +32,6 @@ Once deployed, LORIS will orbit the Earth in a low earth orbit (LEO) at an altit
 For more information, please visit
 https://dalorbits.ca/2019/07/01/loris-2021/
 
-![alt text](https://github.com/cmattatall/adcs_firmware/blob/dev/resources/images/loris.jpg?raw=true)
 
 
 # What is an ADCS
