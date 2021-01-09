@@ -89,6 +89,7 @@
             "type": "pickString",
             "options": [
                 "adcs_executable.elf",
+                "drivers/examples/ADCS_DRIVERS_ads7841_example.elf",
                 "drivers/examples/devices/ADCS_DRIVERS_sun_sensor.elf",
                 "drivers/examples/peripherals/ADCS_DRIVERS_blinky.elf",
                 "drivers/examples/peripherals/ADCS_DRIVERS_spi_example.elf",

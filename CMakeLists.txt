@@ -27,7 +27,9 @@ cmake_minimum_required(VERSION 3.16)
 #
 #
 ################################################################################
-option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" OFF)
+option(BUILD_TESTING "[ON/OFF] Boolean to choose to cross compile or not" ON)
+option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
+
 
 set(MSP430_MCU "msp430f5529" CACHE STRING "Lowercase MPN of target MCU. Used by msp430-elf-gcc" FORCE)
 

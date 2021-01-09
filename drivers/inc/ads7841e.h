@@ -25,6 +25,8 @@ typedef enum
 
 void ADS7841_driver_init(void);
 
+void ADS7841_driver_deinit(void);
+
 uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode);
 
 
