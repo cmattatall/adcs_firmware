@@ -148,6 +148,9 @@ static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
         break;
     }
 
+
+    control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
+
     return control_byte;
 }
 

@@ -26,12 +26,20 @@
  *   NC                             3V3
  ****************************************
  */
+#include <msp430.h>
 
 #include "ads7841e.h"
+
+
+static void enable_interrupts(void)
+{
+    _BIS_SR(GIE);
+}
 
 int main(void)
 {
     ADS7841_driver_init();
+    enable_interrupts();
 
     while (1)
     {
