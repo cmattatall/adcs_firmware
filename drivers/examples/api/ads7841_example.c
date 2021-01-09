@@ -5,25 +5,19 @@
  * @version 0.1
  * @date 2021-01-09
  *
- * @copyright Copyright (c) 2021 Carl Mattatall
+ * @copyright Copyright (c) 2021 DSS LORIS PROJECT
  *
  * @note
  * PINOUT:
  *  ***************************************
  *   MSP430                   SUN_SENSOR
  *   5V --------------------------- 5V
- *
  *   GND -------------------------- GND
- *
  *   P3.0 (UCB0 MOSI) ------------- MOSI
- *
  *   P3.1 (UCB0 MISO) ------------- MISO
- *
  *   P3.2 (UCB0CLK) --------------- CLK
- *
  *   P2.3 (SPICS_other)-------------CS
- *
- *   NC                             3V3
+ *   3.3V ------------------------- 3.3V
  ****************************************
  */
 #include <msp430.h>

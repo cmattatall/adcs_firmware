@@ -23,8 +23,8 @@
  * P3.0 (UCB0 MOSI) ------------- MOSI
  * P3.1 (UCB0 MISO) ------------- MISO
  * P3.2 (UCB0CLK) --------------- CLK
- * P2.3 (SPICS_other)-------------CS
- * NC                             3V3
+ * P2.3 (SPICS_other)------------ CS
+ * 3V3 -------------------------- 3V3
  */
 #include <stdint.h>
 
@@ -180,8 +180,9 @@ static void ADS7841_receive_byte_internal(uint8_t byte)
 {
     ADS_rx_buf_handle.write_next(ADS_rx_buf_handle.this, byte);
 
-    /** @todo DO SOME SORT OF CHECK DATA IS VALID SINCE THE SPI INTERFACE
-     * WORKS 1 BYTE AT A TIME, WE NEED TO MAINTAIN A STATE MACHINE IF
-     * WE'RE RECEIVING THE FIRST OR SECOND DATA BYTE FROM ADS
+    /** @todo DO SOME SORT OF CHECK WHETHER THE DATA IS VALID SINCE
+     * THE SPI INTERFACE WORKS 1 BYTE AT A TIME, WE NEED TO
+     * MAINTAIN A STATE MACHINE IF WE'RE RECEIVING THE FIRST OR SECOND DATA
+     * BYTE FROM ADS
      */
 }
