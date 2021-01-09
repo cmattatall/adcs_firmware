@@ -6,5 +6,148 @@
  * @date 2021-01-08
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
+ *
+ * @note THIS MODULE EXPLICITLY DOES NOT USE BITFIELDS BECAUSE THE
+ * __ANCIENT__ compiler that TI uses has known issues with the assembly it
+ * emits regarding padding / ordering of bitfields. PLEASE PLEASE PLEASE
+ * do not rewrite this to be clever and use bitfields
+ *
+ *  - also, on a related note, as of C11, bitfield ordering is still compiler
+ *  and not target endianness dependent...
  */
+#include <stdint.h>
+
+#include "ads7841e.h"
 #include "spi.h"
+
+#define CTL_START_POS (7u)
+#define CTL_START_MSK (1u << (CTL_START_POS))
+
+#define CTL_CHANNEL_POS (4u)
+#define CTL_CHANNEL_MSK ((7u) << (CTL_CHANNEL_POS))
+
+#define CTL_MODE_POS (3u)
+#define CTL_MODE_MSK (1u << (CTL_MODE_POS))
+#define CTL_MODE_8BIT ((1u << (CTL_MODE_POS)) & (CTL_MODE_MSK))
+#define CTL_MODE_12BIT ((0u << (CTL_MODE_POS)) & (CTL_MODE_MSK))
+
+#define CTL_SGL_POS (2u)
+#define CTL_SGL_MSK (1u << (CTL_SGL_POS))
+#define CTL_SGL_CONVERSION_SINGLE_ENDED ((1u << (CTL_SGL_POS)) & (CTL_SGL_MSK))
+#define CTL_SGL_CONVERSION_DIFFERENTIAL ((0u << (CTL_SGL_POS)) & (CTL_SGL_MSK))
+
+#define CTL_PWRMODE_POS (0)
+#define CTL_PWRMODE_MSK (2u << (CTL_PWRMODE_POS))
+
+typedef enum
+{
+    ADS7841_PWRMODE_inter_conv,
+    ADS7841_PWRMODE_always_on,
+} ADS7841_PWRMODE_t;
+
+
+static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
+                                        ADS7841_PWRMODE_t  mode,
+                                        ADS7841_CONVTYPE_t conv_type);
+
+
+/* See table 1 of page 9 datasheet.
+ * I have NO clue why they chose a bit mapping like this... */
+static const uint8_t ADS7841_CHANNEL_MAP[] = {
+    [ADS7841_CHANNEL_0] = (1 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
+    [ADS7841_CHANNEL_1] = (5 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
+    [ADS7841_CHANNEL_2] = (2 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
+    [ADS7841_CHANNEL_3] = (6 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
+};
+
+/* The manufacturer has a similarly idiotic bit layout for the power modes... */
+static const uint8_t ADS7841_PWRMODE_MAP[] = {
+    [ADS7841_PWRMODE_inter_conv] = ((0 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
+    [ADS7841_PWRMODE_always_on]  = ((3 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
+};
+
+
+void ADS7841_driver_init(void)
+{
+    
+}
+
+
+
+static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
+                                        ADS7841_PWRMODE_t  mode,
+                                        ADS7841_CONVTYPE_t conv_type)
+{
+    uint8_t control_byte = 0;
+
+    switch (channel)
+    {
+        case ADS7841_CHANNEL_0:
+        case ADS7841_CHANNEL_1:
+        case ADS7841_CHANNEL_2:
+        case ADS7841_CHANNEL_3:
+        {
+            control_byte |= ADS7841_CHANNEL_MAP[channel];
+        }
+        break;
+        default:
+        {
+            control_byte &= ~(CTL_CHANNEL_MSK);
+        }
+        break;
+    }
+
+    switch (mode)
+    {
+        case ADS7841_PWRMODE_inter_conv:
+        case ADS7841_PWRMODE_always_on:
+        {
+            control_byte |= ADS7841_PWRMODE_MAP[mode];
+        }
+        break;
+        default:
+        {
+            control_byte &= ~(CTL_PWRMODE_MSK);
+        }
+    }
+
+
+    /* We're only going to do single-ended conversions so just force
+     * the control byte into single mode */
+    control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED;
+
+    /** @note this is a bit hacky but whatever */
+    switch (conv_type)
+    {
+        case ADS7841_CONVTYPE_8:
+        {
+            control_byte |= CTL_MODE_8BIT;
+        }
+        break;
+        case ADS7841_CONVTYPE_12:
+        {
+            control_byte |= CTL_MODE_12BIT;
+        }
+        break;
+        default:
+        {
+            control_byte &= ~(CTL_MODE_MSK);
+        }
+        break;
+    }
+
+    return control_byte;
+}
+
+
+uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
+{
+    uint16_t value = 0;
+
+    uint8_t control_byte =
+        ADS7841_get_control_byte(ch, ADS7841_PWRMODE_inter_conv, conv_mode);
+
+    SPI0_transmit_IT(&control_byte, sizeof(control_byte));
+
+    return value;
+}

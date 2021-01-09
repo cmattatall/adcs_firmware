@@ -22,189 +22,142 @@
 #include <msp430.h>
 #include "spi.h"
 
-static uint8_t *         rx_outptr;
-static volatile uint8_t *rx_inptr;
-static uint8_t           rx_ringbuf[SPI_APPLICATION_BUFFER_SIZE];
-static volatile int      rx_complete_signal = SPI_SIGNAL_CLR;
+static receive_func spi_rx_cb;
 
 
-static uint8_t               tx_fifo[SPI_APPLICATION_BUFFER_SIZE];
-static volatile unsigned int tx_count;
-static unsigned int          tx_bytes_loaded;
-static volatile int          tx_complete_signal = SPI_SIGNAL_CLR;
+static volatile int spi_TX_count;
+static int          spi_TX_bytes_loaded;
+static char         spi_TX_buf[250];
+static volatile int spi_TX_ready = 1;
 
 
-void SPI0_init(volatile int **receive_signal_watcher,
-               volatile int **transmit_signal_watcher)
+void SPI0_init(receive_func rx)
 {
-    /* Configure receive interface */
-    rx_inptr           = rx_ringbuf;
-    rx_outptr          = rx_ringbuf;
-    tx_complete_signal = SPI_SIGNAL_CLR;
-    if (receive_signal_watcher != NULL)
-    {
-        *receive_signal_watcher = &rx_complete_signal;
-    }
-
-
-    /* Configure transmit interface */
-    tx_complete_signal = SPI_SIGNAL_SET;
-    tx_count           = 0;
-    tx_bytes_loaded    = 0;
-    if (transmit_signal_watcher != NULL)
-    {
-        *transmit_signal_watcher = &tx_complete_signal;
-    }
+    spi_rx_cb = rx;
 
     UCB0CTL1 |= UCSWRST; /* unlock ie: "reset" peripheral */
 
     /* Configure control registers */
-    UCB0CTL0 |= UCMST;    /* master */
-    UCB0CTL0 |= UCMODE_0; /* mode 0 */
-    UCB0CTL0 |= UCMSB;    /* receive via msb first */
-    UCB0CTL0 |= UCSYNC;   /* Select SPI mode */
-    UCB0CTL0 |= UCCKPH;   /* falling edge clock phase (default) */
-    UCB0CTL1 |= UCSSEL_2;
+    UCB0CTL0 |= UCMST;    /* master mode */
+    UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
+    UCB0CTL0 |= UCSYNC;   /* Synchronous mode (transmit clock) */
+
+    UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
     /* Configure bitrate registers */
     UCB0BR1 = 0x00;
     UCB0BR0 = 0x01;
 
     /* Re-enable peripheral */
-    UCB0CTL1 &= ~UCSWRST; /* Lock the peripheral control register config */
+    UCB0CTL1 &= ~UCSWRST;
 
-    UCB0STAT &= ~UCLISTEN;
+    /* Configure alternate pin modes */
+    P3SEL |= BIT0; /* P3.0 will be used for MOSI */
+    P3SEL |= BIT1; /* P3.1 will be used for MISO */
+    P3SEL |= BIT2; /* P3.2 will be used for SPICLK */
+
+    /* Configure pin directions */
+    P3DIR |= BIT0;  /* set MOSI pin to output mode */
+    P3DIR &= ~BIT1; /* set MISO pin to input mode */
+    P3DIR |= BIT2;  /* set SPICLK pin to output mode */
+    P2DIR |= BIT3;  /* set CS pin to output mode */
+
+    P2DIR &= ~BIT3; /* set CS_other pin low to select chip */
+    P3OUT |= BIT1;
 
     /* Enable receive complete interrupt */
     UCB0IE |= UCRXIE;
 
-    /* Configure GPIO ports */
-    P3SEL = BIT0 | BIT1 | BIT2; // Configures SPI
-    P2OUT &= ~BIT2;             // select device
-    P3OUT |= BIT1;
-    P2OUT |= BIT2;
-    P2DIR |= BIT2;        // CONFIGURE CS FOR OUTPUT
-    P3DIR |= BIT0 | BIT2; // Set as outputs
-    P3DIR &= ~BIT1;
-
-    P2OUT &= ~BIT2; // Make CS Low
-    log_trace("SPI 0 initialized!\n");
+    log_trace("initialized SPI on UCB0\n");
 }
 
-int SPI0_receive_payload(uint8_t *userbuf, uint16_t len)
+void SPI0_deinit(void)
 {
-    uint_fast16_t i           = 0;
-    uint_fast16_t delim_found = 0;
-    do
-    {
-        userbuf[i] = *rx_outptr;
-        rx_outptr++;
-        if (rx_outptr == &rx_ringbuf[sizeof(rx_ringbuf) - 1])
-        {
-            rx_outptr = rx_ringbuf;
-        }
+    /* Disable interrupts */
+    UCB0IE &= ~(UCRXIE | UCTXIE);
 
-        if (userbuf[i] == SPI_DELIM_CHAR)
-        {
-            delim_found = 1;
-            if (rx_complete_signal == SPI_SIGNAL_SET)
-            {
-                rx_complete_signal = SPI_SIGNAL_CLR;
-            }
-        }
+    /* Clear pending interrupt flags */
+    UCB0IFG &= ~(UCTXIFG | UCRXIFG);
 
-    } while (++i < len && !delim_found);
-
-    if (delim_found)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
+    spi_rx_cb = NULL;
+    log_trace("deitialized SPI on UCB0\n");
 }
 
 
-unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
+int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 {
-    /* Don't clobber ongoing transmission */
-    if (tx_complete_signal == SPI_SIGNAL_CLR)
+    if (spi_TX_ready && !(UCB0STAT & UCBUSY))
     {
-        return 0; /* failure */
-    }
-    else
-    {
-        /* Clear flag var */
-        tx_complete_signal = SPI_SIGNAL_CLR;
-
         uint_fast16_t copy_len = len;
-
-        /* Only load as much as we can fit */
-        if (len > sizeof(tx_fifo))
+        if (len > sizeof(spi_TX_buf) / sizeof(*spi_TX_buf))
         {
-            copy_len = sizeof(tx_fifo);
+            copy_len = sizeof(spi_TX_buf) / sizeof(*spi_TX_buf);
         }
 
-        memcpy(tx_fifo, bytes, copy_len); /** @todo TRANSFER VIA DMA */
-        tx_count        = 0;
-        tx_bytes_loaded = copy_len;
+        memcpy(spi_TX_buf, bytes, copy_len); /** @todo TRANSFER VIA DMA */
 
-        /* Load first byte and let ISR do the rest */
-        UCB0TXBUF = tx_fifo[tx_count];
+        spi_TX_count        = 0;
+        spi_TX_bytes_loaded = copy_len;
+
+        /* Load first byte into hardware, enable interrupts, let
+         * ISR do the rest */
+        spi_TX_ready = 0;
+        UCB0TXBUF    = spi_TX_buf[spi_TX_count];
+
         UCB0IE |= UCTXIE;
 
-
-        return copy_len; /* return number of bytes loaded into FIFO */
+        return 0;
     }
+    return -1;
 }
 
 
-__attribute__((used, interrupt(USCI_B0_VECTOR))) void USCI_B0_VECTOR_ISR(void)
+__interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
+    uint16_t flags = *(uint16_t *)&UCB0IV;
+
     /* If receive interrupt is pending*/
-    if (UCB0IV & 0X02)
+    if ((flags & UCRXIFG) == UCRXIFG)
     {
-        *rx_inptr = UCB0RXBUF;
-
-        /* If we've received the delimiter, signal application */
-        if (*rx_inptr == SPI_DELIM_CHAR)
+        if (!((UCB0STAT & UCBUSY) == UCBUSY))
         {
-            rx_complete_signal = SPI_SIGNAL_SET;
-        }
-
-        /* advance in-pointer for next incoming byte */
-        rx_inptr++;
-        if (rx_inptr == &rx_ringbuf[sizeof(rx_ringbuf) - 1])
-        {
-            rx_inptr = rx_ringbuf;
+            if (NULL != spi_rx_cb)
+            {
+                spi_rx_cb(UCB0RXBUF);
+            }
         }
     }
 
     /* TX interrupt. indicates when TXBUF can be written */
-    else if (UCB0IV & 0X04)
+    else if ((flags & UCTXIFG) == UCTXIFG)
     {
-        if (!(UCB0STAT & UCBUSY))
+        if (!((UCB0STAT & UCBUSY) == UCBUSY))
         {
-            if (tx_count < tx_bytes_loaded)
+            if (spi_TX_count < spi_TX_bytes_loaded)
             {
-                if (UCB0STAT & UCOE)
+#if defined(SPI0_CATCH_OVERRUN)
+                if ((UCB0STAT & UCOE) == UCOE) /* overrun error */
                 {
                     /* Transmit the missed byte if previous transmission overran
                      */
-                    UCB0TXBUF = tx_fifo[tx_count];
+                    UCB0TXBUF = spi_TX_buf[spi_TX_count];
                 }
                 else
                 {
                     /* Transmit the next byte */
-                    UCB0TXBUF = tx_fifo[++tx_count];
+                    UCB0TXBUF = spi_TX_buf[++spi_TX_count];
                 }
+#else
+                UCB0TXBUF = spi_TX_buf[++spi_TX_count];
+#endif /* CATCH_OVERRUN */
             }
             else
             {
-                tx_complete_signal = SPI_SIGNAL_SET;
-                tx_bytes_loaded    = 0;
-                tx_count           = 0;
+                spi_TX_bytes_loaded = 0;
+                spi_TX_count        = 0;
+                spi_TX_ready        = 1;
+
+                /* Disable future SPI tx complete interrupts */
                 UCB0IE &= ~UCTXIE;
             }
         }

@@ -9,18 +9,17 @@ extern "C"
 
 #if defined(TARGET_MCU)
 
+/* UNCOMMENT THIS IF TO CATCH OVERRUNS */
+/* #define SPI0_CATCH_OVERRUN */
+
 #include <stdint.h>
 
+#include "injection_api.h"
 
-#define SPI_APPLICATION_BUFFER_SIZE 500
-#define SPI_DELIM_CHAR '\0'
-#define SPI_SIGNAL_SET 1
-#define SPI_SIGNAL_CLR 0
+void SPI0_init(receive_func rx);
+void SPI0_deinit(void);
 
-void         SPI0_init(volatile int **receive_signal_watcher,
-                       volatile int **transmit_signal_watcher);
-int          SPI0_receive_payload(uint8_t *userbuf, uint16_t len);
-unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
+int SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
 
 #else
 

@@ -59,7 +59,7 @@ int main(void)
     UCB0_SPI_init();
     enable_interrupts();
 
-    char     msg     = (char)0b01010101;
+    uint8_t     msg     = (char)0b01010101;
     uint16_t msg_len = sizeof(msg);
     while (1)
     {
