@@ -123,6 +123,7 @@ if(CMAKE_CROSSCOMPILING)
     # LINK AGAINST THE NECESSARY LIBRARIES BELOW (USER CAN START ADDING STUFF NOW)
     ################################################################################
     target_link_libraries(${LIB} PUBLIC INJECTION_API)
+    target_link_libraries(${LIB} PRIVATE BUFFERLIB)
 
 endif(CMAKE_CROSSCOMPILING)
 

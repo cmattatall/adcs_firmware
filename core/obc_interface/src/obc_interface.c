@@ -50,7 +50,6 @@ static void OBC_IF_receive_byte_internal(uint8_t byte);
 static int OBC_IF_config_internal(rx_injector_func init, deinit_func deinit,
                                   transmit_func tx);
 
-
 static OBC_IF_fops   ops           = {NULL};
 static volatile bool OBC_IF_rxflag = false;
 static buffer_handle obc_buf_handle;
@@ -88,35 +87,6 @@ int OBC_IF_config(OBC_IF_PHY_CFG_t cfg_mode)
         break;
     }
     return retval;
-}
-
-static int OBC_IF_config_internal(rx_injector_func init, deinit_func deinit,
-                                  transmit_func tx)
-{
-    int status = 0;
-    ops.init   = init;
-    ops.deinit = deinit;
-    ops.tx     = tx;
-
-    obc_buf_handle = bufferlib_ringbuf(OBC_INTERFACE_BUFFER_SIZE);
-
-#if !defined(TARGET_MCU)
-    pthread_mutex_init(&OBC_IF_rxflag_lock, NULL);
-#endif /* !defined(TARGET_MCU) */
-
-    if (ops.init != NULL)
-    {
-        /* Inject LL comms protocol interface with OBC interface byte rx */
-        ops.init(OBC_IF_receive_byte_internal);
-    }
-
-    if (ops.tx == NULL)
-    {
-        status = 1;
-    }
-
-
-    return status;
 }
 
 
@@ -215,16 +185,6 @@ void OBC_IF_dataRxFlag_write(bool data_state)
 }
 
 
-static void OBC_IF_receive_byte_internal(uint8_t byte)
-{
-    obc_buf_handle.write_next(obc_buf_handle.this, byte);
-    if (byte == OBC_MSG_DELIM)
-    {
-        OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_SET);
-    }
-}
-
-
 /** @todo THIS FUNCTION IS SO GODDAMN UGLY BUT AT LEAST ITS WORKING - Carl */
 int OBC_IF_printf(const char *restrict fmt, ...)
 {
@@ -263,4 +223,43 @@ int OBC_IF_printf(const char *restrict fmt, ...)
     bytes_transmitted = OBC_IF_tx(obcTxBuf, msg_len);
     va_end(args);
     return bytes_transmitted;
+}
+
+
+static void OBC_IF_receive_byte_internal(uint8_t byte)
+{
+    obc_buf_handle.write_next(obc_buf_handle.this, byte);
+    if (byte == OBC_MSG_DELIM)
+    {
+        OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_SET);
+    }
+}
+
+
+static int OBC_IF_config_internal(rx_injector_func init, deinit_func deinit,
+                                  transmit_func tx)
+{
+    int status = 0;
+    ops.init   = init;
+    ops.deinit = deinit;
+    ops.tx     = tx;
+
+    obc_buf_handle = bufferlib_ringbuf(OBC_INTERFACE_BUFFER_SIZE);
+
+#if !defined(TARGET_MCU)
+    pthread_mutex_init(&OBC_IF_rxflag_lock, NULL);
+#endif /* !defined(TARGET_MCU) */
+
+    if (ops.init != NULL)
+    {
+        /* Inject LL comms protocol interface with OBC interface byte rx */
+        ops.init(OBC_IF_receive_byte_internal);
+    }
+
+    if (ops.tx == NULL)
+    {
+        status = 1;
+    }
+
+    return status;
 }

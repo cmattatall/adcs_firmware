@@ -18,6 +18,7 @@
 #include <stdint.h>
 
 #include "ads7841e.h"
+#include "bufferlib.h"
 #include "spi.h"
 
 #define CTL_START_POS (7u)
@@ -46,9 +47,14 @@ typedef enum
 } ADS7841_PWRMODE_t;
 
 
+static buffer_handle ADS_rx_buf_handle;
+
+
 static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
                                         ADS7841_PWRMODE_t  mode,
                                         ADS7841_CONVTYPE_t conv_type);
+
+static void ADS7841_receive_byte_internal(uint8_t byte);
 
 
 /* See table 1 of page 9 datasheet.
@@ -69,9 +75,8 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
 
 void ADS7841_driver_init(void)
 {
-    
+    SPI0_init(ADS7841_receive_byte_internal);
 }
-
 
 
 static uint8_t ADS7841_get_control_byte(ADS7841_CHANNEL_t  channel,
@@ -150,4 +155,15 @@ uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
     SPI0_transmit_IT(&control_byte, sizeof(control_byte));
 
     return value;
+}
+
+
+static void ADS7841_receive_byte_internal(uint8_t byte)
+{
+    ADS_rx_buf_handle.write_next(ADS_rx_buf_handle.this, byte);
+
+    /** @todo DO SOME SORT OF CHECK DATA IS VALID SINCE THE SPI INTERFACE
+     * WORKS 1 BYTE AT A TIME, WE NEED TO MAINTAIN A STATE MACHINE IF
+     * WE'RE RECEIVING THE FIRST OR SECOND DATA BYTE FROM ADS
+     */
 }
