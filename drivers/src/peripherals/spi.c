@@ -24,7 +24,7 @@
 
 static receive_func spi_rx_cb;
 
-static void transmit_byte(uint8_t byte);
+static void transmit_byte_INTERNAL(uint8_t byte);
 
 void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
 {
@@ -102,16 +102,23 @@ static volatile uint8_t *    txbuf;
 int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 {
     CONFIG_ASSERT(bytes != NULL);
-    if ((UCB0IE & UCTXIE) != UCTXIE)
+    if (txbuf == NULL)
     {
         tx_count     = 0;
         tx_count_max = len;
         txbuf        = bytes;
-        transmit_byte(txbuf[tx_count]);
+        transmit_byte_INTERNAL(txbuf[tx_count]);
         return 0;
     }
     return -1;
 }
+
+
+int SPI0_transmit_byte(uint8_t byte)
+{
+    transmit_byte_INTERNAL(byte);
+}
+
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
@@ -119,12 +126,6 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     {
         case 0x02: /* receive interrupt pending */
         {
-            /* Wait until TX buffer is ready again
-             * (it should ideally already be) */
-            while (!(UCB0IFG & UCTXIFG))
-            {
-            }
-
             if (NULL != spi_rx_cb)
             {
                 spi_rx_cb(UCB0RXBUF);
@@ -133,7 +134,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
             if (txbuf != NULL)
             {
                 tx_count++;
-                transmit_byte(txbuf[tx_count]);
+                transmit_byte_INTERNAL(txbuf[tx_count]);
 
                 if (tx_count == tx_count_max)
                 {
@@ -146,7 +147,12 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 }
 
 
-static void transmit_byte(uint8_t byte)
+static void transmit_byte_INTERNAL(uint8_t byte)
 {
+    /* Wait until TX buffer is ready again
+     * (it should ideally already be) */
+    while (!(UCB0IFG & UCTXIFG))
+    {
+    }
     UCB0TXBUF = byte;
 }

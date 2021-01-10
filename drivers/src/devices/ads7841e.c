@@ -177,7 +177,14 @@ uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
     */
 
     uint8_t blah[] = {0, 0, 0};
-    SPI0_transmit_IT(blah, sizeof(blah));
+    // SPI0_transmit_IT(blah, sizeof(blah));
+
+    int i;
+    for (i = 0; i < 3; i++)
+    {
+        SPI0_transmit_byte(blah[i]);
+    }
+
     return value;
 }
 

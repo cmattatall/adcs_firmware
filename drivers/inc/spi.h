@@ -33,6 +33,8 @@ void SPI0_deinit(void);
 
 int SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
 
+int SPI0_transmit_byte(uint8_t byte);
+
 #else
 
 #error USE OF MEMORY MAPPED PERIPHERALS ON A VIRTUAL MEMORY NATIVE MACHINE IS NOT PERMITTED
