@@ -24,7 +24,7 @@ static char         spi_TX_buf[250];
 static volatile int spi_TX_ready = 1;
 
 static void UCB0_SPI_init(void);
-static int  SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
+static int  SPI0_transmit(uint8_t *bytes, uint16_t len);
 static void example_init(void);
 
 
@@ -43,7 +43,7 @@ int main(void)
             timer_expired = 0;
         }
 
-        SPI0_transmit_IT(msg, msg_len);
+        SPI0_transmit(msg, msg_len);
 
 
         if (spi_RX_complete)
@@ -118,7 +118,7 @@ static void example_init(void)
 }
 
 
-static int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
+static int SPI0_transmit(uint8_t *bytes, uint16_t len)
 {
     if (spi_TX_ready)
     {

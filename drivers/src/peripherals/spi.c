@@ -95,19 +95,16 @@ void SPI0_deinit(void)
 }
 
 
-static volatile unsigned int tx_count;
-static volatile unsigned int tx_count_max;
-static volatile uint8_t *    txbuf;
-
-int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
+int SPI0_transmit(uint8_t *bytes, uint16_t len)
 {
     CONFIG_ASSERT(bytes != NULL);
-    if (txbuf == NULL)
+    if (bytes != NULL)
     {
-        tx_count     = 0;
-        tx_count_max = len;
-        txbuf        = bytes;
-        transmit_byte_INTERNAL(txbuf[tx_count]);
+        unsigned int i;
+        for (i = 0; i < len; i++)
+        {
+            transmit_byte_INTERNAL(bytes[i]);
+        }
         return 0;
     }
     return -1;
@@ -130,17 +127,6 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
             {
                 spi_rx_cb(UCB0RXBUF);
             }
-
-            if (txbuf != NULL)
-            {
-                tx_count++;
-                transmit_byte_INTERNAL(txbuf[tx_count]);
-
-                if (tx_count == tx_count_max)
-                {
-                    txbuf = NULL;
-                }
-            }
         }
         break;
     }
@@ -149,10 +135,10 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 
 static void transmit_byte_INTERNAL(uint8_t byte)
 {
-    /* Wait until TX buffer is ready again
-     * (it should ideally already be) */
     while (!(UCB0IFG & UCTXIFG))
     {
+        /* Wait until TX buffer is ready again
+         * (it should ideally already be) */
     }
     UCB0TXBUF = byte;
 }
