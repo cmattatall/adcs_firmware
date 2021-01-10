@@ -6,7 +6,7 @@
  * @date 2021-01-09
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
- * 
+ *
  * @note
  * PINOUT:
  * ***************************************
@@ -39,6 +39,11 @@ static void enable_interrupts(void)
     _BIS_SR(GIE);
 }
 
+static void stop_watchdog(void)
+{
+    WDTCTL = WDTPW + WDTHOLD; // Stop WDT
+}
+
 static void my_receive_func(uint8_t byte)
 {
     rx_buf[buffer_idx] = byte;
@@ -51,14 +56,15 @@ static void my_receive_func(uint8_t byte)
 
 int main(void)
 {
+    stop_watchdog();
     SPI0_init(my_receive_func, SPI_DIR_lsb, SPI_MODE_async);
     enable_interrupts();
 
-    uint8_t  msg[]  = "Hello";
+    uint8_t  msg[]  = "123";
     uint16_t msglen = sizeof(msg) / sizeof(*msg);
 
     while (1)
     {
-        SPI0_transmit_IT(msg, msglen);
+        SPI0_transmit_IT((uint8_t)1, 1);
     }
 }

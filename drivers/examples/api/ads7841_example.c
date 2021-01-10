@@ -24,19 +24,59 @@
 
 #include "ads7841e.h"
 
+static volatile int timer_expired = 0;
+
+__interrupt_vec(TIMER0_A0_VECTOR) void Timer_A(void)
+{
+    timer_expired = 1;
+}
+
+
+static void stop_watchdog(void)
+{
+    WDTCTL = WDTPW + WDTHOLD; // Stop WDT
+}
+
+
+static void red_led_init(void)
+{
+    P1DIR |= 0x01; // Set P1.0 to output direction
+}
 
 static void enable_interrupts(void)
 {
-    _BIS_SR(GIE);
+    _BIS_SR(GIE); // Enter LPM0 w/ interrupt
+}
+
+
+static void TIMERA0_init(void)
+{
+    TA0CTL &= ~(ID0 | ID1);
+    TA0CTL |= ID_3; /* input prescaler to 8 */
+    TA0EX0 &= ~(TAIDEX0 | TAIDEX1 | TAIDEX2);
+    TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
+    TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
+    TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
+    TA0CCR0  = 50000;
 }
 
 int main(void)
 {
-    ADS7841_driver_init();
-    enable_interrupts();
+    stop_watchdog();
+    red_led_init();
+    TIMERA0_init();
 
+    ADS7841_driver_init();
+
+    enable_interrupts();
     while (1)
     {
-        uint16_t val = ADS7841_get_conv(ADS7841_CHANNEL_0, ADS7841_CONVTYPE_12);
+        if (timer_expired)
+        {
+            P1OUT ^= 0x01; /* blink onboard led  */
+            uint16_t val;
+            val = ADS7841_get_conv(ADS7841_CHANNEL_0, ADS7841_CONVTYPE_12);
+            timer_expired = 0;
+        }
     }
 }

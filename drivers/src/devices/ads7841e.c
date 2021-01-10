@@ -169,9 +169,15 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
 {
     uint16_t value = 0;
+    /*
     uint8_t  ctrl_byte;
     ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_PWRMODE_inter_conv, conv_mode);
-    SPI0_transmit_IT(&ctrl_byte, sizeof(ctrl_byte));
+    uint8_t msg[] = {ctrl_byte, 0, 0, 0};
+    SPI0_transmit_IT(msg, sizeof(msg));
+    */
+
+    uint8_t blah[] = {0, 0, 0};
+    SPI0_transmit_IT(blah, sizeof(blah));
     return value;
 }
 
