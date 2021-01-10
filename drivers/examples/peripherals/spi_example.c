@@ -6,6 +6,11 @@
  * @date 2021-01-08
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
+ *
+ * @note this example leaves much to be desired. In particular, the processing
+ * in the ISR. The primary purpose of this source module was a playground
+ * to test errata relating to the configuration/operation of the spi peripheral
+ * through UCB0.
  */
 
 #include <msp430.h>
