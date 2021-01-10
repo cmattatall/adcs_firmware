@@ -80,21 +80,17 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
     P2DIR &= ~BIT3; /* set CS_other pin low to select chip */
     P3OUT |= BIT1;
 
-    UCB0IE |= UCRXIE;
+    UCB0IE |= UCRXIE; /* Enable receive interrupt */
 
     log_trace("initialized SPI on UCB0\n");
 }
 
 void SPI0_deinit(void)
 {
-    /* Disable interrupts */
-    UCB0IE &= ~(UCRXIE | UCTXIE);
 
-    /* Clear pending interrupt flags */
-    UCB0IFG &= ~(UCTXIFG | UCRXIFG);
-
-    spi_rx_cb = NULL;
-
+    UCB0IE &= ~(UCRXIE | UCTXIE);    /* Disable interrupts */
+    UCB0IFG &= ~(UCTXIFG | UCRXIFG); /* Clear pending interrupt flags */
+    spi_rx_cb = NULL;                /* Reset callback */
     log_trace("deitialized SPI on UCB0\n");
 }
 
@@ -112,82 +108,45 @@ int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
         tx_count_max = len;
         txbuf        = bytes;
         transmit_byte(txbuf[tx_count]);
-
-        /* Only need interrupt cb if we're transmitting more than 1 byte */
-        if (len > 1)
-        {
-            UCB0IE |= UCTXIE;
-        }
-        else
-        {
-            UCB0IE &= ~UCTXIE;
-        }
-
         return 0;
     }
-
     return -1;
 }
 
-/** @note datasheet is SUPER unclear on whether UCBxIFG or UCBxIV should
- * be read to determine cause of interrupt... */
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
-    /* And this is yet another reason why TI makes terrible software...
-     * I REALLY have to take their macro (which casts away the register addr)
-     * , re-cast it to uint16, bracket it properly so that the read/write
-     * doesn't get elided by the compiler
-     * JUST so I can get the value of the register in my current stackframe
-     * (in a temp reg)
-     *
-     * *(uint16_t *)&UCB0IFG will NOT work when optimizations are enabled
-     *
-     * *(uint16_t*)(&UCB0IFG) does work because the volatile qualifier
-     * doesn't get elided...
-     *
-     * I swear to god, some of these chipset companies are stuck in 1995...
-     */
-    uint16_t flags = (uint16_t)(*(volatile uint16_t *)(&UCB0IFG));
-
-#if 0
-    if ((flags & UCRXIFG) == UCRXIFG)
+    switch (__even_in_range(UCB0IV, 4))
     {
-        if (NULL != spi_rx_cb)
+        case 0x02: /* receive interrupt pending */
         {
-            spi_rx_cb(UCB0RXBUF);
-        }
-    }
-#endif
+            /* Wait until TX buffer is ready again
+             * (it should ideally already be) */
+            while (!(UCB0IFG & UCTXIFG))
+            {
+            }
 
-    if ((flags & UCTXIFG) == UCTXIFG)
-    {
-        transmit_byte(txbuf[++tx_count]);
+            if (NULL != spi_rx_cb)
+            {
+                spi_rx_cb(UCB0RXBUF);
+            }
 
-        if (tx_count == tx_count_max)
-        {
-            UCB0IE &= ~UCTXIE;
+            if (txbuf != NULL)
+            {
+                tx_count++;
+                transmit_byte(txbuf[tx_count]);
+
+                if (tx_count == tx_count_max)
+                {
+                    txbuf = NULL;
+                }
+            }
         }
+        break;
     }
 }
 
 
 static void transmit_byte(uint8_t byte)
 {
-    int timeout = 0;
-    while ((UCB0STAT & UCBUSY) == UCBUSY)
-    {
-        if (timeout > 1000)
-        {
-            /* Sadly, this is just a failsafe to prevent deadlock or missed
-             * deadlines. If we're actually reaching a machine state where
-             * we hang, there's really not much we can do to recover the missed
-             * transmission data.
-             *
-             * Perhaps we can implement some sort of error handler callback
-             * registration that we expose to call application transmit site?
-             * */
-            return;
-        }
-    }
     UCB0TXBUF = byte;
 }

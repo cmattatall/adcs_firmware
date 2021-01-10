@@ -23,21 +23,15 @@ static int          spi_TX_bytes_loaded;
 static char         spi_TX_buf[250];
 static volatile int spi_TX_ready = 1;
 
-static void stop_watchdog(void);
-static void red_led_init(void);
-static void enable_interrupts(void);
-static void TIMERA0_init(void);
 static void UCB0_SPI_init(void);
 static int  SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
+static void example_init(void);
 
 
 int main(void)
 {
-    stop_watchdog();
-    red_led_init();
-    TIMERA0_init();
+    example_init();
     UCB0_SPI_init();
-    enable_interrupts();
 
     uint8_t  msg[]   = "Hello World!!";
     uint16_t msg_len = sizeof(msg);
@@ -66,35 +60,6 @@ int main(void)
 __interrupt_vec(TIMER0_A0_VECTOR) void Timer_A(void)
 {
     timer_expired = 1;
-}
-
-
-static void stop_watchdog(void)
-{
-    WDTCTL = WDTPW + WDTHOLD; // Stop WDT
-}
-
-
-static void red_led_init(void)
-{
-    P1DIR |= 0x01; // Set P1.0 to output direction
-}
-
-static void enable_interrupts(void)
-{
-    _BIS_SR(GIE);
-}
-
-
-static void TIMERA0_init(void)
-{
-    TA0CTL &= ~(ID0 | ID1);
-    TA0CTL |= ID_3; /* input prescaler to 8 */
-    TA0EX0 &= ~(TAIDEX0 | TAIDEX1 | TAIDEX2);
-    TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
-    TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
-    TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
-    TA0CCR0  = 50000;
 }
 
 
@@ -133,6 +98,23 @@ static void UCB0_SPI_init(void)
 
     /* Enable receive complete interrupt */
     UCB0IE |= UCRXIE;
+}
+
+static void example_init(void)
+{
+    WDTCTL = WDTPW + WDTHOLD; /* Stop WDT */
+    P1DIR |= 0x01;            /* Set P1.0 to output direction */
+
+    /* Configure timer A0 to generate compare interrupt ~ once per sec */
+    TA0CTL &= ~(ID0 | ID1);
+    TA0CTL |= ID_3; /* input prescaler to 8 */
+    TA0EX0 &= ~(TAIDEX0 | TAIDEX1 | TAIDEX2);
+    TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
+    TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
+    TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
+    TA0CCR0  = 50000;
+
+    _BIS_SR(GIE); /* enable interrupts */
 }
 
 
