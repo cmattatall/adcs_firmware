@@ -20,20 +20,20 @@ typedef enum
 {
     SPI_DIR_lsb,
     SPI_DIR_msb,
-}   SPI_DIR_t;
+} SPI_DIR_t;
 
 typedef enum
 {
     SPI_MODE_sync,
     SPI_MODE_async,
-}   SPI_MODE_t;
+} SPI_MODE_t;
 
 void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode);
 void SPI0_deinit(void);
 
 int SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
 
-int SPI0_transmit_byte(uint8_t byte);
+void SPI0_transmit_byte(uint8_t byte);
 
 #else
 

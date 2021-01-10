@@ -114,7 +114,7 @@ int SPI0_transmit_IT(uint8_t *bytes, uint16_t len)
 }
 
 
-int SPI0_transmit_byte(uint8_t byte)
+void SPI0_transmit_byte(uint8_t byte)
 {
     transmit_byte_INTERNAL(byte);
 }
