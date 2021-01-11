@@ -244,7 +244,7 @@ static int OBC_IF_config_internal(rx_injector_func init, deinit_func deinit,
     ops.deinit = deinit;
     ops.tx     = tx;
 
-    obc_buf_handle = bufferlib_ringbuf(OBC_INTERFACE_BUFFER_SIZE);
+    obc_buf_handle = bufferlib_ringbuf_new(OBC_INTERFACE_BUFFER_SIZE);
 
 #if !defined(TARGET_MCU)
     pthread_mutex_init(&OBC_IF_rxflag_lock, NULL);

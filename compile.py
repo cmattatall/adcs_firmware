@@ -49,7 +49,11 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
         configure_string += space_args("-DCMAKE_TOOLCHAIN_FILE=\"%s\"" % (toolchain_file))
         
     if build_tests:
-        configure_string += space_args("-DBUILD_TESTING:BOOL=ON")
+        if not cross_compile:
+            # test executables typically cannot fit on an mcu
+            configure_string += space_args("-DBUILD_TESTING:BOOL=ON")
+        else:
+            configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
     else:
         configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
 
