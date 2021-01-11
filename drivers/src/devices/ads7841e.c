@@ -26,7 +26,13 @@
  * P2.3 (SPICS_other)------------ CS
  * 3V3 -------------------------- 3V3
  */
+
+#if !defined(TARGET_MCU)
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+#endif /* !defined(TARGET_MCU) */
+
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "ads7841e.h"
 #include "bufferlib.h"
@@ -50,6 +56,10 @@
 
 #define CTL_PWRMODE_POS (0)
 #define CTL_PWRMODE_MSK (2u << (CTL_PWRMODE_POS))
+
+#define ADS7841_BITMASK12 (0x0FFF)
+#define ADS7841_BITMASK8 (0x00FF)
+
 
 typedef enum
 {
@@ -86,7 +96,7 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
 
 void ADS7841_driver_init(void)
 {
-    ADS_rx_buf_handle = bufferlib_ringbuf_new(10);
+    ADS_rx_buf_handle = bufferlib_ringbuf_new(4);
     SPI0_init(ADS7841_receive_byte_internal, SPI_DIR_msb, SPI_MODE_async);
 }
 
@@ -168,11 +178,33 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 
 uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
 {
-    uint16_t value = 0;
-    uint8_t  ctrl_byte;
+    uint8_t ctrl_byte;
     ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_PWRMODE_inter_conv, conv_mode);
-    uint8_t msg[] = {ctrl_byte, 0, 0, 0};
+    uint8_t msg[] = {ctrl_byte, 0, 0};
     SPI0_transmit(msg, sizeof(msg));
+
+    uint8_t lo_byte;
+    uint8_t hi_byte;
+    lo_byte        = ADS_rx_buf_handle.read_next(ADS_rx_buf_handle.this);
+    hi_byte        = ADS_rx_buf_handle.read_next(ADS_rx_buf_handle.this);
+    uint16_t value = (hi_byte << CHAR_BIT) | lo_byte;
+    switch (conv_mode)
+    {
+        case ADS7841_CONVTYPE_8:
+        {
+            value &= ADS7841_BITMASK8;
+        }
+        break;
+        case ADS7841_CONVTYPE_12:
+        {
+            value &= ADS7841_BITMASK12;
+        }
+        break;
+        default:
+        {
+        }
+        break;
+    }
     return value;
 }
 
