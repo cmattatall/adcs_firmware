@@ -7,7 +7,7 @@
             "type": "shell",
             "group": "test",
             "command" : "mspdebug tilib 'prog ${workspaceFolder}/build/${input:elf_file}'",
-            //"dependsOn" : ["Build target"],
+            "dependsOn" : ["Build target"],
             "dependsOrder": "sequence",
             "presentation": {
                 "echo": true,
@@ -47,7 +47,7 @@
             "detail": "Build the project for a target device",
             "group": "build",
             "type": "shell",
-            "command" : "python3 ./compile.py --cross-compile --build-type=${input:build_type} --rebuild",
+            "command" : "python3 ./compile.py --cross-compile --build-type=${input:build_type} --rebuild --build-examples --build-tests",
             "problemMatcher": [
                 "$gcc"
             ],
