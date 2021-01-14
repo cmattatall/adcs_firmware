@@ -65,7 +65,6 @@ int main(void)
     stop_watchdog();
     red_led_init();
     TIMERA0_init();
-
     ADS7841_driver_init();
 
     enable_interrupts();

@@ -27,7 +27,7 @@ def space_args(string):
     return " " + str(string) + " "
 
 
-def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_tests=False, verbose=False):
+def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_tests=False, verbose=False, build_examples=False):
 
     configure_string = space_args("cmake")
 
@@ -56,6 +56,11 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
             configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
     else:
         configure_string += space_args("-DBUILD_TESTING:BOOL=OFF")
+
+    if build_examples:
+        configure_string += space_args("-DBUILD_EXAMPLES:BOOL=ON")
+    else:
+        configure_string += space_args("-DBUILD_EXAMPLES:BOOL=OFF")
 
     return os.system(configure_string)
 
@@ -91,6 +96,7 @@ def main():
     parser.add_argument("--rebuild", action="store_true", default=False, dest="clean", help="Option to build clean")
     parser.add_argument("--build-dir", action="store", default="build", dest="bdir", help="String for the build directory")
     parser.add_argument("--verbose", action="store_true", default=False, dest="verbose", help="Option to emit verbose information during configuration, build, and test steps")
+    parser.add_argument("--build-examples", action="store_true", default=False, dest="build_examples", help="Option to build the usage and API examples for link libraries as well as the core exectuable")
 
     args=parser.parse_args()
 
@@ -118,7 +124,7 @@ def main():
                         print("COULD NOT CREATE DIRECTORY %s" % (args.bdir))
                     exit(1)
 
-    if 0 != configure(sdir=args.sdir, bdir=args.bdir,cross_compile=args.cross, btype=args.btype, build_tests=args.make_tests, verbose=args.verbose):
+    if 0 != configure(sdir=args.sdir, bdir=args.bdir,cross_compile=args.cross, btype=args.btype, build_tests=args.make_tests, verbose=args.verbose, build_examples=args.build_examples):
         if args.verbose:
             print("\nError configuring project!\n")
         exit(-1)

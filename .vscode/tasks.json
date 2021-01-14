@@ -7,7 +7,7 @@
             "type": "shell",
             "group": "test",
             "command" : "mspdebug tilib 'prog ${workspaceFolder}/build/${input:elf_file}'",
-            "dependsOn" : ["Build target"],
+            //"dependsOn" : ["Build target"],
             "dependsOrder": "sequence",
             "presentation": {
                 "echo": true,
