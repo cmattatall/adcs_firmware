@@ -36,6 +36,9 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
     UCB0CTL0 |= UCMST;    /* master mode */
     UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
 
+    // UCB0CTL0 |= UCCKPH; /* set clock phase */
+    UCB0CTL0 |= UCCKPL; /* Default clock level is high */
+
     if (dir == SPI_DIR_msb)
     {
         UCB0CTL0 |= UCMSB;
@@ -61,7 +64,7 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
 
     /* Configure bitrate registers */
     UCB0BR0 |= 0x00;
-    UCB0BR1 |= 0x01;
+    UCB0BR1 |= 0x40;
 
     /* Re-enable peripheral */
     UCB0CTL1 &= ~UCSWRST;
@@ -80,7 +83,7 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
     P2DIR &= ~BIT3; /* set CS_other pin low to select chip */
     P3OUT |= BIT1;
 
-    UCB0IE |= UCRXIE; /* Enable receive interrupt */
+    SPI0_enable_interrupt(SPI_IRQ_rx);
 
     log_trace("initialized SPI on UCB0\n");
 }
@@ -111,9 +114,49 @@ int SPI0_transmit(uint8_t *bytes, uint16_t len)
 }
 
 
-void SPI0_transmit_byte(uint8_t byte)
+
+
+void SPI0_enable_interrupt(SPI_IRQ_t irq)
 {
-    transmit_byte_INTERNAL(byte);
+    switch (irq)
+    {
+        case SPI_IRQ_rx:
+        {
+            UCB0IE |= UCRXIE;
+        }
+        break;
+        case SPI_IRQ_tx:
+        {
+            UCB0IE |= UCTXIE;
+        }
+        break;
+        default:
+        {
+        }
+        break;
+    }
+}
+
+
+void SPI0_disable_interrupt(SPI_IRQ_t irq)
+{
+    switch (irq)
+    {
+        case SPI_IRQ_rx:
+        {
+            UCB0IE &= ~UCRXIE;
+        }
+        break;
+        case SPI_IRQ_tx:
+        {
+            UCB0IE &= ~UCTXIE;
+        }
+        break;
+        default:
+        {
+        }
+        break;
+    }
 }
 
 

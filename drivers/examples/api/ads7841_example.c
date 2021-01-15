@@ -70,11 +70,11 @@ int main(void)
     enable_interrupts();
     while (1)
     {
-        if (timer_count)
+        if (timer_count == 3)
         {
             P1OUT ^= 0x01; /* blink onboard led  */
             uint16_t val;
-            val = ADS7841_get_conv(ADS7841_CHANNEL_0, ADS7841_CONVTYPE_12);
+            val = ADS7841_get_conv(ADS7841_CHANNEL_3, ADS7841_CONVTYPE_12);
             timer_count = 0;
         }
     }
