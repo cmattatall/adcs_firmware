@@ -31,6 +31,7 @@
 #error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
 #endif /* !defined(TARGET_MCU) */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -61,14 +62,20 @@
 #define ADS7841_BITMASK8 (0x00FF)
 
 
-typedef enum
+#define ADS7841_OVERSAMPLE_COUNT 50
+
+static struct
 {
-    ADS7841_PWRMODE_inter_conv,
-    ADS7841_PWRMODE_always_on,
-} ADS7841_PWRMODE_t;
+    ADS7841_PWRMODE_t  power_mode;
+    ADS7841_CONVTYPE_t conv_type;
+    uint16_t           sample_mask;
+} ADS7841_cfg;
 
-
-static buffer_handle ADS_rx_buf_handle;
+static union
+{
+    uint8_t  bytes[2];
+    uint16_t conv_val;
+} conv_sample_holder;
 
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
@@ -76,6 +83,9 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_CONVTYPE_t conv_type);
 
 static void ADS7841_receive_byte_internal(uint8_t byte);
+
+static uint16_t ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
+                                        ADS7841_CONVTYPE_t conv_type);
 
 
 /* See table 1 of page 9 datasheet.
@@ -94,15 +104,32 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
 };
 
 
-void ADS7841_driver_init(void)
+void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVTYPE_t conv_type)
 {
-    ADS_rx_buf_handle = bufferlib_ringbuf_new(4);
+    ADS7841_cfg.power_mode = mode;
+    switch (conv_type)
+    {
+        case ADS7841_CONVTYPE_8:
+        {
+            ADS7841_cfg.sample_mask = ADS7841_BITMASK8;
+        }
+        break;
+        case ADS7841_CONVTYPE_12:
+        {
+            ADS7841_cfg.sample_mask = ADS7841_BITMASK12;
+        }
+        break;
+        default:
+        {
+            ADS7841_cfg.sample_mask = ADS7841_BITMASK12;
+        }
+        break;
+    }
     SPI0_init(ADS7841_receive_byte_internal, SPI_DIR_msb, SPI_MODE_async);
 }
 
 void ADS7841_driver_deinit(void)
 {
-    ADS_rx_buf_handle.delete(ADS_rx_buf_handle.this);
     SPI0_deinit();
 }
 
@@ -176,46 +203,65 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 }
 
 
-uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode)
+uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch)
 {
-    uint8_t ctrl_byte;
-    ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_PWRMODE_always_on, conv_mode);
-    uint8_t msg[] = {ctrl_byte, 0, 0, 0, 0};
-    SPI0_transmit(msg, sizeof(msg));
-
-    uint8_t lo_byte;
-    uint8_t hi_byte;
-    lo_byte        = ADS_rx_buf_handle.read_next(ADS_rx_buf_handle.this);
-    hi_byte        = ADS_rx_buf_handle.read_next(ADS_rx_buf_handle.this);
-    uint16_t value = (hi_byte << CHAR_BIT) | lo_byte;
-    switch (conv_mode)
+    unsigned int sample_idx;
+    uint16_t     sample           = 0;
+    uint16_t     conversion_value = 0;
+    for (sample_idx = 0; sample_idx < ADS7841_OVERSAMPLE_COUNT; sample_idx++)
     {
-        case ADS7841_CONVTYPE_8:
-        {
-            value &= ADS7841_BITMASK8;
-        }
-        break;
-        case ADS7841_CONVTYPE_12:
-        {
-            value &= ADS7841_BITMASK12;
-        }
-        break;
-        default:
-        {
-        }
-        break;
+        sample = ADS7841_get_conv_SINGLE(ch, ADS7841_cfg.conv_type);
+        conversion_value += sample;
     }
-    return value;
+    conversion_value /= ADS7841_OVERSAMPLE_COUNT;
+    return conversion_value;
 }
 
 
 static void ADS7841_receive_byte_internal(uint8_t byte)
 {
-    ADS_rx_buf_handle.write_next(ADS_rx_buf_handle.this, byte);
+    unsigned int byte_idx = 0;
+    unsigned int max_byte_idx;
+    max_byte_idx =
+        sizeof(conv_sample_holder.bytes) / sizeof(*conv_sample_holder.bytes);
 
-    /** @todo DO SOME SORT OF CHECK WHETHER THE DATA IS VALID SINCE
-     * THE SPI INTERFACE WORKS 1 BYTE AT A TIME, WE NEED TO
-     * MAINTAIN A STATE MACHINE IF WE'RE RECEIVING THE FIRST OR SECOND DATA
-     * BYTE FROM ADS
-     */
+    conv_sample_holder.bytes[byte_idx] = byte;
+
+    /* Wrap around condition */
+    if (++byte_idx > max_byte_idx)
+    {
+        byte_idx = 0;
+
+        conv_sample_holder.conv_val &= ADS7841_cfg.sample_mask;
+    }
+}
+
+static uint16_t ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
+                                        ADS7841_CONVTYPE_t conv_type)
+{
+    uint8_t  ctrl_byte;
+    uint16_t sample_value = 0;
+    uint16_t power_mode   = ADS7841_cfg.power_mode;
+    ctrl_byte             = ADS7841_ctrl_byte(ch, power_mode, conv_type);
+
+    uint8_t nul = '\0';
+
+    SPI0_transmit(&ctrl_byte, 1);
+
+    volatile int i;
+    for (i = 0; i < 10000; i++)
+    {
+        /* wait for IC to process command */
+    }
+
+    SPI0_transmit(&nul, 1);
+
+    for (i = 0; i < 10000; i++)
+    {
+        /* wait for IC to process command */
+    }
+
+    SPI0_transmit(&nul, 1);
+
+    return sample_value;
 }

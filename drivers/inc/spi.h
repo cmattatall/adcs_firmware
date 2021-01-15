@@ -40,7 +40,7 @@ void SPI0_disable_interrupt(SPI_IRQ_t irq);
 void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode);
 void SPI0_deinit(void);
 
-int SPI0_transmit(uint8_t *bytes, uint16_t len);
+int SPI0_transmit(const uint8_t *bytes, uint16_t len);
 
 
 #else

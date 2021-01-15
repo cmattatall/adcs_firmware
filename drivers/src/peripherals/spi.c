@@ -36,9 +36,6 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
     UCB0CTL0 |= UCMST;    /* master mode */
     UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
 
-    // UCB0CTL0 |= UCCKPH; /* set clock phase */
-    UCB0CTL0 |= UCCKPL; /* Default clock level is high */
-
     if (dir == SPI_DIR_msb)
     {
         UCB0CTL0 |= UCMSB;
@@ -98,7 +95,7 @@ void SPI0_deinit(void)
 }
 
 
-int SPI0_transmit(uint8_t *bytes, uint16_t len)
+int SPI0_transmit(const uint8_t *bytes, uint16_t len)
 {
     CONFIG_ASSERT(bytes != NULL);
     if (bytes != NULL)
@@ -112,8 +109,6 @@ int SPI0_transmit(uint8_t *bytes, uint16_t len)
     }
     return -1;
 }
-
-
 
 
 void SPI0_enable_interrupt(SPI_IRQ_t irq)

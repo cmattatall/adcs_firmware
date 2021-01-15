@@ -23,11 +23,17 @@ typedef enum
     ADS7841_CONVTYPE_12,
 } ADS7841_CONVTYPE_t;
 
-void ADS7841_driver_init(void);
+typedef enum
+{
+    ADS7841_PWRMODE_inter_conv,
+    ADS7841_PWRMODE_always_on,
+} ADS7841_PWRMODE_t;
+
+void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVTYPE_t conv_type);
 
 void ADS7841_driver_deinit(void);
 
-uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t conv_mode);
+uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch);
 
 
 #ifdef __cplusplus

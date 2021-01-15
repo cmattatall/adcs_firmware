@@ -65,8 +65,7 @@ int main(void)
     stop_watchdog();
     red_led_init();
     TIMERA0_init();
-    ADS7841_driver_init();
-
+    ADS7841_driver_init(ADS7841_PWRMODE_inter_conv, ADS7841_CONVTYPE_12);
     enable_interrupts();
     while (1)
     {
@@ -74,7 +73,7 @@ int main(void)
         {
             P1OUT ^= 0x01; /* blink onboard led  */
             uint16_t val;
-            val = ADS7841_get_conv(ADS7841_CHANNEL_3, ADS7841_CONVTYPE_12);
+            val         = ADS7841_get_conv(ADS7841_CHANNEL_3);
             timer_count = 0;
         }
     }
