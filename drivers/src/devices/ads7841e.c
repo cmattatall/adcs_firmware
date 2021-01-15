@@ -88,7 +88,7 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_PWRMODE_t  mode,
                                  ADS7841_CONVTYPE_t conv_type);
 
-static void ADS7841_receive_byte_internal(uint8_t byte);
+static void ADS7841_receive_byte(uint8_t byte);
 static void ads7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t type);
 
 /* The damn IC isn't compliant with full speed SPI PHY so we have to
@@ -133,8 +133,7 @@ void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVTYPE_t conv_type)
         }
         break;
     }
-    SPI0_init(SPI_DIR_msb, SPI_MODE_async);
-    SPI0_set_receive_callback(ADS7841_receive_byte_internal);
+    SPI0_init(ADS7841_receive_byte, SPI_DIR_msb, SPI_MODE_async);
 }
 
 
@@ -270,17 +269,18 @@ bool ADS7841_is_busy(void)
 }
 
 
-static void ADS7841_receive_byte_internal(uint8_t byte)
+static void ADS7841_receive_byte(uint8_t byte)
 {
-    ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
-    if (conv_byte_idx < 2)
+    if (conv_byte_idx == 0)
     {
-        conv_byte_idx++;
+        ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
+        conv_byte_idx                              = 1;
     }
     else
     {
-        /* Final byte was converted */
-        conv_byte_idx = 0;
+        ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
+        conv_byte_idx                              = 0;
+
         if (conv_sample_cnt < ADS7841_OVERSAMPLE_COUNT)
         {
             ADS7841_sample_holder.conv_val &= ADS7841_cfg.sample_mask;

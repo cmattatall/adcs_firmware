@@ -47,7 +47,7 @@ static void SPI0_enable_rx_irq(void);
 static void SPI0_disable_rx_irq(void);
 
 
-void SPI0_init(SPI_DIR_t dir, SPI_MODE_t mode)
+void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
 {
 
     UCB0CTL1 |= UCSWRST; /* unlock ie: "reset" peripheral */
@@ -100,6 +100,9 @@ void SPI0_init(SPI_DIR_t dir, SPI_MODE_t mode)
     P2DIR &= ~BIT3; /* set CS_other pin low to select chip */
     P3OUT |= BIT1;
 
+
+    SPI0_rx_callback = rx;
+
     SPI0_enable_rx_irq();
     log_trace("initialized SPI on UCB0\n");
 }
@@ -112,12 +115,6 @@ void SPI0_deinit(void)
     SPI0_rx_callback = NULL;         /* Reset callback */
     SPI0_disable_rx_irq();
     log_trace("deitialized SPI on UCB0\n");
-}
-
-
-void SPI0_set_receive_callback(receive_func rx)
-{
-    SPI0_rx_callback = rx;
 }
 
 
@@ -171,7 +168,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
         {
             if (NULL != SPI0_rx_callback)
             {
-                // SPI0_rx_callback(UCB0RXBUF);
+                SPI0_rx_callback(UCB0RXBUF);
             }
 
             if ((UCB0IFG & UCTXIFG) == UCTXIFG)
