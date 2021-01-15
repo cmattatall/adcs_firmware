@@ -1,7 +1,7 @@
 /**
  * @file spi.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief
+ * @brief Source module for the SPI periphal driver on MSP430F5529
  * @version 0.1
  * @date 2020-11-05
  *
@@ -22,13 +22,33 @@
 #include <msp430.h>
 #include "spi.h"
 
-static receive_func spi_rx_cb;
 
-static void transmit_byte_INTERNAL(uint8_t byte);
-
-void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
+typedef enum
 {
-    spi_rx_cb = rx;
+    SPI_TRANSMIT_STATUS_ok,
+    SPI_TRANSMIT_STATUS_error,
+    SPI_TRANSMIT_STATUS_empty,
+    SPI_TRANSMIT_STATUS_timeout,
+} SPI_TRANSMIT_STATUS_t;
+
+typedef enum
+{
+    SPI_IRQ_rx,
+    SPI_IRQ_tx,
+} SPI_IRQ_t;
+
+static receive_func          SPI0_rx_callback = NULL;
+static volatile unsigned int tx_flag;
+
+static volatile const uint8_t *SPI0_tx_ptr;
+static volatile const uint8_t *SPI0_tx_ptr_end;
+
+static void SPI0_enable_rx_irq(void);
+static void SPI0_disable_rx_irq(void);
+
+
+void SPI0_init(SPI_DIR_t dir, SPI_MODE_t mode)
+{
 
     UCB0CTL1 |= UCSWRST; /* unlock ie: "reset" peripheral */
 
@@ -61,7 +81,7 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
 
     /* Configure bitrate registers */
     UCB0BR0 |= 0x00;
-    UCB0BR1 |= 0x40;
+    UCB0BR1 |= 0x04;
 
     /* Re-enable peripheral */
     UCB0CTL1 &= ~UCSWRST;
@@ -80,8 +100,7 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
     P2DIR &= ~BIT3; /* set CS_other pin low to select chip */
     P3OUT |= BIT1;
 
-    SPI0_enable_interrupt(SPI_IRQ_rx);
-
+    SPI0_enable_rx_irq();
     log_trace("initialized SPI on UCB0\n");
 }
 
@@ -90,68 +109,57 @@ void SPI0_deinit(void)
 
     UCB0IE &= ~(UCRXIE | UCTXIE);    /* Disable interrupts */
     UCB0IFG &= ~(UCTXIFG | UCRXIFG); /* Clear pending interrupt flags */
-    spi_rx_cb = NULL;                /* Reset callback */
+    SPI0_rx_callback = NULL;         /* Reset callback */
+    SPI0_disable_rx_irq();
     log_trace("deitialized SPI on UCB0\n");
 }
 
 
-int SPI0_transmit(const uint8_t *bytes, uint16_t len)
+void SPI0_set_receive_callback(receive_func rx)
 {
+    SPI0_rx_callback = rx;
+}
+
+
+int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_callback)(void))
+{
+    int status = -1;
     CONFIG_ASSERT(bytes != NULL);
-    if (bytes != NULL)
+    if (len > 0)
     {
+        SPI0_tx_ptr     = bytes;
+        SPI0_tx_ptr_end = bytes + (len - 1);
+
         unsigned int i;
-        for (i = 0; i < len; i++)
+        tx_flag = 1;
+        for (i = 0; i < len;)
         {
-            transmit_byte_INTERNAL(bytes[i]);
+            if (tx_flag)
+            {
+                tx_flag = 0;
+                while (UCB0STAT & UCBBUSY)
+                {
+                    /* Wait for bus to become available */
+                }
+
+                /* Transmit next byte */
+                UCB0TXBUF = bytes[i];
+                if (tx_callback != NULL)
+                {
+                    tx_callback();
+                }
+
+                i++;
+            }
         }
-        return 0;
+
+        /* Check if all bytes transmitted */
+        if (i == len)
+        {
+            status = 0;
+        }
     }
-    return -1;
-}
-
-
-void SPI0_enable_interrupt(SPI_IRQ_t irq)
-{
-    switch (irq)
-    {
-        case SPI_IRQ_rx:
-        {
-            UCB0IE |= UCRXIE;
-        }
-        break;
-        case SPI_IRQ_tx:
-        {
-            UCB0IE |= UCTXIE;
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
-}
-
-
-void SPI0_disable_interrupt(SPI_IRQ_t irq)
-{
-    switch (irq)
-    {
-        case SPI_IRQ_rx:
-        {
-            UCB0IE &= ~UCRXIE;
-        }
-        break;
-        case SPI_IRQ_tx:
-        {
-            UCB0IE &= ~UCTXIE;
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
+    return status;
 }
 
 
@@ -159,11 +167,16 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
     switch (__even_in_range(UCB0IV, 4))
     {
-        case 0x02: /* receive interrupt pending */
+        case 0x02: /* Receive interrupt triggered IRQ */
         {
-            if (NULL != spi_rx_cb)
+            if (NULL != SPI0_rx_callback)
             {
-                spi_rx_cb(UCB0RXBUF);
+                // SPI0_rx_callback(UCB0RXBUF);
+            }
+
+            if ((UCB0IFG & UCTXIFG) == UCTXIFG)
+            {
+                tx_flag = 1;
             }
         }
         break;
@@ -171,12 +184,13 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 }
 
 
-static void transmit_byte_INTERNAL(uint8_t byte)
+static void SPI0_enable_rx_irq(void)
 {
-    while (!(UCB0IFG & UCTXIFG))
-    {
-        /* Wait until TX buffer is ready again
-         * (it should ideally already be) */
-    }
-    UCB0TXBUF = byte;
+    UCB0IE |= UCRXIE;
+}
+
+
+static void SPI0_disable_rx_irq(void)
+{
+    UCB0IE &= ~UCRXIE;
 }

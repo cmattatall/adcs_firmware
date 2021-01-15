@@ -62,7 +62,7 @@
 #define ADS7841_BITMASK8 (0x00FF)  /* 8 bit mask  */
 
 
-#define ADS7841_OVERSAMPLE_COUNT 50
+#define ADS7841_OVERSAMPLE_COUNT 10
 
 static struct
 {
@@ -75,6 +75,7 @@ static struct
 static volatile uint8_t      conv_bytes[2];
 static volatile unsigned int conv_sample_cnt;
 static volatile uint16_t     conv_samples[ADS7841_OVERSAMPLE_COUNT];
+static volatile unsigned int conv_byte_idx = 0;
 
 static union
 {
@@ -88,9 +89,11 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_CONVTYPE_t conv_type);
 
 static void ADS7841_receive_byte_internal(uint8_t byte);
+static void ads7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t type);
 
-static void ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
-                                    ADS7841_CONVTYPE_t conv_type);
+/* The damn IC isn't compliant with full speed SPI PHY so we have to
+ * manually insert delays every time the clock transmits 8 bits... */
+static void ADS7841_force_delay(void);
 
 
 /* See table 1 of page 9 datasheet.
@@ -130,12 +133,21 @@ void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVTYPE_t conv_type)
         }
         break;
     }
-    SPI0_init(ADS7841_receive_byte_internal, SPI_DIR_msb, SPI_MODE_async);
+    SPI0_init(SPI_DIR_msb, SPI_MODE_async);
+    SPI0_set_receive_callback(ADS7841_receive_byte_internal);
 }
+
 
 void ADS7841_driver_deinit(void)
 {
     SPI0_deinit();
+}
+
+
+#warning REMOVE ME LATER
+void ADS7841_TEST(void)
+{
+    ads7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVTYPE_12);
 }
 
 
@@ -208,16 +220,20 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 }
 
 
-uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch)
+uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
     uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
-    if (conv_sample_cnt == 0)
+    if (!ADS7841_is_busy())
     {
         unsigned int sample_idx;
         for (sample_idx = 0; sample_idx < ADS7841_OVERSAMPLE_COUNT;
              sample_idx++)
         {
-            ADS7841_get_conv_SINGLE(ch, ADS7841_cfg.conv_type);
+            while (conv_byte_idx != 0)
+            {
+                /* Wait for previous conversion to complete */
+            }
+            ads7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
         }
 
         /* Wait for oversampling to complete */
@@ -248,20 +264,23 @@ uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch)
 }
 
 
+bool ADS7841_is_busy(void)
+{
+    return conv_sample_cnt != 0 && conv_byte_idx != 0;
+}
+
+
 static void ADS7841_receive_byte_internal(uint8_t byte)
 {
-    static unsigned int byte_idx = 0;
-
-    unsigned int max_byte_idx;
-    max_byte_idx = sizeof(ADS7841_sample_holder.bytes) /
-                   sizeof(*ADS7841_sample_holder.bytes);
-
-    ADS7841_sample_holder.bytes[byte_idx] = byte;
-
-    /* Wrap around condition */
-    if (++byte_idx > max_byte_idx)
+    ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
+    if (conv_byte_idx < 2)
     {
-        byte_idx = 0;
+        conv_byte_idx++;
+    }
+    else
+    {
+        /* Final byte was converted */
+        conv_byte_idx = 0;
         if (conv_sample_cnt < ADS7841_OVERSAMPLE_COUNT)
         {
             ADS7841_sample_holder.conv_val &= ADS7841_cfg.sample_mask;
@@ -271,29 +290,24 @@ static void ADS7841_receive_byte_internal(uint8_t byte)
     }
 }
 
-static void ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
-                                    ADS7841_CONVTYPE_t conv_type)
+
+static void ADS7841_force_delay(void)
+{
+    const unsigned int    timeout = 10000;
+    volatile unsigned int i       = 0;
+    while (i < timeout)
+    {
+        i++;
+        /* wait for device to respond */
+    }
+}
+
+static void ads7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t type)
 {
     uint8_t  ctrl_byte;
     uint16_t power_mode = ADS7841_cfg.power_mode;
-    ctrl_byte           = ADS7841_ctrl_byte(ch, power_mode, conv_type);
-
-    uint8_t nul = '\0';
-
-    SPI0_transmit(&ctrl_byte, 1);
-
-    volatile int i;
-    for (i = 0; i < 10000; i++)
-    {
-        /* wait for IC to process command */
-    }
-
-    SPI0_transmit(&nul, 1);
-
-    for (i = 0; i < 10000; i++)
-    {
-        /* wait for IC to process command */
-    }
-
-    SPI0_transmit(&nul, 1);
+    ctrl_byte           = ADS7841_ctrl_byte(ch, power_mode, type);
+    uint8_t msg[]       = {ctrl_byte, '\0', '\0'};
+    // SPI0_transmit(msg, sizeof(msg) / sizeof(*msg), ADS7841_force_delay);
+    SPI0_transmit(msg, sizeof(msg) / sizeof(*msg), NULL);
 }

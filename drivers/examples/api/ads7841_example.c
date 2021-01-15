@@ -67,13 +67,18 @@ int main(void)
     TIMERA0_init();
     ADS7841_driver_init(ADS7841_PWRMODE_inter_conv, ADS7841_CONVTYPE_12);
     enable_interrupts();
+    uint16_t val;
+
     while (1)
     {
         if (timer_count == 3)
         {
-            P1OUT ^= 0x01; /* blink onboard led  */
-            uint16_t val;
-            val         = ADS7841_get_conv(ADS7841_CHANNEL_3);
+            ADS7841_TEST();
+
+            /*
+            P1OUT ^= 0x01;
+            val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
+            */
             timer_count = 0;
         }
     }

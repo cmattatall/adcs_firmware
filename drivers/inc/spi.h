@@ -28,19 +28,12 @@ typedef enum
     SPI_MODE_async,
 } SPI_MODE_t;
 
-typedef enum
-{
-    SPI_IRQ_rx,
-    SPI_IRQ_tx,
-} SPI_IRQ_t;
 
-void SPI0_enable_interrupt(SPI_IRQ_t irq);
-void SPI0_disable_interrupt(SPI_IRQ_t irq);
-
-void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode);
+void SPI0_set_transmit_callback(void (*byte_cb)(void));
+void SPI0_set_receive_callback(receive_func rx);
+void SPI0_init(SPI_DIR_t dir, SPI_MODE_t mode);
 void SPI0_deinit(void);
-
-int SPI0_transmit(const uint8_t *bytes, uint16_t len);
+int  SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*callback)(void));
 
 
 #else
