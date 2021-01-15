@@ -8,6 +8,10 @@ extern "C"
 #endif /* Start C linkage */
 
 #include <stdint.h>
+#include <limits.h>
+
+#define ADS7841_CONV_STATUS_ERROR (UINT16_MAX)
+#define ADS7841_CONV_STATUS_BUSY (UINT16_MAX - 1)
 
 typedef enum
 {

@@ -58,8 +58,8 @@
 #define CTL_PWRMODE_POS (0)
 #define CTL_PWRMODE_MSK (2u << (CTL_PWRMODE_POS))
 
-#define ADS7841_BITMASK12 (0x0FFF)
-#define ADS7841_BITMASK8 (0x00FF)
+#define ADS7841_BITMASK12 (0x0FFF) /* 12 bit mask */
+#define ADS7841_BITMASK8 (0x00FF)  /* 8 bit mask  */
 
 
 #define ADS7841_OVERSAMPLE_COUNT 50
@@ -71,11 +71,16 @@ static struct
     uint16_t           sample_mask;
 } ADS7841_cfg;
 
+
+static volatile uint8_t      conv_bytes[2];
+static volatile unsigned int conv_sample_cnt;
+static volatile uint16_t     conv_samples[ADS7841_OVERSAMPLE_COUNT];
+
 static union
 {
     uint8_t  bytes[2];
     uint16_t conv_val;
-} conv_sample_holder;
+} ADS7841_sample_holder;
 
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
@@ -84,8 +89,8 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 
 static void ADS7841_receive_byte_internal(uint8_t byte);
 
-static uint16_t ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
-                                        ADS7841_CONVTYPE_t conv_type);
+static void ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
+                                    ADS7841_CONVTYPE_t conv_type);
 
 
 /* See table 1 of page 9 datasheet.
@@ -205,44 +210,73 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 
 uint16_t ADS7841_get_conv(ADS7841_CHANNEL_t ch)
 {
-    unsigned int sample_idx;
-    uint16_t     sample           = 0;
-    uint16_t     conversion_value = 0;
-    for (sample_idx = 0; sample_idx < ADS7841_OVERSAMPLE_COUNT; sample_idx++)
+    uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
+    if (conv_sample_cnt == 0)
     {
-        sample = ADS7841_get_conv_SINGLE(ch, ADS7841_cfg.conv_type);
-        conversion_value += sample;
+        unsigned int sample_idx;
+        for (sample_idx = 0; sample_idx < ADS7841_OVERSAMPLE_COUNT;
+             sample_idx++)
+        {
+            ADS7841_get_conv_SINGLE(ch, ADS7841_cfg.conv_type);
+        }
+
+        /* Wait for oversampling to complete */
+        volatile uint16_t timeout = 10000;
+        while (conv_sample_cnt >= ADS7841_OVERSAMPLE_COUNT && --timeout)
+        {
+            /** @note This is done as a noise mitigation measure */
+        }
+
+        if (timeout)
+        {
+            /* Samples didn't complete during conversion timeout window */
+            conversion_value = ADS7841_CONV_STATUS_ERROR;
+        }
+        else
+        {
+            /* Compute average value from set of samples */
+            conversion_value = 0;
+            while (conv_sample_cnt)
+            {
+                conversion_value += conv_samples[conv_sample_cnt];
+                conv_sample_cnt--;
+            }
+            conversion_value /= ADS7841_OVERSAMPLE_COUNT;
+        }
     }
-    conversion_value /= ADS7841_OVERSAMPLE_COUNT;
     return conversion_value;
 }
 
 
 static void ADS7841_receive_byte_internal(uint8_t byte)
 {
-    unsigned int byte_idx = 0;
-    unsigned int max_byte_idx;
-    max_byte_idx =
-        sizeof(conv_sample_holder.bytes) / sizeof(*conv_sample_holder.bytes);
+    static unsigned int byte_idx = 0;
 
-    conv_sample_holder.bytes[byte_idx] = byte;
+    unsigned int max_byte_idx;
+    max_byte_idx = sizeof(ADS7841_sample_holder.bytes) /
+                   sizeof(*ADS7841_sample_holder.bytes);
+
+    ADS7841_sample_holder.bytes[byte_idx] = byte;
 
     /* Wrap around condition */
     if (++byte_idx > max_byte_idx)
     {
         byte_idx = 0;
-
-        conv_sample_holder.conv_val &= ADS7841_cfg.sample_mask;
+        if (conv_sample_cnt < ADS7841_OVERSAMPLE_COUNT)
+        {
+            ADS7841_sample_holder.conv_val &= ADS7841_cfg.sample_mask;
+            conv_samples[conv_sample_cnt] = ADS7841_sample_holder.conv_val;
+            conv_sample_cnt++;
+        }
     }
 }
 
-static uint16_t ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
-                                        ADS7841_CONVTYPE_t conv_type)
+static void ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
+                                    ADS7841_CONVTYPE_t conv_type)
 {
     uint8_t  ctrl_byte;
-    uint16_t sample_value = 0;
-    uint16_t power_mode   = ADS7841_cfg.power_mode;
-    ctrl_byte             = ADS7841_ctrl_byte(ch, power_mode, conv_type);
+    uint16_t power_mode = ADS7841_cfg.power_mode;
+    ctrl_byte           = ADS7841_ctrl_byte(ch, power_mode, conv_type);
 
     uint8_t nul = '\0';
 
@@ -262,6 +296,4 @@ static uint16_t ADS7841_get_conv_SINGLE(ADS7841_CHANNEL_t  ch,
     }
 
     SPI0_transmit(&nul, 1);
-
-    return sample_value;
 }
