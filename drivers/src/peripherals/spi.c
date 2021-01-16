@@ -105,8 +105,8 @@ void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
     /* bitrate registers */
-    UCB0BR0 |= 0x00;
-    UCB0BR1 |= 0x04;
+    UCB0BR0 |= 0xE0;
+    UCB0BR1 |= 0x00;
 
     UCB0CTL1 &= ~UCSWRST;
 

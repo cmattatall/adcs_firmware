@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 16
+#define ADS7841_OVERSAMPLE_COUNT 4
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -325,7 +325,7 @@ static void ADS7841_inter_byte_delay(void)
      * introduce an artificial blocking delay between each 8 clock
      * pulses we send to the ADS7841 */
     volatile unsigned int i;
-    for (i = 0; i < 450; i++)
+    for (i = 0; i < 50; i++)
     {
         /* Force delay */
     }

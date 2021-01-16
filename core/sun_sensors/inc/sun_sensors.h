@@ -7,24 +7,28 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
+#define NUM_SUN_SENSORS 18
 
 typedef struct
 {
     /* Cylindrical coords centered on ideal nadir orientation?? */
-    float pitch;
-    float yaw;
-    float roll;
-} sun_vector_t;
+    float first;
+    float second;
+    float third;
+} SUNSEN_intensity_t;
 
+typedef struct
+{
+    SUNSEN_intensity_t vals[NUM_SUN_SENSORS];
+} SUNSEN_measurement_t;
 
 /**
- * @brief Get the current satellite sun vector bearing from sun sensors
+ * @brief Measure the intensities of all the photodiodes.
  *
- * @return sun_vector_t the current satellite bearing
- *
- * @todo NOT IMPLEMENTED YET
+ * @return SUNSEN_measurement_t structure containing all the intensity
+ * measurements
  */
-sun_vector_t get_sun_vector(void);
+SUNSEN_measurement_t SUNSEN_measure_intensities(void);
 
 
 #ifdef __cplusplus
