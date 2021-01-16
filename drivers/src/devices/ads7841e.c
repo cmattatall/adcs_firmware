@@ -89,7 +89,8 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_CONVMODE_t conv_type);
 
 static void ADS7841_receive_byte(uint8_t byte);
-static void ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
+static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
+
 
 /* See table 1 of page 9 datasheet.
  * I have NO clue why they chose a bit mapping like this... */
@@ -128,7 +129,7 @@ void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
         }
         break;
     }
-    SPI0_init(ADS7841_receive_byte, SPI_DIR_msb, SPI_MODE_async);
+    SPI0_init(ADS7841_receive_byte, SPI_DATA_DIR_msb, SPI_MODE_async);
 }
 
 
@@ -141,6 +142,7 @@ void ADS7841_driver_deinit(void)
 void ADS7841_TEST(void)
 {
     ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
+    // ADS7841_measure_channel(ADS7841_CHANNEL_3);
 }
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
@@ -242,9 +244,6 @@ uint16_t            ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 
 static void ADS7841_receive_byte(uint8_t byte)
 {
-#warning REMOVE ME LATER
-    return;
-
     if (conv_byte_idx == 0)
     {
         ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
@@ -264,11 +263,11 @@ static void ADS7841_receive_byte(uint8_t byte)
     }
 }
 
-static void ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
+static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 {
     uint16_t power_mode = ADS7841_cfg.power_mode;
     uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
     uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
     uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
-    SPI0_transmit(msg, msglen, NULL);
+    return SPI0_transmit(msg, msglen, NULL);
 }

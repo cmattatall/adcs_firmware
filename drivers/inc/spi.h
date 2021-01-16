@@ -18,9 +18,9 @@ extern "C"
 
 typedef enum
 {
-    SPI_DIR_lsb,
-    SPI_DIR_msb,
-} SPI_DIR_t;
+    SPI_DATA_DIR_lsb,
+    SPI_DATA_DIR_msb,
+} SPI_DATA_DIR_t;
 
 typedef enum
 {
@@ -28,9 +28,31 @@ typedef enum
     SPI_MODE_async,
 } SPI_MODE_t;
 
-void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode);
+
+/**
+ * @brief Initialize the SPI peripheral on UCB0
+ *
+ * @param rx byte receive callback function
+ * @param dir data transmit order. one of SPI_DATA_DIR_t
+ * @param mode SPI mode. SPI_MODE_sync or SPI_MODE_async
+ */
+void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode);
+
+/**
+ * @brief Deinitialize the SPI peripheral on UCB0
+ */
 void SPI0_deinit(void);
-void SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
+
+/**
+ * @brief Transmit len bytes starting from bytes. After each byte is
+ * transmitted, a callback function can be provided for execution.
+ * @param bytes start of buffer to be transmitted
+ * @param len number of bytes to be transmitted
+ * @param tx_cb (optional) callback function to execute between transmits
+ * @return int 0 if byte was transmitted successfully. Nonzero is SPI PHY is
+ * busy.
+ */
+int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
 
 
 #else
