@@ -38,10 +38,12 @@ typedef enum
  */
 void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode);
 
+
 /**
  * @brief Deinitialize the SPI peripheral on UCB0
  */
 void SPI0_deinit(void);
+
 
 /**
  * @brief Transmit len bytes starting from bytes. After each byte is
@@ -54,11 +56,16 @@ void SPI0_deinit(void);
  */
 int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
 
-
-void SPI0_disable_rx_irq(void);
+/**
+ * @brief Enable the receive event IRQ trigger for SPI0 on UCB0
+ */
 void SPI0_enable_rx_irq(void);
 
 
+/**
+ * @brief Disable the receive event IRQ trigger for SPI0 on UCB0
+ */
+void SPI0_disable_rx_irq(void);
 
 
 #else

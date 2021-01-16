@@ -17,14 +17,13 @@
  *
  * PINOUT:
  * *************************************
- * MSP430                   SUN_SENSOR
+ * MSP430                      ADS7841
  * 5V --------------------------- 5V
  * GND -------------------------- GND
  * P3.0 (UCB0 MOSI) ------------- MOSI
  * P3.1 (UCB0 MISO) ------------- MISO
  * P3.2 (UCB0CLK) --------------- CLK
- * P2.3 (SPICS_other)------------ CS
- * 3V3 -------------------------- 3V3
+ * P2.3 Caller configured ------- CS
  */
 
 #if !defined(TARGET_MCU)
@@ -121,24 +120,6 @@ static void ADS7841_receive_byte(uint8_t byte);
 static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
 
 static void ADS7841_inter_byte_delay(void);
-
-#warning REMOVE ME LATER
-void ADS7841_TEST(void)
-{
-
-#if 0
-    ADS7841_SPI_CHIP_SELECT_func();
-    ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
-    ADS7841_SPI_CHIP_UNSELECT_func();
-#endif
-
-    uint16_t val;
-    val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
-    if (val != ADS7841_CONV_STATUS_BUSY)
-    {
-        /* Do stuff with the data */
-    }
-}
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
                          ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)

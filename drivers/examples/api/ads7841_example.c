@@ -10,7 +10,7 @@
  * @note
  * PINOUT:
  *  ***************************************
- *   MSP430                   SUN_SENSOR
+ *   MSP430                       ADS7841
  *   5V --------------------------- 5V
  *   GND -------------------------- GND
  *   P3.0 (UCB0 MOSI) ------------- MOSI
@@ -92,12 +92,11 @@ int main(void)
         if (timer_count == 3)
         {
             P1OUT ^= 0x01;
-            ADS7841_TEST();
-
-            /*
-            val         = ADS7841_measure_channel(ADS7841_CHANNEL_3);
-            */
-
+            val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
+            if (val != ADS7841_CONV_STATUS_BUSY)
+            {
+                /* Do stuff with the digitized analog value */
+            }
             timer_count = 0;
         }
     }
