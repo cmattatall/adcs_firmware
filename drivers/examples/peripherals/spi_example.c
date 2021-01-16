@@ -153,10 +153,8 @@ static int SPI0_transmit(uint8_t *bytes, uint16_t len)
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
-    uint16_t flags = *(uint16_t *)&UCB0IV;
-
     /* If receive interrupt is pending*/
-    if ((flags & UCRXIFG) == UCRXIFG)
+    if ((UCB0IV & UCRXIFG) == UCRXIFG)
     {
         if (!((UCB0STAT & UCBUSY) == UCBUSY))
         {
@@ -172,7 +170,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     }
 
     /* TX interrupt. indicates when TXBUF can be written */
-    else if ((flags & UCTXIFG) == UCTXIFG)
+    else if ((UCB0IV & UCTXIFG) == UCTXIFG)
     {
         if (!((UCB0STAT & UCBUSY) == UCBUSY))
         {
