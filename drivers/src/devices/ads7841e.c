@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 20
+#define ADS7841_OVERSAMPLE_COUNT 10
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -87,6 +87,7 @@ static volatile enum {
     ADS7841_RX_EVT_ctrl,
     ADS7841_RX_EVT_hi,
     ADS7841_RX_EVT_lo,
+    ADS7841_RX_EVT_complete,
 } ADS7841_RX_EVT;
 
 
@@ -123,19 +124,19 @@ static void ADS7841_inter_byte_delay(void);
 #warning REMOVE ME LATER
 void ADS7841_TEST(void)
 {
+
+#if 0
     ADS7841_SPI_CHIP_SELECT_func();
     ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
     ADS7841_SPI_CHIP_UNSELECT_func();
+#endif
 
-#if 0
     uint16_t val;
     val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
     if (val != ADS7841_CONV_STATUS_BUSY)
     {
         /* Do stuff with the data */
     }
-
-#endif
 }
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
@@ -163,6 +164,7 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     ADS7841_SPI_CHIP_SELECT_func   = ena_func;
     ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
     SPI0_init(ADS7841_receive_byte, SPI_DATA_DIR_msb, SPI_MODE_async);
+    SPI0_enable_rx_irq();
 }
 
 
@@ -185,6 +187,12 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     {
         /* Perform the required number of samples */
         ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
+
+        volatile unsigned int i;
+        for (i = 0; i < 5000; i++)
+        {
+            /* wait */
+        }
     }
     ADS7841_SPI_CHIP_UNSELECT_func();
 
@@ -231,6 +239,9 @@ static void ADS7841_receive_byte(uint8_t byte)
                 conv_samples[conv_cnt] = conv_val_holder;
                 conv_cnt++;
             }
+
+            ADS7841_RX_EVT = ADS7841_RX_EVT_complete;
+            SPI0_disable_rx_irq();
         }
         break;
         default:
@@ -249,7 +260,8 @@ static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
     uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
     uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
     ADS7841_RX_EVT      = ADS7841_RX_EVT_ctrl;
-    return SPI0_transmit(msg, msglen, ADS7841_inter_byte_delay);
+    int status          = SPI0_transmit(msg, msglen, ADS7841_inter_byte_delay);
+    return status;
 }
 
 

@@ -55,6 +55,12 @@ void SPI0_deinit(void);
 int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
 
 
+void SPI0_disable_rx_irq(void);
+void SPI0_enable_rx_irq(void);
+
+
+
+
 #else
 
 #error USE OF MEMORY MAPPED PERIPHERALS ON A VIRTUAL MEMORY NATIVE MACHINE IS NOT PERMITTED

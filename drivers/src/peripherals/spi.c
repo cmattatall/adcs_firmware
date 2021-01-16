@@ -26,14 +26,31 @@
 #define UCB0IVRX (0x02)
 #define UCB0IVTX (0x04)
 
+#define UCB0_SPI0_MOSI_PIN (BIT0)
+#define UCB0_SPI0_MISO_PIN (BIT1)
+#define UCB0_SPI0_CLK_PIN (BIT2)
+
+#define UCB0_SPI0_MOSI_SEL (P3SEL)
+#define UCB0_SPI0_MISO_SEL (P3SEL)
+#define UCB0_SPI0_CLK_SEL (P3SEL)
+
+#define UCB0_SPI0_MOSI_DIR (P3DIR)
+#define UCB0_SPI0_MISO_DIR (P3DIR)
+#define UCB0_SPI0_CLK_DIR (P3DIR)
+
+#define UCB0_SPI0_MOSI_OUT (P3OUT)
+#define UCB0_SPI0_MISO_OUT (P3OUT)
+#define UCB0_SPI0_CLK_OUT (P3OUT)
+
+#define UCB0_SPI0_MOSI_REN (P3REN)
+#define UCB0_SPI0_MISO_REN (P3REN)
+#define UCB0_SPI0_CLK_REN (P3REN)
 
 typedef enum
 {
     SPI_IRQ_rx,
     SPI_IRQ_tx,
 } SPI_IRQ_t;
-
-static receive_func SPI0_rx_callback = NULL;
 
 typedef struct
 {
@@ -42,32 +59,34 @@ typedef struct
     void (*cplt_callback)(void);
 } tx_config;
 
-static tx_config SPI0_tx_cfg;
 
-static void SPI0_enable_rx_irq(void);
-static void SPI0_disable_rx_irq(void);
+static receive_func SPI0_rx_callback = NULL;
+static tx_config    SPI0_tx_cfg;
+
+static void SPI0_transmit_byte(void);
 static void SPI0_enable_tx_irq(void);
 static void SPI0_disable_tx_irq(void);
 static void SPI0_reset_tx_config(tx_config *cfg);
+static void SPI0_PHY_config(void);
 
 
 void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
 {
 
-    UCB0CTL1 |= UCSWRST; /* unlock ie: "reset" peripheral */
+    UCB0CTL1 |= UCSWRST; /* unlock peripheral to modify config */
 
-    /* Configure control registers */
     UCB0CTL0 |= UCMST;    /* master mode */
     UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
 
     if (dir == SPI_DATA_DIR_msb)
     {
-        UCB0CTL0 |= UCMSB;
+        UCB0CTL0 |= UCMSB; /* MSB first */
     }
     else
     {
-        UCB0CTL0 &= ~UCMSB;
+        UCB0CTL0 &= ~UCMSB; /* LSB first */
     }
+
 
     if (mode == SPI_MODE_sync)
     {
@@ -83,34 +102,21 @@ void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
 
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
-    /* Configure bitrate registers */
+    /* bitrate registers */
     UCB0BR0 |= 0x00;
     UCB0BR1 |= 0x04;
 
-    /* Re-enable peripheral */
     UCB0CTL1 &= ~UCSWRST;
 
-    /* Configure alternate pin modes */
-    P3SEL |= BIT0; /* P3.0 will be used for MOSI */
-    P3SEL |= BIT1; /* P3.1 will be used for MISO */
-    P3SEL |= BIT2; /* P3.2 will be used for SPICLK */
-
-    /* Configure pin directions */
-    P3DIR |= BIT0;  /* set MOSI pin to output mode */
-    P3DIR &= ~BIT1; /* set MISO pin to input mode */
-    P3DIR |= BIT2;  /* set SPICLK pin to output mode */
-
-    P3OUT &= ~BIT1; /* pULLDOWN Miso */
-
-    SPI0_rx_callback = rx;
+    SPI0_PHY_config();
 
     /* Reset transmit configuration */
     SPI0_reset_tx_config(&SPI0_tx_cfg);
 
-    SPI0_enable_rx_irq();
-
-    log_trace("initialized SPI on UCB0\n");
+    /* Register IRQ service cb from caller */
+    SPI0_rx_callback = rx;
 }
+
 
 void SPI0_deinit(void)
 {
@@ -128,21 +134,22 @@ void SPI0_deinit(void)
     SPI0_tx_cfg.ptr           = NULL;
     SPI0_tx_cfg.ptr_end       = NULL;
     SPI0_tx_cfg.cplt_callback = NULL;
-
-    log_trace("deitialized SPI on UCB0\n");
 }
 
-static void SPI0_transmit_byte(void)
+
+void SPI0_enable_rx_irq(void)
 {
-    /* Transmit next byte */
-    uint8_t byte = *SPI0_tx_cfg.ptr;
-    SPI0_tx_cfg.ptr++;
-    if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
-    {
-        SPI0_reset_tx_config(&SPI0_tx_cfg);
-    }
-    UCB0TXBUF = byte;
+    UCB0IE |= UCRXIE;
+    _no_operation(); /* See page 60 of user guide! */
 }
+
+
+void SPI0_disable_rx_irq(void)
+{
+    UCB0IE &= ~UCRXIE;
+    _no_operation(); /* See page 60 of user guide! */
+}
+
 
 int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
 {
@@ -163,16 +170,19 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
     return -1;
 }
 
+
 static volatile uint16_t SPI0_IE_backup;
 static void              SPI0_INTMSK_push(void)
 {
     SPI0_IE_backup = UCB0IE;
 }
 
+
 static void SPI0_INTMSK_pop(void)
 {
     UCB0IE = SPI0_IE_backup;
 }
+
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
@@ -190,7 +200,14 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
                 SPI0_INTMSK_push();
                 SPI0_disable_tx_irq();
                 SPI0_disable_rx_irq();
-                SPI0_rx_callback(UCB0RXBUF);
+
+                /*
+                 * use tmp var because reading from UCB0RXBUF
+                 * causes UCB0RXIFG to be set,
+                 * triggering an interrupt storm
+                 */
+                uint8_t received_byte = UCB0RXBUF;
+                SPI0_rx_callback(received_byte);
                 SPI0_INTMSK_pop();
             }
         }
@@ -224,17 +241,16 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 }
 
 
-static void SPI0_enable_rx_irq(void)
+static void SPI0_transmit_byte(void)
 {
-    UCB0IE |= UCRXIE;
-    _no_operation(); /* See page 60 of user guide! */
-}
-
-
-static void SPI0_disable_rx_irq(void)
-{
-    UCB0IE &= ~UCRXIE;
-    _no_operation(); /* See page 60 of user guide! */
+    /* Transmit next byte */
+    uint8_t byte = *SPI0_tx_cfg.ptr;
+    SPI0_tx_cfg.ptr++;
+    if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
+    {
+        SPI0_reset_tx_config(&SPI0_tx_cfg);
+    }
+    UCB0TXBUF = byte;
 }
 
 
@@ -258,4 +274,21 @@ static void SPI0_reset_tx_config(tx_config *cfg)
     cfg->ptr           = NULL;
     cfg->ptr_end       = NULL;
     SPI0_disable_tx_irq();
+}
+
+
+static void SPI0_PHY_config(void)
+{
+    /* Configure alternate pin mode */
+    UCB0_SPI0_MOSI_SEL |= UCB0_SPI0_MOSI_PIN;
+    UCB0_SPI0_MISO_SEL |= UCB0_SPI0_MISO_PIN;
+    UCB0_SPI0_CLK_SEL |= UCB0_SPI0_CLK_PIN;
+
+    /* Configure pin directions */
+    UCB0_SPI0_MOSI_DIR |= UCB0_SPI0_MOSI_PIN;  /* set MOSI pin to output mode */
+    UCB0_SPI0_MISO_DIR &= ~UCB0_SPI0_MISO_PIN; /* set MISO pin to input mode */
+    UCB0_SPI0_CLK_DIR |= UCB0_SPI0_CLK_PIN; /* set SPICLK pin to output mode */
+
+    UCB0_SPI0_MISO_OUT &= ~UCB0_SPI0_MISO_PIN; /* Pulldown MISO */
+    UCB0_SPI0_MISO_REN &= ~UCB0_SPI0_MISO_PIN; /* Disable MISO pullup res */
 }
