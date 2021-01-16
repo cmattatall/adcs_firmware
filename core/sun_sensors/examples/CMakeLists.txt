@@ -6,7 +6,7 @@ endif(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-file(GLOB example_sources "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
+file(GLOB_RECURSE example_sources "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
 foreach(src ${example_sources})
     get_filename_component(example_suffix ${src} NAME_WLE)
     set(example_target "${LIB}_${example_suffix}")

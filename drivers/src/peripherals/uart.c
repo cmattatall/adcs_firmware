@@ -26,7 +26,7 @@
 
 #include "uart.h"
 
-static void (*uart_rx_cb)(uint8_t);
+static receive_func uart_rx_cb;
 
 static uint8_t *             tx_buf;
 static volatile unsigned int tx_idx;

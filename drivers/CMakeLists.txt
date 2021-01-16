@@ -80,11 +80,6 @@ if(CMAKE_CROSSCOMPILING)
     ## board support package folder
     target_include_directories(${LIB} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/bsp")
     target_sources(${LIB} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/bsp/bsp.c")
-
-    ################################################################################
-    # LINK AGAINST THE NECESSARY LIBRARIES BELOW (USER CAN START ADDING STUFF NOW)
-    ################################################################################
-    target_link_libraries(${LIB} PRIVATE INJECTION_API)
     
     ################################################################################
     # TEST CONFIGURATION
@@ -124,4 +119,12 @@ if(CMAKE_CROSSCOMPILING)
         endif()
     endif(BUILD_EXAMPLES)
 
+    ################################################################################
+    # LINK AGAINST THE NECESSARY LIBRARIES BELOW (USER CAN START ADDING STUFF NOW)
+    ################################################################################
+    target_link_libraries(${LIB} PUBLIC INJECTION_API)
+    target_link_libraries(${LIB} PRIVATE BUFFERLIB)
+
 endif(CMAKE_CROSSCOMPILING)
+
+

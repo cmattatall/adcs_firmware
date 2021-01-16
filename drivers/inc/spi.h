@@ -9,18 +9,64 @@ extern "C"
 
 #if defined(TARGET_MCU)
 
+/* UNCOMMENT THIS IF TO CATCH OVERRUNS */
+/* #define SPI0_CATCH_OVERRUN */
+
 #include <stdint.h>
 
+#include "injection_api.h"
 
-#define SPI_APPLICATION_BUFFER_SIZE 500
-#define SPI_DELIM_CHAR '\0'
-#define SPI_SIGNAL_SET 1
-#define SPI_SIGNAL_CLR 0
+typedef enum
+{
+    SPI_DATA_DIR_lsb,
+    SPI_DATA_DIR_msb,
+} SPI_DATA_DIR_t;
 
-void         SPI0_init(volatile int **receive_signal_watcher,
-                       volatile int **transmit_signal_watcher);
-int          SPI0_receive_payload(uint8_t *userbuf, uint16_t len);
-unsigned int SPI0_transmit_IT(uint8_t *bytes, uint16_t len);
+typedef enum
+{
+    SPI_MODE_sync,
+    SPI_MODE_async,
+} SPI_MODE_t;
+
+
+/**
+ * @brief Initialize the SPI peripheral on UCB0
+ *
+ * @param rx byte receive callback function
+ * @param dir data transmit order. one of SPI_DATA_DIR_t
+ * @param mode SPI mode. SPI_MODE_sync or SPI_MODE_async
+ */
+void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode);
+
+
+/**
+ * @brief Deinitialize the SPI peripheral on UCB0
+ */
+void SPI0_deinit(void);
+
+
+/**
+ * @brief Transmit len bytes starting from bytes. After each byte is
+ * transmitted, a callback function can be provided for execution.
+ * @param bytes start of buffer to be transmitted
+ * @param len number of bytes to be transmitted
+ * @param tx_cb (optional) callback function to execute between transmits
+ * @return int 0 if byte was transmitted successfully. Nonzero is SPI PHY is
+ * busy.
+ */
+int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
+
+/**
+ * @brief Enable the receive event IRQ trigger for SPI0 on UCB0
+ */
+void SPI0_enable_rx_irq(void);
+
+
+/**
+ * @brief Disable the receive event IRQ trigger for SPI0 on UCB0
+ */
+void SPI0_disable_rx_irq(void);
+
 
 #else
 

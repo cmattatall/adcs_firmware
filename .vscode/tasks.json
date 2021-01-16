@@ -47,7 +47,7 @@
             "detail": "Build the project for a target device",
             "group": "build",
             "type": "shell",
-            "command" : "python3 ./compile.py --cross-compile --build-type=${input:build_type} --rebuild",
+            "command" : "python3 ./compile.py --cross-compile --build-type=${input:build_type} --rebuild --build-examples --build-tests",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -79,11 +79,14 @@
             "type": "pickString",
             "options": [
                 "adcs_executable.elf",
+                "drivers/examples/ADCS_DRIVERS_ads7841_example.elf",
+                "drivers/examples/ADCS_DRIVERS_sun_sensor_raw_spi.elf",
+                "drivers/examples/ADCS_DRIVERS_blinky.elf",
+                "drivers/examples/ADCS_DRIVERS_spi_example.elf",
                 "drivers/examples/ADCS_DRIVERS_sun_sensor.elf",
+                "drivers/examples/ADCS_DRIVERS_timer_blinky.elf",
+                "drivers/examples/ADCS_DRIVERS_uart_example.elf",
             ]
         }
     ]
-
-    
-
 }
