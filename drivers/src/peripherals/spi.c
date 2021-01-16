@@ -78,6 +78,8 @@ void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
     UCB0CTL0 |= UCMST;    /* master mode */
     UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
 
+    UCB0CTL0 |= UCCKPH;
+
     if (dir == SPI_DATA_DIR_msb)
     {
         UCB0CTL0 |= UCMSB; /* MSB first */
@@ -171,19 +173,6 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
 }
 
 
-static volatile uint16_t SPI0_IE_backup;
-static void              SPI0_INTMSK_push(void)
-{
-    SPI0_IE_backup = UCB0IE;
-}
-
-
-static void SPI0_INTMSK_pop(void)
-{
-    UCB0IE = SPI0_IE_backup;
-}
-
-
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
     switch (UCB0IV)
@@ -197,18 +186,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
         {
             if (NULL != SPI0_rx_callback)
             {
-                SPI0_INTMSK_push();
-                SPI0_disable_tx_irq();
-                SPI0_disable_rx_irq();
-
-                /*
-                 * use tmp var because reading from UCB0RXBUF
-                 * causes UCB0RXIFG to be set,
-                 * triggering an interrupt storm
-                 */
-                uint8_t received_byte = UCB0RXBUF;
-                SPI0_rx_callback(received_byte);
-                SPI0_INTMSK_pop();
+                SPI0_rx_callback(UCB0RXBUF);
             }
         }
         break;
@@ -222,11 +200,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
             {
                 if (SPI0_tx_cfg.cplt_callback != NULL)
                 {
-                    SPI0_INTMSK_push();
-                    SPI0_disable_tx_irq();
-                    SPI0_disable_rx_irq();
                     SPI0_tx_cfg.cplt_callback();
-                    SPI0_INTMSK_pop();
                 }
                 SPI0_transmit_byte();
             }

@@ -34,6 +34,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "config_assert.h"
 #include "ads7841e.h"
@@ -65,7 +66,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 10
+#define ADS7841_OVERSAMPLE_COUNT 16
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -164,7 +165,6 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     ADS7841_SPI_CHIP_SELECT_func   = ena_func;
     ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
     SPI0_init(ADS7841_receive_byte, SPI_DATA_DIR_msb, SPI_MODE_async);
-    SPI0_enable_rx_irq();
 }
 
 
@@ -181,17 +181,23 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
     CONFIG_ASSERT(ADS7841_SPI_CHIP_SELECT_func != NULL);
     CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
-
+    memset((void *)conv_samples, 0, sizeof(conv_samples));
     ADS7841_SPI_CHIP_SELECT_func();
+
+    volatile unsigned int conv_timeout;
     while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
     {
         /* Perform the required number of samples */
         ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
 
-        volatile unsigned int i;
-        for (i = 0; i < 5000; i++)
+        conv_timeout = 0;
+        while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
         {
-            /* wait */
+            /* wait for conversion to complete (with timeout) */
+            if (++conv_timeout > 1000)
+            {
+                break;
+            }
         }
     }
     ADS7841_SPI_CHIP_UNSELECT_func();
@@ -239,9 +245,8 @@ static void ADS7841_receive_byte(uint8_t byte)
                 conv_samples[conv_cnt] = conv_val_holder;
                 conv_cnt++;
             }
-
-            ADS7841_RX_EVT = ADS7841_RX_EVT_complete;
             SPI0_disable_rx_irq();
+            ADS7841_RX_EVT = ADS7841_RX_EVT_complete;
         }
         break;
         default:
@@ -260,7 +265,8 @@ static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
     uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
     uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
     ADS7841_RX_EVT      = ADS7841_RX_EVT_ctrl;
-    int status          = SPI0_transmit(msg, msglen, ADS7841_inter_byte_delay);
+    SPI0_enable_rx_irq();
+    int status = SPI0_transmit(msg, msglen, ADS7841_inter_byte_delay);
     return status;
 }
 
@@ -332,8 +338,13 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 
 static void ADS7841_inter_byte_delay(void)
 {
+    /* So normally you're supposed to wait for the ADS7841 to pulse
+     * its BUSY pin. But on the current implementation of sun sensor,
+     * we do not have the BUSY pin connected to the MCU. Thus, I have to
+     * introduce an artificial blocking delay between each 8 clock
+     * pulses we send to the ADS7841 */
     volatile unsigned int i;
-    for (i = 0; i < 500; i++)
+    for (i = 0; i < 450; i++)
     {
         /* Force delay */
     }
