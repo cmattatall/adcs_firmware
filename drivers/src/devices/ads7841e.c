@@ -35,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "config_assert.h"
 #include "ads7841e.h"
 #include "bufferlib.h"
 #include "spi.h"
@@ -61,8 +62,11 @@
 #define ADS7841_BITMASK12 (0x0FFF) /* 12 bit mask */
 #define ADS7841_BITMASK8 (0x00FF)  /* 8 bit mask  */
 
-
+#if defined(ADS7841_OVERSAMPLE_COUNT)
+#warning ADS7841_OVERSAMPLE_COUNT is being overridden!
+#else
 #define ADS7841_OVERSAMPLE_COUNT 10
+#endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
 {
@@ -76,6 +80,10 @@ static volatile uint8_t      conv_bytes[2];
 static volatile unsigned int conv_cnt;
 static volatile uint16_t     conv_samples[ADS7841_OVERSAMPLE_COUNT];
 static volatile unsigned int conv_byte_idx = 0;
+
+static void (*ADS7841_SPI_CHIP_SELECT_func)(void)   = NULL;
+static void (*ADS7841_SPI_CHIP_UNSELECT_func)(void) = NULL;
+
 
 static union
 {
@@ -107,8 +115,8 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
     [ADS7841_PWRMODE_always_on]  = ((3 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
 };
 
-
-void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
+void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
+                         ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
 {
     ADS7841_cfg.power_mode = mode;
     switch (conv_type)
@@ -129,20 +137,35 @@ void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
         }
         break;
     }
+    ADS7841_SPI_CHIP_SELECT_func   = ena_func;
+    ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
     SPI0_init(ADS7841_receive_byte, SPI_DATA_DIR_msb, SPI_MODE_async);
 }
 
 
 void ADS7841_driver_deinit(void)
 {
+    ADS7841_SPI_CHIP_SELECT_func   = NULL;
+    ADS7841_SPI_CHIP_UNSELECT_func = NULL;
     SPI0_deinit();
 }
 
 
 void ADS7841_TEST(void)
 {
+    ADS7841_SPI_CHIP_SELECT_func();
     ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
-    // ADS7841_measure_channel(ADS7841_CHANNEL_3);
+    ADS7841_SPI_CHIP_UNSELECT_func();
+
+#if 0
+    uint16_t val;
+    val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
+    if (val != ADS7841_CONV_STATUS_BUSY)
+    {
+        /* Do stuff with the data */
+    }
+
+#endif
 }
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
@@ -182,7 +205,6 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
         }
     }
 
-
     /* We're only going to do single-ended conversions so just force
      * the control byte into single mode */
     control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED;
@@ -218,14 +240,20 @@ static unsigned int ADS7841_busy;
 uint16_t            ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
     uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
-
-#if 0
     if (!ADS7841_busy)
     {
+        CONFIG_ASSERT(ADS7841_SPI_CHIP_SELECT_func != NULL);
+        CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
+        ADS7841_SPI_CHIP_SELECT_func();
+        ADS7841_busy = 1;
+
+        /* Perform the required number of samples */
         for (conv_cnt = 0; conv_cnt < ADS7841_OVERSAMPLE_COUNT; conv_cnt++)
         {
             ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
         }
+
+        ADS7841_SPI_CHIP_UNSELECT_func();
 
         /* Compute average value from set of samples */
         conversion_value = 0;
@@ -236,8 +264,6 @@ uint16_t            ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
         }
         conversion_value /= ADS7841_OVERSAMPLE_COUNT;
     }
-
-#endif
     return conversion_value;
 }
 
@@ -267,7 +293,7 @@ static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 {
     uint16_t power_mode = ADS7841_cfg.power_mode;
     uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
-    uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
+    uint8_t  msg[]      = {ctrl_byte, '\0'};
     uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
     return SPI0_transmit(msg, msglen, NULL);
 }

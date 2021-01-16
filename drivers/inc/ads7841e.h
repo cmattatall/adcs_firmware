@@ -34,7 +34,8 @@ typedef enum
     ADS7841_PWRMODE_always_on,
 } ADS7841_PWRMODE_t;
 
-void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type);
+void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
+                         ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type);
 
 void ADS7841_driver_deinit(void);
 

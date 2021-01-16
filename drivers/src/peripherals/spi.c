@@ -99,11 +99,8 @@ void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
     P3DIR |= BIT0;  /* set MOSI pin to output mode */
     P3DIR &= ~BIT1; /* set MISO pin to input mode */
     P3DIR |= BIT2;  /* set SPICLK pin to output mode */
-    P2DIR |= BIT3;  /* set CS pin to output mode */
 
-    P2DIR &= ~BIT3; /* set CS_other pin low to select chip */
-    P3OUT |= BIT1;
-
+    P3OUT &= ~BIT1; /* pULLDOWN Miso */
 
     SPI0_rx_callback = rx;
 

@@ -60,12 +60,31 @@ static void TIMERA0_init(void)
     TA0CCR0  = 50000;
 }
 
+
+static void ADS7841_chip_select_init(void)
+{
+    P2DIR |= BIT3; /* set CS pin to output mode */
+}
+
+
+static void ADS7841_chip_select_func(void)
+{
+    P2DIR &= ~BIT3; /* set CS_pin low to select chip */
+}
+
+static void ADS7841_chip_unselect_func(void)
+{
+    P2DIR |= BIT3; /* set CS_pin low to select chip */
+}
+
 int main(void)
 {
     stop_watchdog();
     red_led_init();
     TIMERA0_init();
-    ADS7841_driver_init(ADS7841_PWRMODE_inter_conv, ADS7841_CONVMODE_12);
+    ADS7841_chip_select_init();
+    ADS7841_driver_init(ADS7841_chip_select_func, ADS7841_chip_unselect_func,
+                        ADS7841_PWRMODE_inter_conv, ADS7841_CONVMODE_12);
     enable_interrupts();
     uint16_t val;
 
