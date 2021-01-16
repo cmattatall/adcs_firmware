@@ -28,7 +28,7 @@ static volatile int timer_count = 0;
 
 __interrupt_vec(TIMER0_A0_VECTOR) void Timer_A(void)
 {
-    timer_count++;
+    timer_count = 1;
 }
 
 
@@ -69,24 +69,18 @@ int main(void)
     enable_interrupts();
     uint16_t val;
 
-    ADS7841_TEST();
-
-    ADS7841_TEST();
-
-    ADS7841_TEST();
-
-    ADS7841_TEST();
-
     while (1)
     {
-        if (timer_count == 3)
+        if (timer_count)
         {
             P1OUT ^= 0x01;
+            ADS7841_TEST();
 
             /*
             val         = ADS7841_measure_channel(ADS7841_CHANNEL_3);
-            timer_count = 0;
             */
+
+            timer_count = 0;
         }
     }
 }

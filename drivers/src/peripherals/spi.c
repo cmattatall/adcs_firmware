@@ -163,6 +163,16 @@ void SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
     }
 }
 
+static volatile uint16_t SPI0_IE_backup;
+static void              SPI0_INTMSK_push(void)
+{
+    SPI0_IE_backup = UCB0IE;
+}
+
+static void SPI0_INTMSK_pop(void)
+{
+    UCB0IE = SPI0_IE_backup;
+}
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
@@ -177,7 +187,11 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
         {
             if (NULL != SPI0_rx_callback)
             {
+                SPI0_INTMSK_push();
+                SPI0_disable_tx_irq();
+                SPI0_disable_rx_irq();
                 SPI0_rx_callback(UCB0RXBUF);
+                SPI0_INTMSK_pop();
             }
         }
         break;
@@ -191,7 +205,11 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
             {
                 if (SPI0_tx_cfg.cplt_callback != NULL)
                 {
+                    SPI0_INTMSK_push();
+                    SPI0_disable_tx_irq();
+                    SPI0_disable_rx_irq();
                     SPI0_tx_cfg.cplt_callback();
+                    SPI0_INTMSK_pop();
                 }
                 SPI0_transmit_byte();
             }
@@ -209,24 +227,28 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 static void SPI0_enable_rx_irq(void)
 {
     UCB0IE |= UCRXIE;
+    _no_operation(); /* See page 60 of user guide! */
 }
 
 
 static void SPI0_disable_rx_irq(void)
 {
     UCB0IE &= ~UCRXIE;
+    _no_operation(); /* See page 60 of user guide! */
 }
 
 
 static void SPI0_enable_tx_irq(void)
 {
     UCB0IE |= UCTXIE;
+    _no_operation(); /* See page 60 of user guide! */
 }
 
 
 static void SPI0_disable_tx_irq(void)
 {
     UCB0IE &= ~UCTXIE;
+    _no_operation(); /* See page 60 of user guide! */
 }
 
 

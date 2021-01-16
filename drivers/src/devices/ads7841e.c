@@ -266,9 +266,9 @@ static void ADS7841_receive_byte(uint8_t byte)
 
 static void ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 {
-    uint8_t  ctrl_byte;
     uint16_t power_mode = ADS7841_cfg.power_mode;
-    ctrl_byte           = ADS7841_ctrl_byte(ch, power_mode, type);
-    uint8_t msg[]       = {ctrl_byte, '\0', '\0'};
-    SPI0_transmit(msg, sizeof(msg) / sizeof(*msg), NULL);
+    uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
+    uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
+    uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
+    SPI0_transmit(msg, msglen, NULL);
 }
