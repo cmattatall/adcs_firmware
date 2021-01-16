@@ -31,7 +31,7 @@ typedef enum
 
 void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode);
 void SPI0_deinit(void);
-int  SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*callback)(void));
+void SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*callback)(void));
 
 
 #else

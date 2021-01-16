@@ -73,12 +73,8 @@ int main(void)
     {
         if (timer_count == 3)
         {
-            ADS7841_TEST();
-
-            /*
             P1OUT ^= 0x01;
-            val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
-            */
+            val         = ADS7841_measure_channel(ADS7841_CHANNEL_3);
             timer_count = 0;
         }
     }

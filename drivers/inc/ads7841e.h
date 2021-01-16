@@ -40,7 +40,6 @@ void ADS7841_driver_deinit(void);
 
 uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch);
 
-bool ADS7841_is_busy(void);
 
 #warning REMOVE ME LATER
 void ADS7841_TEST(void);

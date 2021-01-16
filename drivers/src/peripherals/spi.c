@@ -22,6 +22,9 @@
 #include <msp430.h>
 #include "spi.h"
 
+#define UCB0IVNOP (0x00)
+#define UCB0IVRX (0x02)
+#define UCB0IVTX (0x04)
 
 typedef enum
 {
@@ -37,14 +40,22 @@ typedef enum
     SPI_IRQ_tx,
 } SPI_IRQ_t;
 
-static receive_func          SPI0_rx_callback = NULL;
-static volatile unsigned int tx_flag;
+static receive_func SPI0_rx_callback = NULL;
 
-static volatile const uint8_t *SPI0_tx_ptr;
-static volatile const uint8_t *SPI0_tx_ptr_end;
+typedef struct
+{
+    volatile const uint8_t *ptr;
+    volatile const uint8_t *ptr_end;
+    void (*cplt_callback)(void);
+} tx_config;
+
+static tx_config SPI0_tx_cfg;
 
 static void SPI0_enable_rx_irq(void);
 static void SPI0_disable_rx_irq(void);
+static void SPI0_enable_tx_irq(void);
+static void SPI0_disable_tx_irq(void);
+static void SPI0_reset_tx_config(tx_config *cfg);
 
 
 void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
@@ -103,78 +114,107 @@ void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode)
 
     SPI0_rx_callback = rx;
 
+    /* Reset transmit configuration */
+    SPI0_reset_tx_config(&SPI0_tx_cfg);
+
     SPI0_enable_rx_irq();
+
     log_trace("initialized SPI on UCB0\n");
 }
 
 void SPI0_deinit(void)
 {
-
-    UCB0IE &= ~(UCRXIE | UCTXIE);    /* Disable interrupts */
-    UCB0IFG &= ~(UCTXIFG | UCRXIFG); /* Clear pending interrupt flags */
-    SPI0_rx_callback = NULL;         /* Reset callback */
+    /* Disable interrupts */
     SPI0_disable_rx_irq();
+    SPI0_disable_tx_irq();
+
+    /* Clear pending interrupt flags */
+    UCB0IFG &= ~(UCTXIFG | UCRXIFG);
+
+    /* Reset callback */
+    SPI0_rx_callback = NULL;
+
+    /* Reset transmit configuration */
+    SPI0_tx_cfg.ptr           = NULL;
+    SPI0_tx_cfg.ptr_end       = NULL;
+    SPI0_tx_cfg.cplt_callback = NULL;
+
     log_trace("deitialized SPI on UCB0\n");
 }
 
 
-int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_callback)(void))
+void SPI0_transmit(const uint8_t *bytes, uint16_t len,
+                   void (*tx_callback)(void))
 {
     int status = -1;
     CONFIG_ASSERT(bytes != NULL);
     if (len > 0)
     {
-        SPI0_tx_ptr     = bytes;
-        SPI0_tx_ptr_end = bytes + (len - 1);
+        SPI0_tx_cfg.cplt_callback = tx_callback;
+        SPI0_tx_cfg.ptr           = bytes;
+        SPI0_tx_cfg.ptr_end       = bytes + len;
 
-        unsigned int i;
-        tx_flag = 1;
-        for (i = 0; i < len;)
+        /* Transmit next byte */
+        uint8_t byte = *SPI0_tx_cfg.ptr;
+        SPI0_tx_cfg.ptr++;
+        if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
         {
-            if (tx_flag)
-            {
-                tx_flag = 0;
-                while (UCB0STAT & UCBBUSY)
-                {
-                    /* Wait for bus to become available */
-                }
-
-                /* Transmit next byte */
-                UCB0TXBUF = bytes[i];
-                if (tx_callback != NULL)
-                {
-                    tx_callback();
-                }
-
-                i++;
-            }
+            SPI0_reset_tx_config(&SPI0_tx_cfg);
         }
-
-        /* Check if all bytes transmitted */
-        if (i == len)
-        {
-            status = 0;
-        }
+        UCB0TXBUF = byte;
     }
-    return status;
 }
 
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
-    switch (__even_in_range(UCB0IV, 4))
+    switch (UCB0IV)
     {
-        case 0x02: /* Receive interrupt triggered IRQ */
+        case UCB0IVNOP:
         {
+            /* No interrupt pending */
+        }
+        break;
+        case UCB0IVRX: /* Receive interrupt triggered IRQ */
+        {
+            if (SPI0_tx_cfg.ptr != NULL)
+            {
+                if (SPI0_tx_cfg.cplt_callback != NULL)
+                {
+                    SPI0_tx_cfg.cplt_callback();
+                }
+
+                while ((UCB0IFG & UCTXIFG))
+                {
+                    /* Wait until UCB0TXBUF ready */
+                }
+
+                /* Prepare next byte */
+                uint8_t byte = *SPI0_tx_cfg.ptr;
+                SPI0_tx_cfg.ptr++;
+                if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
+                {
+                    SPI0_reset_tx_config(&SPI0_tx_cfg);
+                }
+
+                /* Transmit next byte */
+                UCB0TXBUF = byte;
+            }
+
             if (NULL != SPI0_rx_callback)
             {
                 SPI0_rx_callback(UCB0RXBUF);
             }
-
-            if ((UCB0IFG & UCTXIFG) == UCTXIFG)
-            {
-                tx_flag = 1;
-            }
+        }
+        break;
+        case UCB0IVTX:
+        {
+            /* Next byte can be written to UCB0TXBUF */
+        }
+        break;
+        default:
+        {
+            /* Do nothing */
         }
         break;
     }
@@ -190,4 +230,23 @@ static void SPI0_enable_rx_irq(void)
 static void SPI0_disable_rx_irq(void)
 {
     UCB0IE &= ~UCRXIE;
+}
+
+static void SPI0_enable_tx_irq(void)
+{
+    UCB0IE |= UCTXIE;
+}
+
+
+static void SPI0_disable_tx_irq(void)
+{
+    UCB0IE &= ~UCTXIE;
+}
+
+
+static void SPI0_reset_tx_config(tx_config *cfg)
+{
+    cfg->cplt_callback = NULL;
+    cfg->ptr           = NULL;
+    cfg->ptr_end       = NULL;
 }
