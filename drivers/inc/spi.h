@@ -28,10 +28,9 @@ typedef enum
     SPI_MODE_async,
 } SPI_MODE_t;
 
-
 void SPI0_init(receive_func rx, SPI_DIR_t dir, SPI_MODE_t mode);
 void SPI0_deinit(void);
-void SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*callback)(void));
+void SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
 
 
 #else

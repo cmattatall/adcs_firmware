@@ -67,7 +67,7 @@
 static struct
 {
     ADS7841_PWRMODE_t  power_mode;
-    ADS7841_CONVTYPE_t conv_type;
+    ADS7841_CONVMODE_t conv_type;
     uint16_t           sample_mask;
 } ADS7841_cfg;
 
@@ -86,10 +86,10 @@ static union
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_PWRMODE_t  mode,
-                                 ADS7841_CONVTYPE_t conv_type);
+                                 ADS7841_CONVMODE_t conv_type);
 
 static void ADS7841_receive_byte(uint8_t byte);
-static void ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t type);
+static void ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
 
 /* See table 1 of page 9 datasheet.
  * I have NO clue why they chose a bit mapping like this... */
@@ -107,17 +107,17 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
 };
 
 
-void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVTYPE_t conv_type)
+void ADS7841_driver_init(ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
 {
     ADS7841_cfg.power_mode = mode;
     switch (conv_type)
     {
-        case ADS7841_CONVTYPE_8:
+        case ADS7841_CONVMODE_8:
         {
             ADS7841_cfg.sample_mask = ADS7841_BITMASK8;
         }
         break;
-        case ADS7841_CONVTYPE_12:
+        case ADS7841_CONVMODE_12:
         {
             ADS7841_cfg.sample_mask = ADS7841_BITMASK12;
         }
@@ -137,9 +137,15 @@ void ADS7841_driver_deinit(void)
     SPI0_deinit();
 }
 
+
+void ADS7841_TEST(void)
+{
+    ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
+}
+
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_PWRMODE_t  mode,
-                                 ADS7841_CONVTYPE_t conv_type)
+                                 ADS7841_CONVMODE_t conv_type)
 {
     uint8_t control_byte = 0;
 
@@ -182,12 +188,12 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
     /** @note this is a bit hacky but whatever */
     switch (conv_type)
     {
-        case ADS7841_CONVTYPE_8:
+        case ADS7841_CONVMODE_8:
         {
             control_byte |= CTL_MODE_8BIT;
         }
         break;
-        case ADS7841_CONVTYPE_12:
+        case ADS7841_CONVMODE_12:
         {
             control_byte |= CTL_MODE_12BIT;
         }
@@ -209,9 +215,11 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 static unsigned int ADS7841_busy;
 uint16_t            ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
+    uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
+
+#if 0
     if (!ADS7841_busy)
     {
-        uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
         for (conv_cnt = 0; conv_cnt < ADS7841_OVERSAMPLE_COUNT; conv_cnt++)
         {
             ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
@@ -225,16 +233,18 @@ uint16_t            ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
             conv_cnt--;
         }
         conversion_value /= ADS7841_OVERSAMPLE_COUNT;
-        return conversion_value;
     }
-    else
-    {
-    }
+
+#endif
+    return conversion_value;
 }
 
 
 static void ADS7841_receive_byte(uint8_t byte)
 {
+#warning REMOVE ME LATER
+    return;
+
     if (conv_byte_idx == 0)
     {
         ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
@@ -254,7 +264,7 @@ static void ADS7841_receive_byte(uint8_t byte)
     }
 }
 
-static void ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVTYPE_t type)
+static void ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 {
     uint8_t  ctrl_byte;
     uint16_t power_mode = ADS7841_cfg.power_mode;

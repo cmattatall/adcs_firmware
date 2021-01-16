@@ -26,13 +26,6 @@
 #define UCB0IVRX (0x02)
 #define UCB0IVTX (0x04)
 
-typedef enum
-{
-    SPI_TRANSMIT_STATUS_ok,
-    SPI_TRANSMIT_STATUS_error,
-    SPI_TRANSMIT_STATUS_empty,
-    SPI_TRANSMIT_STATUS_timeout,
-} SPI_TRANSMIT_STATUS_t;
 
 typedef enum
 {
@@ -142,26 +135,31 @@ void SPI0_deinit(void)
     log_trace("deitialized SPI on UCB0\n");
 }
 
-
-void SPI0_transmit(const uint8_t *bytes, uint16_t len,
-                   void (*tx_callback)(void))
+static void SPI0_transmit_byte(void)
 {
-    int status = -1;
-    CONFIG_ASSERT(bytes != NULL);
-    if (len > 0)
+    /* Transmit next byte */
+    uint8_t byte = *SPI0_tx_cfg.ptr;
+    SPI0_tx_cfg.ptr++;
+    if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
     {
-        SPI0_tx_cfg.cplt_callback = tx_callback;
-        SPI0_tx_cfg.ptr           = bytes;
-        SPI0_tx_cfg.ptr_end       = bytes + len;
+        SPI0_reset_tx_config(&SPI0_tx_cfg);
+    }
+    UCB0TXBUF = byte;
+}
 
-        /* Transmit next byte */
-        uint8_t byte = *SPI0_tx_cfg.ptr;
-        SPI0_tx_cfg.ptr++;
-        if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
+void SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
+{
+    CONFIG_ASSERT(bytes != NULL);
+    if (SPI0_tx_cfg.ptr == NULL)
+    {
+        if (len > 0)
         {
-            SPI0_reset_tx_config(&SPI0_tx_cfg);
+            SPI0_tx_cfg.cplt_callback = tx_cb;
+            SPI0_tx_cfg.ptr           = bytes;
+            SPI0_tx_cfg.ptr_end       = bytes + len;
+            SPI0_transmit_byte();
+            SPI0_enable_tx_irq();
         }
-        UCB0TXBUF = byte;
     }
 }
 
@@ -177,30 +175,6 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
         break;
         case UCB0IVRX: /* Receive interrupt triggered IRQ */
         {
-            if (SPI0_tx_cfg.ptr != NULL)
-            {
-                if (SPI0_tx_cfg.cplt_callback != NULL)
-                {
-                    SPI0_tx_cfg.cplt_callback();
-                }
-
-                while ((UCB0IFG & UCTXIFG))
-                {
-                    /* Wait until UCB0TXBUF ready */
-                }
-
-                /* Prepare next byte */
-                uint8_t byte = *SPI0_tx_cfg.ptr;
-                SPI0_tx_cfg.ptr++;
-                if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
-                {
-                    SPI0_reset_tx_config(&SPI0_tx_cfg);
-                }
-
-                /* Transmit next byte */
-                UCB0TXBUF = byte;
-            }
-
             if (NULL != SPI0_rx_callback)
             {
                 SPI0_rx_callback(UCB0RXBUF);
@@ -209,7 +183,18 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
         break;
         case UCB0IVTX:
         {
-            /* Next byte can be written to UCB0TXBUF */
+            /** @todo IF we've hardened the driver
+             * logic in both release and
+             * debug modes, we can remove this check
+             */
+            if (SPI0_tx_cfg.ptr != NULL)
+            {
+                if (SPI0_tx_cfg.cplt_callback != NULL)
+                {
+                    SPI0_tx_cfg.cplt_callback();
+                }
+                SPI0_transmit_byte();
+            }
         }
         break;
         default:
@@ -232,6 +217,7 @@ static void SPI0_disable_rx_irq(void)
     UCB0IE &= ~UCRXIE;
 }
 
+
 static void SPI0_enable_tx_irq(void)
 {
     UCB0IE |= UCTXIE;
@@ -249,4 +235,5 @@ static void SPI0_reset_tx_config(tx_config *cfg)
     cfg->cplt_callback = NULL;
     cfg->ptr           = NULL;
     cfg->ptr_end       = NULL;
+    SPI0_disable_tx_irq();
 }
