@@ -28,7 +28,7 @@ static volatile int timer_count = 0;
 
 __interrupt_vec(TIMER0_A0_VECTOR) void Timer_A(void)
 {
-    timer_count = 1;
+    timer_count++;
 }
 
 
@@ -90,7 +90,7 @@ int main(void)
 
     while (1)
     {
-        if (timer_count)
+        if (timer_count == 3)
         {
             P1OUT ^= 0x01;
             ADS7841_TEST();

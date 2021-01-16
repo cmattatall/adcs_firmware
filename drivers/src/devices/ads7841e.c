@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 10
+#define ADS7841_OVERSAMPLE_COUNT 20
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -75,12 +75,16 @@ static struct
     uint16_t           sample_mask;
 } ADS7841_cfg;
 
-
 static volatile uint8_t      conv_bytes[2];
 static volatile unsigned int conv_cnt;
 static volatile uint16_t     conv_samples[ADS7841_OVERSAMPLE_COUNT];
 static volatile unsigned int conv_byte_idx = 0;
 
+/* flag to ignore SPI rx event on slave loopback for control byte */
+static volatile unsigned int ADS7841_ctrl_byte_rx_flag;
+
+/* Chip select functions. Caller provides as part of driver init
+ * because SPI CS line may be MUXed with other devices */
 static void (*ADS7841_SPI_CHIP_SELECT_func)(void)   = NULL;
 static void (*ADS7841_SPI_CHIP_UNSELECT_func)(void) = NULL;
 
@@ -90,14 +94,6 @@ static union
     uint8_t  bytes[2];
     uint16_t conv_val;
 } ADS7841_sample_holder;
-
-
-static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
-                                 ADS7841_PWRMODE_t  mode,
-                                 ADS7841_CONVMODE_t conv_type);
-
-static void ADS7841_receive_byte(uint8_t byte);
-static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
 
 
 /* See table 1 of page 9 datasheet.
@@ -114,6 +110,31 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
     [ADS7841_PWRMODE_inter_conv] = ((0 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
     [ADS7841_PWRMODE_always_on]  = ((3 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
 };
+
+static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
+                                 ADS7841_PWRMODE_t  mode,
+                                 ADS7841_CONVMODE_t conv_type);
+
+static void ADS7841_receive_byte(uint8_t byte);
+static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
+
+#warning REMOVE ME LATER
+void ADS7841_TEST(void)
+{
+
+#if 0
+    ADS7841_SPI_CHIP_SELECT_func();
+    ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
+    ADS7841_SPI_CHIP_UNSELECT_func();
+#endif
+
+    uint16_t val;
+    val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
+    if (val != ADS7841_CONV_STATUS_BUSY)
+    {
+        /* Do stuff with the data */
+    }
+}
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
                          ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
@@ -151,22 +172,92 @@ void ADS7841_driver_deinit(void)
 }
 
 
-void ADS7841_TEST(void)
+uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
+    uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
+    CONFIG_ASSERT(ADS7841_SPI_CHIP_SELECT_func != NULL);
+    CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
+
     ADS7841_SPI_CHIP_SELECT_func();
-    ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
+    while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
+    {
+        /* Perform the required number of samples */
+        ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
+    }
     ADS7841_SPI_CHIP_UNSELECT_func();
 
-#if 0
-    uint16_t val;
-    val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
-    if (val != ADS7841_CONV_STATUS_BUSY)
+    /* Compute average value from set of samples */
+    conversion_value = 0;
+    while (conv_cnt)
     {
-        /* Do stuff with the data */
+        conversion_value += conv_samples[conv_cnt];
+        conv_cnt--;
     }
-
-#endif
+    conversion_value /= ADS7841_OVERSAMPLE_COUNT;
+    return conversion_value;
 }
+
+
+static void ADS7841_receive_byte(uint8_t byte)
+{
+    /* Loopback on control byte will generate a SPI rx event but it
+     * isn't part of the data from conversion channel */
+    if (ADS7841_ctrl_byte_rx_flag)
+    {
+        ADS7841_ctrl_byte_rx_flag = 0;
+    }
+    else
+    {
+        if (conv_byte_idx == 0)
+        {
+            ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
+            conv_byte_idx                              = 1;
+        }
+        else
+        {
+            ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
+            conv_byte_idx                              = 0;
+
+            if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
+            {
+                ADS7841_sample_holder.conv_val &= ADS7841_cfg.sample_mask;
+                conv_samples[conv_cnt] = ADS7841_sample_holder.conv_val;
+                conv_cnt++;
+            }
+        }
+    }
+}
+
+
+static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
+{
+    uint16_t power_mode       = ADS7841_cfg.power_mode;
+    uint8_t  ctrl_byte        = ADS7841_ctrl_byte(ch, power_mode, type);
+    uint8_t  msg[]            = {ctrl_byte, '\0', '\0'};
+    uint16_t msglen           = (uint16_t)(sizeof(msg) / sizeof(*msg));
+    ADS7841_ctrl_byte_rx_flag = 1;
+
+    int status = SPI0_transmit(msg, msglen, NULL);
+
+    /** @todo THIS SHOULD EVENTUALLY BECOME A FUNCTION OF THE
+     * RCC CONFIGURATION ON THE MCU (slower clocking means we can
+     * use a smaller max count to force the delay. This delay MUST
+     * be blocking unfortunately.
+     *
+     * @note I got the 1800 value by measuring the minimum delay (with a scope)
+     * that could be inserted between subsequent continuous
+     * conversions commands while still receiving valid conversion data from
+     * the device - Carl
+     *  */
+    volatile unsigned int conv_delay;
+    for (conv_delay = 0; conv_delay < 1800; conv_delay++)
+    {
+        /* Force blocking delay because there is a minimum amount of
+         * time it takes for the ADS7841 to perform the conversion */
+    }
+    return status;
+}
+
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_PWRMODE_t  mode,
@@ -233,77 +324,4 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
     control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
 
     return control_byte;
-}
-
-
-static unsigned int ADS7841_busy;
-uint16_t            ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
-{
-    uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
-    if (!ADS7841_busy)
-    {
-        CONFIG_ASSERT(ADS7841_SPI_CHIP_SELECT_func != NULL);
-        CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
-        ADS7841_SPI_CHIP_SELECT_func();
-        ADS7841_busy = 1;
-
-        /* Perform the required number of samples */
-        for (conv_cnt = 0; conv_cnt < ADS7841_OVERSAMPLE_COUNT; conv_cnt++)
-        {
-            ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
-        }
-
-        ADS7841_SPI_CHIP_UNSELECT_func();
-
-        /* Compute average value from set of samples */
-        conversion_value = 0;
-        while (conv_cnt)
-        {
-            conversion_value += conv_samples[conv_cnt];
-            conv_cnt--;
-        }
-        conversion_value /= ADS7841_OVERSAMPLE_COUNT;
-    }
-    return conversion_value;
-}
-
-
-static void ADS7841_receive_byte(uint8_t byte)
-{
-    if (conv_byte_idx == 0)
-    {
-        ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
-        conv_byte_idx                              = 1;
-    }
-    else
-    {
-        ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
-        conv_byte_idx                              = 0;
-
-        if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
-        {
-            ADS7841_sample_holder.conv_val &= ADS7841_cfg.sample_mask;
-            conv_samples[conv_cnt] = ADS7841_sample_holder.conv_val;
-            conv_cnt++;
-        }
-    }
-}
-
-
-static void ADS7841_transmit_delay(void)
-{
-    volatile unsigned int i;
-    for (i = 0; i < 1000; i++)
-    {
-        /* Force inter-clock delay */
-    }
-}
-
-static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
-{
-    uint16_t power_mode = ADS7841_cfg.power_mode;
-    uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
-    uint8_t  msg[]      = {ctrl_byte, '\0'};
-    uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
-    return SPI0_transmit(msg, msglen, ADS7841_transmit_delay);
 }
