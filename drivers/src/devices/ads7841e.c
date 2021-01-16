@@ -75,25 +75,25 @@ static struct
     uint16_t           sample_mask;
 } ADS7841_cfg;
 
-static volatile uint8_t      conv_bytes[2];
-static volatile unsigned int conv_cnt;
-static volatile uint16_t     conv_samples[ADS7841_OVERSAMPLE_COUNT];
-static volatile unsigned int conv_byte_idx = 0;
+/* Valid conversion value buffer */
+static volatile uint16_t conv_cnt;
+static volatile uint16_t conv_samples[ADS7841_OVERSAMPLE_COUNT];
 
-/* flag to ignore SPI rx event on slave loopback for control byte */
-static volatile unsigned int ADS7841_ctrl_byte_rx_flag;
+/* Temporary conversion value holder */
+static volatile uint16_t conv_val_holder;
+
+/* State machine for SPI receive events */
+static volatile enum {
+    ADS7841_RX_EVT_ctrl,
+    ADS7841_RX_EVT_hi,
+    ADS7841_RX_EVT_lo,
+} ADS7841_RX_EVT;
+
 
 /* Chip select functions. Caller provides as part of driver init
  * because SPI CS line may be MUXed with other devices */
 static void (*ADS7841_SPI_CHIP_SELECT_func)(void)   = NULL;
 static void (*ADS7841_SPI_CHIP_UNSELECT_func)(void) = NULL;
-
-
-static union
-{
-    uint8_t  bytes[2];
-    uint16_t conv_val;
-} ADS7841_sample_holder;
 
 
 /* See table 1 of page 9 datasheet.
@@ -118,22 +118,24 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 static void ADS7841_receive_byte(uint8_t byte);
 static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
 
+static void ADS7841_inter_byte_delay(void);
+
 #warning REMOVE ME LATER
 void ADS7841_TEST(void)
 {
-
-#if 0
     ADS7841_SPI_CHIP_SELECT_func();
     ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_CONVMODE_12);
     ADS7841_SPI_CHIP_UNSELECT_func();
-#endif
 
+#if 0
     uint16_t val;
     val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
     if (val != ADS7841_CONV_STATUS_BUSY)
     {
         /* Do stuff with the data */
     }
+
+#endif
 }
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
@@ -200,62 +202,54 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 
 static void ADS7841_receive_byte(uint8_t byte)
 {
-    /* Loopback on control byte will generate a SPI rx event but it
-     * isn't part of the data from conversion channel */
-    if (ADS7841_ctrl_byte_rx_flag)
+    switch (ADS7841_RX_EVT)
     {
-        ADS7841_ctrl_byte_rx_flag = 0;
-    }
-    else
-    {
-        if (conv_byte_idx == 0)
+        case ADS7841_RX_EVT_ctrl:
         {
-            ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
-            conv_byte_idx                              = 1;
-        }
-        else
-        {
-            ADS7841_sample_holder.bytes[conv_byte_idx] = byte;
-            conv_byte_idx                              = 0;
+            conv_val_holder = 0;
 
+            /* Expect high byte next */
+            ADS7841_RX_EVT = ADS7841_RX_EVT_hi;
+        }
+        break;
+        case ADS7841_RX_EVT_hi:
+        {
+            conv_val_holder |= byte << CHAR_BIT;
+
+            /* Expect low byte next */
+            ADS7841_RX_EVT = ADS7841_RX_EVT_lo;
+        }
+        break;
+        case ADS7841_RX_EVT_lo:
+        {
+            conv_val_holder |= byte;
+
+            /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
             {
-                ADS7841_sample_holder.conv_val &= ADS7841_cfg.sample_mask;
-                conv_samples[conv_cnt] = ADS7841_sample_holder.conv_val;
+                conv_val_holder &= ADS7841_cfg.sample_mask;
+                conv_samples[conv_cnt] = conv_val_holder;
                 conv_cnt++;
             }
         }
+        break;
+        default:
+        {
+            /* Do nothing */
+        }
+        break;
     }
 }
 
 
 static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 {
-    uint16_t power_mode       = ADS7841_cfg.power_mode;
-    uint8_t  ctrl_byte        = ADS7841_ctrl_byte(ch, power_mode, type);
-    uint8_t  msg[]            = {ctrl_byte, '\0', '\0'};
-    uint16_t msglen           = (uint16_t)(sizeof(msg) / sizeof(*msg));
-    ADS7841_ctrl_byte_rx_flag = 1;
-
-    int status = SPI0_transmit(msg, msglen, NULL);
-
-    /** @todo THIS SHOULD EVENTUALLY BECOME A FUNCTION OF THE
-     * RCC CONFIGURATION ON THE MCU (slower clocking means we can
-     * use a smaller max count to force the delay. This delay MUST
-     * be blocking unfortunately.
-     *
-     * @note I got the 1800 value by measuring the minimum delay (with a scope)
-     * that could be inserted between subsequent continuous
-     * conversions commands while still receiving valid conversion data from
-     * the device - Carl
-     *  */
-    volatile unsigned int conv_delay;
-    for (conv_delay = 0; conv_delay < 1800; conv_delay++)
-    {
-        /* Force blocking delay because there is a minimum amount of
-         * time it takes for the ADS7841 to perform the conversion */
-    }
-    return status;
+    uint16_t power_mode = ADS7841_cfg.power_mode;
+    uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
+    uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
+    uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
+    ADS7841_RX_EVT      = ADS7841_RX_EVT_ctrl;
+    return SPI0_transmit(msg, msglen, ADS7841_inter_byte_delay);
 }
 
 
@@ -319,9 +313,16 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
         }
         break;
     }
-
-
     control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
-
     return control_byte;
+}
+
+
+static void ADS7841_inter_byte_delay(void)
+{
+    volatile unsigned int i;
+    for (i = 0; i < 500; i++)
+    {
+        /* Force delay */
+    }
 }
