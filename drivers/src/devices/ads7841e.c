@@ -289,11 +289,21 @@ static void ADS7841_receive_byte(uint8_t byte)
     }
 }
 
+
+static void ADS7841_transmit_delay(void)
+{
+    volatile unsigned int i;
+    for (i = 0; i < 1000; i++)
+    {
+        /* Force inter-clock delay */
+    }
+}
+
 static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 {
     uint16_t power_mode = ADS7841_cfg.power_mode;
     uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
     uint8_t  msg[]      = {ctrl_byte, '\0'};
     uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
-    return SPI0_transmit(msg, msglen, NULL);
+    return SPI0_transmit(msg, msglen, ADS7841_transmit_delay);
 }
