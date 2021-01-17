@@ -89,26 +89,17 @@ int main(void)
                         ADS7841_PWRMODE_always_on, ADS7841_CONVMODE_12);
     enable_interrupts();
     uint16_t val;
-
-#warning REMOVE ME LATER
-    ADS7841_chip_select_func();
-
-
     while (1)
     {
         if (timer_count)
         {
             P1OUT ^= 0x01;
 
-            ADS7841_TEST();
-
-#if 0
             val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
             if (val != ADS7841_CONV_STATUS_BUSY)
             {
                 /* Do stuff with the digitized analog value */
             }
-#endif
             timer_count = 0;
         }
     }

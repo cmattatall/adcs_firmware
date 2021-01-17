@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 2
+#define ADS7841_OVERSAMPLE_COUNT 1
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -126,7 +126,6 @@ static void ADS7841_disable_chip(void);
 
 
 static void ADS7841_receive_byte(uint8_t byte);
-static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
                          ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_mode)
@@ -157,20 +156,6 @@ void ADS7841_driver_deinit(void)
 }
 
 
-#warning REMOVE ME LATER
-void ADS7841_TEST(void)
-{
-    /* Perform the required number of samples */
-    ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_cfg.conv_mode);
-
-    /*
-    while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
-    {
-    }
-    */
-}
-
-
 uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
     uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
@@ -181,22 +166,32 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     ADS7841_enable_chip();
     volatile unsigned int conv_timeout;
     unsigned int          timeout_counts = 0;
+
+    uint16_t power_mode = ADS7841_cfg.power_mode;
+    uint8_t  ctrl_byte;
+    ctrl_byte = ADS7841_ctrl_byte(ch, power_mode, ADS7841_CONVMODE_12);
+
+#if (ADS7841_OVERSAMPLE_COUNT > 1)
+    uint8_t cmd[] = {ctrl_byte, '\0'}; /* Overlap consecutive samples */
+#else
+    uint8_t cmd[] = {ctrl_byte, '\0', '\0'};
+#endif
+
+    /* Perform the required number of samples */
     while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
     {
-        /* Perform the required number of samples */
-        ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_mode);
-
-
-        volatile unsigned int i;
-        for (i = 0; i < 20000; i++)
+        ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
+        SPI0_enable_rx_irq();
+        if (SPI0_transmit(cmd, sizeof(cmd), NULL))
         {
-            /* WEOFHWEOF */
+            /* Abort. SPI bus possibly being hogged by some other device. */
+            break;
         }
 
+        /* wait for conversion to complete (with timeout) */
         conv_timeout = 0;
         while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
         {
-            /* wait for conversion to complete (with timeout) */
             if (++conv_timeout > 1000)
             {
                 timeout_counts++;
@@ -204,9 +199,9 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
             }
         }
 
+        /* Abort if too many conversion fail */
         if (timeout_counts > ADS7841_OVERSAMPLE_COUNT)
         {
-            /* Default value is the error state */
             return conversion_value;
         }
     }
@@ -268,30 +263,6 @@ static void ADS7841_receive_byte(uint8_t byte)
     }
 }
 
-static void ADS7841_delay(void)
-{
-    volatile unsigned int i;
-    for (i = 0; i < 1; i++)
-    {
-        /* blah */
-    }
-}
-
-static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
-{
-    uint16_t power_mode = ADS7841_cfg.power_mode;
-    uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
-    uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
-    ADS7841_RX_EVT      = ADS7841_RX_EVT_ctrl;
-    SPI0_enable_rx_irq();
-    int error = SPI0_transmit(msg, sizeof(msg), NULL);
-    if (error)
-    {
-        return error;
-    }
-    return 0;
-}
-
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_PWRMODE_t  pwr_mode,
@@ -310,12 +281,14 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 static void ADS7841_enable_chip(void)
 {
     ADS7841_SPI_CHIP_SELECT_func();
-    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING */
+    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING
+     */
 }
 
 
 static void ADS7841_disable_chip(void)
 {
-    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING */
+    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING
+     */
     ADS7841_SPI_CHIP_UNSELECT_func();
 }
