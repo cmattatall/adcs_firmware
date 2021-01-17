@@ -86,11 +86,13 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
 
     if (init->phy_cfg == SPI_PHY_3)
     {
+        UCB0CTL0 &= ~(UCMODE_3 | UCMODE_2 | UCMODE_1 | UCMODE_0);
         UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
     }
     else
     {
-        UCB0CTL0 &= ~UCMODE_0; /* mode 0 (3 PIN SPI)*/
+        UCB0CTL0 &= ~(UCMODE_3 | UCMODE_2 | UCMODE_1 | UCMODE_0);
+        UCB0CTL0 |= UCMODE_1; /* mode 0 (3 PIN SPI)*/
     }
 
 
@@ -138,10 +140,12 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
 
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
-    UCB0BR0 = 0;
-    UCB0BR1 = 0;
-    UCB0BR0 |= scaler & 0x00ff;
-    UCB0BR1 |= scaler & 0xff00;
+
+    uint8_t low_bitrate = (scaler & 0x00ff);
+    UCB0BR0             = low_bitrate;
+
+    uint8_t high_bitrate = (scaler >> 8);
+    UCB0BR1              = high_bitrate;
 
     UCB0CTL1 &= ~UCSWRST;
 

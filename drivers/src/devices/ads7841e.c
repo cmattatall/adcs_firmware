@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 20
+#define ADS7841_OVERSAMPLE_COUNT 1
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -138,10 +138,10 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     init.phy_cfg    = SPI_PHY_3;
     init.data_dir   = SPI_DATA_DIR_msb;
     init.tim_mode   = SPI_TIM_MODE_async;
-    init.edge_phase = SPI_DATA_CHANGE_edge2;
+    init.edge_phase = SPI_DATA_CHANGE_edge1;
     init.polarity   = SPI_CLK_POLARITY_low;
 
-    uint16_t ADS7841_prescaler = 0x0E00;
+    uint16_t ADS7841_prescaler = 0x0040;
     SPI0_init(ADS7841_receive_byte, &init, ADS7841_prescaler);
 }
 
@@ -240,12 +240,12 @@ static void ADS7841_receive_byte(uint8_t byte)
         case ADS7841_RX_EVT_lo:
         {
             conv_val_holder.bytes[0] = byte;
-            conv_val_holder.val >>= 4; /* truncate 16 bit to 12 */
 
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
             {
-                conv_samples[conv_cnt] = conv_val_holder.val;
+                /* truncate 16 bit to 12 */
+                conv_samples[conv_cnt] = conv_val_holder.val >> 4;
                 conv_cnt++;
             }
             SPI0_disable_rx_irq();
