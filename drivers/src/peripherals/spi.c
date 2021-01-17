@@ -55,7 +55,7 @@ typedef enum
 
 static receive_func SPI0_rx_callback = NULL;
 static void (*tx_cplt_callback)(void);
-
+static volatile int tx_flag;
 
 static void SPI0_PHY_config(void);
 
@@ -177,42 +177,33 @@ void SPI0_disable_rx_irq(void)
 }
 
 
-static volatile int tx_flag;
 int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
 {
     CONFIG_ASSERT(bytes != NULL);
-    int status = 0;
-    if (len > 0)
+    CONFIG_ASSERT(len > 0);
+    tx_cplt_callback = tx_cb;
+    tx_flag          = 1;
+    unsigned int i   = 0;
+    while (i < len)
     {
-        tx_cplt_callback = tx_cb;
-        tx_flag          = 1;
-        unsigned int i   = 0;
-        while (i < len)
+        if (tx_flag)
         {
-            if (tx_flag)
+            tx_flag = 0;
+
+            while ((UCB0IFG & UCTXIFG) != UCTXIFG)
             {
-                tx_flag = 0;
-
-                while ((UCB0IFG & UCTXIFG) != UCTXIFG)
-                {
-                    /* Wait for tx shift register to flush */
-                }
-                UCB0TXBUF = bytes[i];
-
-                if (tx_cplt_callback != NULL)
-                {
-                    tx_cplt_callback();
-                }
-                i++;
+                /* Wait for tx shift register to flush */
             }
+            UCB0TXBUF = bytes[i];
+
+            if (tx_cplt_callback != NULL)
+            {
+                tx_cplt_callback();
+            }
+            i++;
         }
     }
-    else
-    {
-        status           = -1;
-        tx_cplt_callback = NULL;
-    }
-    return status;
+    return 0;
 }
 
 
