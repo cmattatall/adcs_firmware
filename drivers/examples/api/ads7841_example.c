@@ -46,7 +46,8 @@ static void red_led_init(void)
 
 static void enable_interrupts(void)
 {
-    _BIS_SR(GIE); // Enter LPM0 w/ interrupt
+    _BIS_SR(GIE);    // Enter LPM0 w/ interrupt
+    _no_operation(); /* Fixes bug due to silicon erratta */
 }
 
 
@@ -58,7 +59,7 @@ static void TIMERA0_init(void)
     TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
     TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
     TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
-    TA0CCR0  = 50000;
+    TA0CCR0  = 1000;
 }
 
 
@@ -88,16 +89,26 @@ int main(void)
                         ADS7841_PWRMODE_always_on, ADS7841_CONVMODE_12);
     enable_interrupts();
     uint16_t val;
+
+#warning REMOVE ME LATER
+    ADS7841_chip_select_func();
+
+
     while (1)
     {
-        if (timer_count == 3)
+        if (timer_count)
         {
             P1OUT ^= 0x01;
+
+            ADS7841_TEST();
+
+#if 0
             val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
             if (val != ADS7841_CONV_STATUS_BUSY)
             {
                 /* Do stuff with the digitized analog value */
             }
+#endif
             timer_count = 0;
         }
     }

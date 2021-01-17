@@ -72,7 +72,7 @@ typedef struct
  * @param init init struct with init params
  * @param scaler clock prescaler
  */
-void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler);
+void SPI0_init(receive_func rx, const SPI_init_struct *init);
 
 
 /**

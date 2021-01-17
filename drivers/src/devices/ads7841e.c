@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 8
+#define ADS7841_OVERSAMPLE_COUNT 2
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -77,6 +77,7 @@ static struct
 /* Valid conversion value buffer */
 static volatile uint16_t conv_cnt;
 static volatile uint16_t conv_samples[ADS7841_OVERSAMPLE_COUNT];
+static volatile uint16_t converted_val;
 
 
 /* State machine for SPI receive events */
@@ -115,14 +116,17 @@ static const uint16_t ADS7841_conv_mode_map[] = {
     [ADS7841_CONVMODE_12] = (CTL_MODE_12BIT),
 };
 
+
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_PWRMODE_t  pwr_mode,
                                  ADS7841_CONVMODE_t conv_mode);
 
+static void ADS7841_enable_chip(void);
+static void ADS7841_disable_chip(void);
+
+
 static void ADS7841_receive_byte(uint8_t byte);
 static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
-
-static void ADS7841_inter_byte_delay(void);
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
                          ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_mode)
@@ -141,8 +145,7 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     init.edge_phase = SPI_DATA_CHANGE_edge1;
     init.polarity   = SPI_CLK_POLARITY_low;
 
-    uint16_t ADS7841_prescaler = 0x0100;
-    SPI0_init(ADS7841_receive_byte, &init, ADS7841_prescaler);
+    SPI0_init(ADS7841_receive_byte, &init);
 }
 
 
@@ -154,19 +157,41 @@ void ADS7841_driver_deinit(void)
 }
 
 
+#warning REMOVE ME LATER
+void ADS7841_TEST(void)
+{
+    /* Perform the required number of samples */
+    ADS7841_conv_SINGLE(ADS7841_CHANNEL_3, ADS7841_cfg.conv_mode);
+
+    /*
+    while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
+    {
+    }
+    */
+}
+
+
 uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
     uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
     CONFIG_ASSERT(ADS7841_SPI_CHIP_SELECT_func != NULL);
     CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
     memset((void *)conv_samples, 0, sizeof(conv_samples));
-    ADS7841_SPI_CHIP_SELECT_func();
 
+    ADS7841_enable_chip();
     volatile unsigned int conv_timeout;
+    unsigned int          timeout_counts = 0;
     while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
     {
         /* Perform the required number of samples */
         ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_mode);
+
+
+        volatile unsigned int i;
+        for (i = 0; i < 20000; i++)
+        {
+            /* WEOFHWEOF */
+        }
 
         conv_timeout = 0;
         while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
@@ -174,11 +199,18 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
             /* wait for conversion to complete (with timeout) */
             if (++conv_timeout > 1000)
             {
+                timeout_counts++;
                 break;
             }
         }
+
+        if (timeout_counts > ADS7841_OVERSAMPLE_COUNT)
+        {
+            /* Default value is the error state */
+            return conversion_value;
+        }
     }
-    ADS7841_SPI_CHIP_UNSELECT_func();
+    ADS7841_disable_chip();
 
     /* Compute average value from set of samples */
     conversion_value = 0;
@@ -190,61 +222,38 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     return conversion_value;
 }
 
+static volatile uint8_t bhigh;
+static volatile uint8_t blow;
+
 
 static void ADS7841_receive_byte(uint8_t byte)
 {
-    /* Temporary conversion value holder */
-    static volatile union
-    {
-        uint8_t  bytes[2];
-        uint16_t val;
-    } conv_val_holder;
-
     switch (ADS7841_RX_EVT)
     {
         case ADS7841_RX_EVT_ctrl:
         {
-            conv_val_holder.val = 0;
-
-            /* Expect high byte next */
             ADS7841_RX_EVT = ADS7841_RX_EVT_hi;
         }
         break;
         case ADS7841_RX_EVT_hi:
         {
-            if (ADS7841_cfg.conv_mode == ADS7841_CONVMODE_12)
-            {
-                /* Store high byte */
-                conv_val_holder.bytes[1] = byte;
+            bhigh         = byte;
+            converted_val = byte;
+            converted_val <<= 4;
 
-                /* Expect low byte next */
-                ADS7841_RX_EVT = ADS7841_RX_EVT_lo;
-            }
-            else
-            {
-                conv_val_holder.bytes[0] = byte;
-
-                /* If we don't have enough conversions,
-                 * store the converted value */
-                if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
-                {
-                    conv_samples[conv_cnt] = conv_val_holder.val;
-                    conv_cnt++;
-                }
-                SPI0_disable_rx_irq();
-                ADS7841_RX_EVT = ADS7841_RX_EVT_complete;
-            }
+            /* Expect low byte next */
+            ADS7841_RX_EVT = ADS7841_RX_EVT_lo;
         }
         break;
         case ADS7841_RX_EVT_lo:
         {
-            conv_val_holder.bytes[0] = byte;
-
+            blow = byte;
+            converted_val |= (byte >> 4);
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
             {
                 /* truncate 16 bit to 12 */
-                conv_samples[conv_cnt] = conv_val_holder.val >> 4;
+                conv_samples[conv_cnt] = converted_val;
                 conv_cnt++;
             }
             SPI0_disable_rx_irq();
@@ -259,17 +268,28 @@ static void ADS7841_receive_byte(uint8_t byte)
     }
 }
 
+static void ADS7841_delay(void)
+{
+    volatile unsigned int i;
+    for (i = 0; i < 1; i++)
+    {
+        /* blah */
+    }
+}
 
 static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 {
     uint16_t power_mode = ADS7841_cfg.power_mode;
     uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
     uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
-    uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
     ADS7841_RX_EVT      = ADS7841_RX_EVT_ctrl;
     SPI0_enable_rx_irq();
-    int status = SPI0_transmit(msg, msglen, ADS7841_inter_byte_delay);
-    return status;
+    int error = SPI0_transmit(msg, sizeof(msg), NULL);
+    if (error)
+    {
+        return error;
+    }
+    return 0;
 }
 
 
@@ -278,30 +298,24 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
                                  ADS7841_CONVMODE_t conv_mode)
 {
     uint8_t control_byte = 0;
-
     control_byte |= ADS7841_CHANNEL_MAP[channel];
     control_byte |= ADS7841_PWRMODE_MAP[pwr_mode];
-
-    /* We're only going to do single-ended conversions so just force
-     * the control byte into single mode */
-    control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED;
-
+    control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED; /* Force singled ended */
     control_byte |= ADS7841_conv_mode_map[conv_mode];
     control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
     return control_byte;
 }
 
 
-static void ADS7841_inter_byte_delay(void)
+static void ADS7841_enable_chip(void)
 {
-    /* So normally you're supposed to wait for the ADS7841 to pulse
-     * its BUSY pin. But on the current implementation of sun sensor,
-     * we do not have the BUSY pin connected to the MCU. Thus, I have to
-     * introduce an artificial blocking delay between each 8 clock
-     * pulses we send to the ADS7841 */
-    volatile unsigned int i;
-    for (i = 0; i < 100; i++)
-    {
-        /* Force delay */
-    }
+    ADS7841_SPI_CHIP_SELECT_func();
+    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING */
+}
+
+
+static void ADS7841_disable_chip(void)
+{
+    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING */
+    ADS7841_SPI_CHIP_UNSELECT_func();
 }

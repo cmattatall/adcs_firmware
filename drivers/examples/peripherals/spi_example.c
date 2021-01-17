@@ -122,10 +122,11 @@ static void SPI0_transmit(uint8_t *bytes, uint16_t len)
     {
         unsigned int i;
         tx_flag = 1;
-        for (i = 0; i < len; i++)
+        for (i = 0; i < len;)
         {
             if (tx_flag)
             {
+                i++;
                 tx_flag   = 0;
                 UCB0TXBUF = bytes[i];
 

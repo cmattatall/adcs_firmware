@@ -64,6 +64,9 @@ void ADS7841_driver_deinit(void);
  */
 uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch);
 
+#warning REMOVE ME LATER
+void ADS7841_TEST(void);
+
 
 #ifdef __cplusplus
 /* clang-format off */

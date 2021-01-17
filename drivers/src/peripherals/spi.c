@@ -52,25 +52,14 @@ typedef enum
     SPI_IRQ_tx,
 } SPI_IRQ_t;
 
-typedef struct
-{
-    volatile const uint8_t *ptr;
-    volatile const uint8_t *ptr_end;
-    void (*cplt_callback)(void);
-} tx_config;
-
 
 static receive_func SPI0_rx_callback = NULL;
-static tx_config    SPI0_tx_cfg;
+static void (*tx_cplt_callback)(void);
 
 
-static void SPI0_transmit_byte(void);
-static void SPI0_enable_tx_irq(void);
-static void SPI0_disable_tx_irq(void);
-static void SPI0_reset_tx_config(tx_config *cfg);
 static void SPI0_PHY_config(void);
 
-void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
+void SPI0_init(receive_func rx, const SPI_init_struct *init)
 {
 
     UCB0CTL1 |= UCSWRST; /* unlock peripheral to modify config */
@@ -141,18 +130,16 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
 
-    uint8_t low_bitrate = (scaler & 0x00ff);
-    UCB0BR0             = low_bitrate;
-
-    uint8_t high_bitrate = (scaler >> 8);
-    UCB0BR1              = high_bitrate;
+    UCB0BR0 = 0x0F;
+    UCB0BR1 = 0x00;
 
     UCB0CTL1 &= ~UCSWRST;
 
     SPI0_PHY_config();
 
     /* Reset transmit configuration */
-    SPI0_reset_tx_config(&SPI0_tx_cfg);
+    tx_cplt_callback = NULL;
+    UCB0IE &= ~UCTXIE;
 
     /* Register IRQ service cb from caller */
     SPI0_rx_callback = rx;
@@ -162,8 +149,9 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
 void SPI0_deinit(void)
 {
     /* Disable interrupts */
-    SPI0_disable_rx_irq();
-    SPI0_disable_tx_irq();
+    UCB0IE &= ~UCTXIE;
+    UCB0IE &= ~UCRXIE;
+
 
     /* Clear pending interrupt flags */
     UCB0IFG &= ~(UCTXIFG | UCRXIFG);
@@ -172,121 +160,72 @@ void SPI0_deinit(void)
     SPI0_rx_callback = NULL;
 
     /* Reset transmit configuration */
-    SPI0_tx_cfg.ptr           = NULL;
-    SPI0_tx_cfg.ptr_end       = NULL;
-    SPI0_tx_cfg.cplt_callback = NULL;
+    tx_cplt_callback = NULL;
 }
 
 
 void SPI0_enable_rx_irq(void)
 {
     UCB0IE |= UCRXIE;
-    _no_operation(); /* See page 60 of user guide! */
+    _no_operation(); /* Fix for garbage silicon erratta */
 }
 
 
 void SPI0_disable_rx_irq(void)
 {
     UCB0IE &= ~UCRXIE;
-    _no_operation(); /* See page 60 of user guide! */
 }
 
 
+static volatile int tx_flag;
 int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
 {
     CONFIG_ASSERT(bytes != NULL);
-    if (SPI0_tx_cfg.ptr == NULL)
+    int status = 0;
+    if (len > 0)
     {
-        if (len > 0)
+        tx_cplt_callback = tx_cb;
+        tx_flag          = 1;
+        unsigned int i   = 0;
+        while (i < len)
         {
-            SPI0_tx_cfg.cplt_callback = tx_cb;
-            SPI0_tx_cfg.ptr           = bytes;
-            SPI0_tx_cfg.ptr_end       = bytes + len;
-            SPI0_transmit_byte();
-            SPI0_enable_tx_irq();
-        }
+            if (tx_flag)
+            {
+                tx_flag = 0;
 
-        return 0;
+                while ((UCB0IFG & UCTXIFG) != UCTXIFG)
+                {
+                    /* Wait for tx shift register to flush */
+                }
+                UCB0TXBUF = bytes[i];
+
+                if (tx_cplt_callback != NULL)
+                {
+                    tx_cplt_callback();
+                }
+                i++;
+            }
+        }
     }
-    return -1;
+    else
+    {
+        status           = -1;
+        tx_cplt_callback = NULL;
+    }
+    return status;
 }
 
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
-    switch (UCB0IV)
+    if (UCB0IVRX & UCB0IV)
     {
-        case UCB0IVNOP:
+        if (NULL != SPI0_rx_callback)
         {
-            /* No interrupt pending */
+            SPI0_rx_callback(UCB0RXBUF);
         }
-        break;
-        case UCB0IVRX: /* Receive interrupt triggered IRQ */
-        {
-            if (NULL != SPI0_rx_callback)
-            {
-                SPI0_rx_callback(UCB0RXBUF);
-            }
-        }
-        break;
-        case UCB0IVTX:
-        {
-            /** @todo IF we've hardened the driver
-             * logic in both release and
-             * debug modes, we can remove this check
-             */
-            if (SPI0_tx_cfg.ptr != NULL)
-            {
-                if (SPI0_tx_cfg.cplt_callback != NULL)
-                {
-                    SPI0_tx_cfg.cplt_callback();
-                }
-                SPI0_transmit_byte();
-            }
-        }
-        break;
-        default:
-        {
-            /* Do nothing */
-        }
-        break;
+        tx_flag = 1;
     }
-}
-
-
-static void SPI0_transmit_byte(void)
-{
-    /* Transmit next byte */
-    uint8_t byte = *SPI0_tx_cfg.ptr;
-    SPI0_tx_cfg.ptr++;
-    if (SPI0_tx_cfg.ptr == SPI0_tx_cfg.ptr_end)
-    {
-        SPI0_reset_tx_config(&SPI0_tx_cfg);
-    }
-    UCB0TXBUF = byte;
-}
-
-
-static void SPI0_enable_tx_irq(void)
-{
-    UCB0IE |= UCTXIE;
-    _no_operation(); /* See page 60 of user guide! */
-}
-
-
-static void SPI0_disable_tx_irq(void)
-{
-    UCB0IE &= ~UCTXIE;
-    _no_operation(); /* See page 60 of user guide! */
-}
-
-
-static void SPI0_reset_tx_config(tx_config *cfg)
-{
-    cfg->cplt_callback = NULL;
-    cfg->ptr           = NULL;
-    cfg->ptr_end       = NULL;
-    SPI0_disable_tx_irq();
 }
 
 
