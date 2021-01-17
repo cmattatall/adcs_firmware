@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 1
+#define ADS7841_OVERSAMPLE_COUNT 8
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -141,7 +141,7 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     init.edge_phase = SPI_DATA_CHANGE_edge1;
     init.polarity   = SPI_CLK_POLARITY_low;
 
-    uint16_t ADS7841_prescaler = 0x0040;
+    uint16_t ADS7841_prescaler = 0x0100;
     SPI0_init(ADS7841_receive_byte, &init, ADS7841_prescaler);
 }
 
@@ -168,6 +168,11 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
         /* Perform the required number of samples */
         ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_mode);
 
+
+        volatile unsigned int i;
+        for (i = 0; i < 5000; i++)
+            ;
+
         conv_timeout = 0;
         while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
         {
@@ -184,8 +189,7 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     conversion_value = 0;
     while (conv_cnt)
     {
-        conversion_value += conv_samples[conv_cnt];
-        conv_cnt--;
+        conversion_value += conv_samples[--conv_cnt];
     }
     conversion_value /= ADS7841_OVERSAMPLE_COUNT;
     return conversion_value;
@@ -301,7 +305,7 @@ static void ADS7841_inter_byte_delay(void)
      * introduce an artificial blocking delay between each 8 clock
      * pulses we send to the ADS7841 */
     volatile unsigned int i;
-    for (i = 0; i < 50; i++)
+    for (i = 0; i < 100; i++)
     {
         /* Force delay */
     }
