@@ -63,24 +63,58 @@ typedef struct
 static receive_func SPI0_rx_callback = NULL;
 static tx_config    SPI0_tx_cfg;
 
+
 static void SPI0_transmit_byte(void);
 static void SPI0_enable_tx_irq(void);
 static void SPI0_disable_tx_irq(void);
 static void SPI0_reset_tx_config(tx_config *cfg);
 static void SPI0_PHY_config(void);
 
-
-void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
+void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
 {
 
     UCB0CTL1 |= UCSWRST; /* unlock peripheral to modify config */
 
-    UCB0CTL0 |= UCMST;    /* master mode */
-    UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
+    if (init->role == SPI_ROLE_master)
+    {
+        UCB0CTL0 |= UCMST;
+    }
+    else
+    {
+        UCB0CTL0 &= ~UCMST;
+    }
 
-    UCB0CTL0 |= UCCKPH;
+    if (init->phy_cfg == SPI_PHY_3)
+    {
+        UCB0CTL0 |= UCMODE_0; /* mode 0 (3 PIN SPI)*/
+    }
+    else
+    {
+        UCB0CTL0 &= ~UCMODE_0; /* mode 0 (3 PIN SPI)*/
+    }
 
-    if (dir == SPI_DATA_DIR_msb)
+
+    if (init->polarity == SPI_CLK_POLARITY_high)
+    {
+        UCB0CTL0 |= UCCKPL;
+    }
+    else
+    {
+        UCB0CTL0 &= ~UCCKPL;
+    }
+
+
+    if (init->edge_phase == SPI_DATA_CHANGE_edge2)
+    {
+        UCB0CTL0 |= UCCKPH;
+    }
+    else
+    {
+        UCB0CTL0 &= ~UCCKPH;
+    }
+
+
+    if (init->data_dir == SPI_DATA_DIR_msb)
     {
         UCB0CTL0 |= UCMSB; /* MSB first */
     }
@@ -90,7 +124,7 @@ void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
     }
 
 
-    if (mode == SPI_MODE_sync)
+    if (init->tim_mode == SPI_TIM_MODE_sync)
     {
         UCB0CTL0 |= UCSYNC;
     }
@@ -104,9 +138,10 @@ void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode)
 
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
-    /* bitrate registers */
-    UCB0BR0 |= 0xE0;
-    UCB0BR1 |= 0x00;
+    UCB0BR0 = 0;
+    UCB0BR1 = 0;
+    UCB0BR0 |= scaler & 0x00ff;
+    UCB0BR1 |= scaler & 0xff00;
 
     UCB0CTL1 &= ~UCSWRST;
 

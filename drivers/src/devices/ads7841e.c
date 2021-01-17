@@ -79,8 +79,6 @@ static struct
 static volatile uint16_t conv_cnt;
 static volatile uint16_t conv_samples[ADS7841_OVERSAMPLE_COUNT];
 
-/* Temporary conversion value holder */
-static volatile uint16_t conv_val_holder;
 
 /* State machine for SPI receive events */
 static volatile enum {
@@ -112,9 +110,15 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
     [ADS7841_PWRMODE_always_on]  = ((3 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
 };
 
+
+static const uint16_t ADS7841_conv_mode_map[] = {
+    [ADS7841_CONVMODE_8]  = (CTL_MODE_8BIT),
+    [ADS7841_CONVMODE_12] = (CTL_MODE_12BIT),
+};
+
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
-                                 ADS7841_PWRMODE_t  mode,
-                                 ADS7841_CONVMODE_t conv_type);
+                                 ADS7841_PWRMODE_t  pwr_mode,
+                                 ADS7841_CONVMODE_t conv_mode);
 
 static void ADS7841_receive_byte(uint8_t byte);
 static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
@@ -145,7 +149,17 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     }
     ADS7841_SPI_CHIP_SELECT_func   = ena_func;
     ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
-    SPI0_init(ADS7841_receive_byte, SPI_DATA_DIR_msb, SPI_MODE_async);
+
+    SPI_init_struct init;
+    init.role       = SPI_ROLE_master;
+    init.phy_cfg    = SPI_PHY_3;
+    init.data_dir   = SPI_DATA_DIR_msb;
+    init.tim_mode   = SPI_TIM_MODE_async;
+    init.edge_phase = SPI_DATA_CHANGE_edge2;
+    init.polarity   = SPI_CLK_POLARITY_low;
+
+    uint16_t ADS7841_prescaler = 0x00E0;
+    SPI0_init(ADS7841_receive_byte, &init, ADS7841_prescaler);
 }
 
 
@@ -197,6 +211,9 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 
 static void ADS7841_receive_byte(uint8_t byte)
 {
+    /* Temporary conversion value holder */
+    static volatile uint16_t conv_val_holder;
+
     switch (ADS7841_RX_EVT)
     {
         case ADS7841_RX_EVT_ctrl:
@@ -209,7 +226,7 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_hi:
         {
-            conv_val_holder |= byte << CHAR_BIT;
+            conv_val_holder |= byte << 4;
 
             /* Expect low byte next */
             ADS7841_RX_EVT = ADS7841_RX_EVT_lo;
@@ -217,7 +234,8 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_lo:
         {
-            conv_val_holder |= byte;
+            /* last 4 bits arrive as 0bxxxx0000 */
+            conv_val_holder |= (byte >> 4);
 
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
@@ -253,65 +271,19 @@ static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
 
 
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
-                                 ADS7841_PWRMODE_t  mode,
-                                 ADS7841_CONVMODE_t conv_type)
+                                 ADS7841_PWRMODE_t  pwr_mode,
+                                 ADS7841_CONVMODE_t conv_mode)
 {
     uint8_t control_byte = 0;
 
-    switch (channel)
-    {
-        case ADS7841_CHANNEL_0:
-        case ADS7841_CHANNEL_1:
-        case ADS7841_CHANNEL_2:
-        case ADS7841_CHANNEL_3:
-        {
-            control_byte |= ADS7841_CHANNEL_MAP[channel];
-        }
-        break;
-        default:
-        {
-            control_byte &= ~(CTL_CHANNEL_MSK);
-        }
-        break;
-    }
-
-    switch (mode)
-    {
-        case ADS7841_PWRMODE_inter_conv:
-        case ADS7841_PWRMODE_always_on:
-        {
-            control_byte |= ADS7841_PWRMODE_MAP[mode];
-        }
-        break;
-        default:
-        {
-            control_byte &= ~(CTL_PWRMODE_MSK);
-        }
-    }
+    control_byte |= ADS7841_CHANNEL_MAP[channel];
+    control_byte |= ADS7841_PWRMODE_MAP[pwr_mode];
 
     /* We're only going to do single-ended conversions so just force
      * the control byte into single mode */
     control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED;
 
-    /** @note this is a bit hacky but whatever */
-    switch (conv_type)
-    {
-        case ADS7841_CONVMODE_8:
-        {
-            control_byte |= CTL_MODE_8BIT;
-        }
-        break;
-        case ADS7841_CONVMODE_12:
-        {
-            control_byte |= CTL_MODE_12BIT;
-        }
-        break;
-        default:
-        {
-            control_byte &= ~(CTL_MODE_MSK);
-        }
-        break;
-    }
+    control_byte |= ADS7841_conv_mode_map[conv_mode];
     control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
     return control_byte;
 }

@@ -1,16 +1,13 @@
 /**
  * @file sun_sensor.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Example executable to demonstrate transmission via SPI
+ * @brief Example executable to demonstrate transmission and receive with SPI
+ * configured in master mode.
  * @version 0.1
  * @date 2021-01-08
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
- * @note this example leaves much to be desired. In particular, the processing
- * in the ISR. The primary purpose of this source module was a playground
- * to test errata relating to the configuration/operation of the spi peripheral
- * through UCB0.
  */
 
 #include <msp430.h>
@@ -23,13 +20,8 @@ static volatile int spi_RX_complete;
 static volatile char spi_RX_buf[250];
 static volatile int  spi_RX_idx;
 
-static volatile int spi_TX_count;
-static int          spi_TX_bytes_loaded;
-static char         spi_TX_buf[250];
-static volatile int spi_TX_ready = 1;
-
 static void UCB0_SPI_init(void);
-static int  SPI0_transmit(uint8_t *bytes, uint16_t len);
+static void SPI0_transmit(uint8_t *bytes, uint16_t len);
 static void example_init(void);
 
 
@@ -53,10 +45,9 @@ int main(void)
 
         if (spi_RX_complete)
         {
-            /* Do stuff with the data */
-
-
             spi_RX_complete = 0;
+
+            /* Do stuff with the received data */
         }
     }
 }
@@ -123,85 +114,59 @@ static void example_init(void)
 }
 
 
-static int SPI0_transmit(uint8_t *bytes, uint16_t len)
+static void SPI0_transmit(uint8_t *bytes, uint16_t len)
 {
-    if (spi_TX_ready)
+    if (len > 0 && NULL != bytes)
     {
-        uint_fast16_t copy_len = len;
-        if (len > sizeof(spi_TX_buf) / sizeof(*spi_TX_buf))
+        unsigned int i;
+        tx_flag = 1;
+        for (i = 0; i < len; i++)
         {
-            copy_len = sizeof(spi_TX_buf) / sizeof(*spi_TX_buf);
+            if (tx_flag)
+            {
+                tx_flag   = 0;
+                UCB0TXBUF = bytes[i];
+
+                if (i == 0)
+                {
+                    UCB0IE |= UCTXIE;
+                }
+            }
         }
-
-        memcpy(spi_TX_buf, bytes, copy_len); /** @todo TRANSFER VIA DMA */
-
-        spi_TX_count        = 0;
-        spi_TX_bytes_loaded = copy_len;
-
-        /* Load first byte into hardware, enable interrupts, let
-         * ISR do the rest */
-        spi_TX_ready = 0;
-        UCB0TXBUF    = spi_TX_buf[spi_TX_count];
-
-        UCB0IE |= UCTXIE;
-
-        return 0;
+        UCB0IE &= ~UCTXIE;
     }
-    return -1;
 }
+
+static volatile int rx_flag;
+static volatile int tx_flag;
 
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
-    /* If receive interrupt is pending*/
-    if ((UCB0IV & UCRXIFG) == UCRXIFG)
+    switch (UCB0IV)
     {
-        if (!((UCB0STAT & UCBUSY) == UCBUSY))
+
+        case 0x02: /* Receive interrupt triggered IRQ */
         {
             spi_RX_buf[spi_RX_idx] = UCB0RXBUF;
             spi_RX_idx++;
-
-            if (spi_RX_idx > (int)(sizeof(spi_RX_buf) / sizeof(*spi_RX_buf)))
+            if (spi_RX_idx > sizeof(spi_RX_buf))
             {
+                /* Wrap receive index and set flag for application */
                 spi_RX_complete = 1;
                 spi_RX_idx      = 0;
             }
         }
-    }
-
-    /* TX interrupt. indicates when TXBUF can be written */
-    else if ((UCB0IV & UCTXIFG) == UCTXIFG)
-    {
-        if (!((UCB0STAT & UCBUSY) == UCBUSY))
+        break;
+        case 0x04:
         {
-            if (spi_TX_count < spi_TX_bytes_loaded)
-            {
-
-#if defined(CATCH_OVERRUN)
-                if ((UCB0STAT & UCOE) == UCOE) /* overrun error */
-                {
-                    /* Transmit the missed byte if previous transmission overran
-                     */
-                    UCB0TXBUF = spi_TX_buf[spi_TX_count];
-                }
-                else
-                {
-                    /* Transmit the next byte */
-                    UCB0TXBUF = spi_TX_buf[++spi_TX_count];
-                }
-#else
-                UCB0TXBUF = spi_TX_buf[++spi_TX_count];
-#endif /* CATCH_OVERRUN */
-            }
-            else
-            {
-                spi_TX_bytes_loaded = 0;
-                spi_TX_count        = 0;
-                spi_TX_ready        = 1;
-
-                /* Disable future SPI tx complete interrupts */
-                UCB0IE &= ~UCTXIE;
-            }
+            tx_flag = 1;
         }
+        break;
+        default:
+        {
+            /* Do nothing */
+        }
+        break;
     }
 }
