@@ -168,11 +168,6 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
         /* Perform the required number of samples */
         ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_mode);
 
-
-        volatile unsigned int i;
-        for (i = 0; i < 5000; i++)
-            ;
-
         conv_timeout = 0;
         while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
         {
