@@ -17,8 +17,10 @@
 static volatile int timer_expired;
 static volatile int spi_RX_complete;
 
-static volatile char spi_RX_buf[250];
-static volatile int  spi_RX_idx;
+static volatile char         spi_RX_buf[250];
+static volatile unsigned int spi_RX_idx;
+
+static volatile int tx_flag;
 
 static void UCB0_SPI_init(void);
 static void SPI0_transmit(uint8_t *bytes, uint16_t len);
@@ -136,9 +138,6 @@ static void SPI0_transmit(uint8_t *bytes, uint16_t len)
         UCB0IE &= ~UCTXIE;
     }
 }
-
-static volatile int rx_flag;
-static volatile int tx_flag;
 
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
