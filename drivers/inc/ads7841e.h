@@ -35,7 +35,6 @@ typedef enum
     ADS7841_PWRMODE_always_on,
 } ADS7841_PWRMODE_t;
 
-
 /**
  * @brief Initialize the ADS7841 driver API
  *
@@ -63,7 +62,6 @@ void ADS7841_driver_deinit(void);
  * @return uint16_t the digitized analog value (averaged by driver API)
  */
 uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch);
-
 
 
 #ifdef __cplusplus

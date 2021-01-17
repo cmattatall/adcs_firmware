@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attributes.h"
 #include "config_assert.h"
 #include "sun_sensors.h"
 
@@ -71,7 +72,6 @@ static void SUNSEN_enable_ADS7841(void)
     /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
 
 #warning NOT IMPLEMENTED YET
-
 #else
 
 
@@ -82,10 +82,8 @@ static void SUNSEN_enable_ADS7841(void)
 static void SUNSEN_disable_ADS7841(void)
 {
 #if defined(TARGET_MCU)
-#else
-
 #warning NOT IMPLEMENTED YET
     /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR HIGH */
-
+#else
 #endif /* #if defined(TARGET_MCU) */
 }

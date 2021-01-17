@@ -65,7 +65,7 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 1
+#define ADS7841_OVERSAMPLE_COUNT 8
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
@@ -79,6 +79,10 @@ static volatile uint16_t conv_cnt;
 static volatile uint16_t conv_samples[ADS7841_OVERSAMPLE_COUNT];
 static volatile uint16_t converted_val;
 
+#include "attributes.h"
+
+static volatile uint8_t DEBUG_VAR_bhigh;
+static volatile uint8_t DEBUG_VAR_blow;
 
 /* State machine for SPI receive events */
 static volatile enum {
@@ -158,14 +162,13 @@ void ADS7841_driver_deinit(void)
 
 uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
+    /* Initialize with error value that is not a possible value in 12 bits */
     uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
+
+
     CONFIG_ASSERT(ADS7841_SPI_CHIP_SELECT_func != NULL);
     CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
     memset((void *)conv_samples, 0, sizeof(conv_samples));
-
-    ADS7841_enable_chip();
-    volatile unsigned int conv_timeout;
-    unsigned int          timeout_counts = 0;
 
     uint16_t power_mode = ADS7841_cfg.power_mode;
     uint8_t  ctrl_byte;
@@ -178,10 +181,13 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 #endif
 
     /* Perform the required number of samples */
+    SPI0_enable_rx_irq();
+    ADS7841_enable_chip();
+    volatile unsigned int conv_timeout;
+    unsigned int          timeout_counts = 0;
     while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
     {
         ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
-        SPI0_enable_rx_irq();
         if (SPI0_transmit(cmd, sizeof(cmd), NULL))
         {
             /* Abort. SPI bus possibly being hogged by some other device. */
@@ -217,9 +223,6 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     return conversion_value;
 }
 
-static volatile uint8_t bhigh;
-static volatile uint8_t blow;
-
 
 static void ADS7841_receive_byte(uint8_t byte)
 {
@@ -232,7 +235,11 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_hi:
         {
-            bhigh         = byte;
+
+#warning REMOVE ME LATER
+            DEBUG_VAR_bhigh = byte;
+
+
             converted_val = byte;
             converted_val <<= 4;
 
@@ -242,7 +249,10 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_lo:
         {
-            blow = byte;
+#warning REMOVE ME LATER
+            DEBUG_VAR_blow = byte;
+
+
             converted_val |= (byte >> 4);
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)

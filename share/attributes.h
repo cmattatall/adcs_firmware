@@ -9,6 +9,8 @@ extern "C"
 
 /* If you like preprocessor abuse, you're gonna love this file... */
 
+#define DO_PRAGMA(x) _Pragma(#x)
+
 /* clang-format off */
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #ifdef __interrupt
