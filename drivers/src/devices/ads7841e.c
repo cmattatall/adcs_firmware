@@ -65,14 +65,13 @@
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 4
+#define ADS7841_OVERSAMPLE_COUNT 20
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
 {
     ADS7841_PWRMODE_t  power_mode;
-    ADS7841_CONVMODE_t conv_type;
-    uint16_t           sample_mask;
+    ADS7841_CONVMODE_t conv_mode;
 } ADS7841_cfg;
 
 /* Valid conversion value buffer */
@@ -126,27 +125,11 @@ static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
 static void ADS7841_inter_byte_delay(void);
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
-                         ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
+                         ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_mode)
 {
     ADS7841_cfg.power_mode = mode;
-    switch (conv_type)
-    {
-        case ADS7841_CONVMODE_8:
-        {
-            ADS7841_cfg.sample_mask = ADS7841_BITMASK8;
-        }
-        break;
-        case ADS7841_CONVMODE_12:
-        {
-            ADS7841_cfg.sample_mask = ADS7841_BITMASK12;
-        }
-        break;
-        default:
-        {
-            ADS7841_cfg.sample_mask = ADS7841_BITMASK12;
-        }
-        break;
-    }
+    ADS7841_cfg.conv_mode  = conv_mode;
+
     ADS7841_SPI_CHIP_SELECT_func   = ena_func;
     ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
 
@@ -158,7 +141,7 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     init.edge_phase = SPI_DATA_CHANGE_edge2;
     init.polarity   = SPI_CLK_POLARITY_low;
 
-    uint16_t ADS7841_prescaler = 0x00E0;
+    uint16_t ADS7841_prescaler = 0x0E00;
     SPI0_init(ADS7841_receive_byte, &init, ADS7841_prescaler);
 }
 
@@ -183,7 +166,7 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
     {
         /* Perform the required number of samples */
-        ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
+        ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_mode);
 
         conv_timeout = 0;
         while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
@@ -212,13 +195,17 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 static void ADS7841_receive_byte(uint8_t byte)
 {
     /* Temporary conversion value holder */
-    static volatile uint16_t conv_val_holder;
+    static volatile union
+    {
+        uint8_t  bytes[2];
+        uint16_t val;
+    } conv_val_holder;
 
     switch (ADS7841_RX_EVT)
     {
         case ADS7841_RX_EVT_ctrl:
         {
-            conv_val_holder = 0;
+            conv_val_holder.val = 0;
 
             /* Expect high byte next */
             ADS7841_RX_EVT = ADS7841_RX_EVT_hi;
@@ -226,22 +213,39 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_hi:
         {
-            conv_val_holder |= byte << 4;
+            if (ADS7841_cfg.conv_mode == ADS7841_CONVMODE_12)
+            {
+                /* Store high byte */
+                conv_val_holder.bytes[1] = byte;
 
-            /* Expect low byte next */
-            ADS7841_RX_EVT = ADS7841_RX_EVT_lo;
+                /* Expect low byte next */
+                ADS7841_RX_EVT = ADS7841_RX_EVT_lo;
+            }
+            else
+            {
+                conv_val_holder.bytes[0] = byte;
+
+                /* If we don't have enough conversions,
+                 * store the converted value */
+                if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
+                {
+                    conv_samples[conv_cnt] = conv_val_holder.val;
+                    conv_cnt++;
+                }
+                SPI0_disable_rx_irq();
+                ADS7841_RX_EVT = ADS7841_RX_EVT_complete;
+            }
         }
         break;
         case ADS7841_RX_EVT_lo:
         {
-            /* last 4 bits arrive as 0bxxxx0000 */
-            conv_val_holder |= (byte >> 4);
+            conv_val_holder.bytes[0] = byte;
+            conv_val_holder.val >>= 4; /* truncate 16 bit to 12 */
 
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
             {
-                conv_val_holder &= ADS7841_cfg.sample_mask;
-                conv_samples[conv_cnt] = conv_val_holder;
+                conv_samples[conv_cnt] = conv_val_holder.val;
                 conv_cnt++;
             }
             SPI0_disable_rx_irq();
