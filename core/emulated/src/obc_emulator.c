@@ -80,14 +80,7 @@ static void *OBC_EMU(void *args)
     do
     {
         tmp = getchar();
-        if (tmp != EOF)
-        {
-            OBC_IF_receive_byte(tmp);
-        }
-        else
-        {
-            break;
-        }
+        OBC_IF_receive_byte(tmp);
     } while (true);
 
     /* restore old terminal settings */
