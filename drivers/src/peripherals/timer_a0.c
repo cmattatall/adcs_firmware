@@ -8,10 +8,7 @@
  * @copyright Copyright (c) 2020 DSS Loris project
  *
  */
-
-#if !defined(TARGET_MCU)
-#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
-#endif /* !defined(TARGET_MCU) */
+#if defined(TARGET_MCU)
 
 #include <msp430.h>
 #include <stdlib.h>
@@ -19,7 +16,6 @@
 
 #include "clocks.h"
 #include "timer_a0.h"
-
 
 volatile bool heartbeat_flag = false;
 
@@ -77,3 +73,12 @@ void TIMERA0_ISR (void)
 {
     callback_exec(TIMERA0_callback_handle);
 }
+
+#else
+
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+
+#endif /* !defined(TARGET_MCU) */
+
+
+

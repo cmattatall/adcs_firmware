@@ -133,8 +133,6 @@ if(ANALYZE)
     endmacro()
 
     get_all_targets(${CMAKE_PROJECT_NAME}_target_list)
-    message("targets for ${CMAKE_PROJECT_NAME} : ${${CMAKE_PROJECT_NAME}_target_list}")
-
     foreach(target ${${CMAKE_PROJECT_NAME}_target_list})
         get_target_property(type ${target} TYPE)
 

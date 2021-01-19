@@ -62,8 +62,13 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
     else:
         configure_string += space_args("-DBUILD_EXAMPLES:BOOL=OFF")
 
+    # sadly, static analysis tools for microcontrollers frequently flag 
+    # errors when they shouldnt...
     if(analyze):
-        configure_string += space_args("-DANALYZE:BOOL=ON")
+        if not cross_compile:
+            configure_string += space_args("-DANALYZE:BOOL=ON")
+        else:
+            configure_string += space_args("-DANALYZE:BOOL=OFF")
     else:
         configure_string += space_args("-DANALYZE:BOOL=OFF")
 
