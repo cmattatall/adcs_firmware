@@ -150,7 +150,7 @@ if(ANALYZE)
         endif()
     endforeach(target ${${CMAKE_PROJECT_NAME}_target_list})
 
-    find_program(CPPCHECK_BIN NAMES cppcheck REQUIRED)
+    find_program(CPPCHECK_BIN NAMES cppcheck)
     if(CPPCHECK_BIN)
         execute_process(COMMAND ${CPPCHECK_BIN} --version
             OUTPUT_VARIABLE CPPCHECK_VERSION
@@ -216,6 +216,8 @@ if(ANALYZE)
                 --xml-version=2
                 2> ${CPPCHECK_XML_OUTPUT})
         endif()
+    else()
+        message(FATAL_ERROR "Could not find cppcheck executable. Either it is not installed or not added to PATH. If you are on a debian-based linux distribution, you can try installing the cppcheck and clang-tools packages with your package manager.")
     endif(CPPCHECK_BIN)
     
     # handle the QUIETLY and REQUIRED arguments 
