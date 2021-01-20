@@ -179,15 +179,15 @@ function(add_executable executable)
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
     _add_executable(${executable} ${ARGN})
 
-    set(executable_output_name ${executable}.elf)
+    set(executable_output_name "${executable}.elf")
     set_target_properties(${executable} PROPERTIES OUTPUT_NAME ${executable_output_name})
 
+    string(TOUPPER ${MSP430_MCU} MSP430_MCU_DEFINE)
+    target_compile_definitions(${executable} PRIVATE "__${MSP430_MCU_DEFINE}__")
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${${executable}_LINKER_SCRIPT}")
-
-    unset(${executable}_LINKER_SCRIPT)
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
     add_custom_command( 
@@ -226,7 +226,6 @@ endfunction(add_executable executable)
 endif(NOT COMMAND _add_executable)
 
 
-
 if(NOT COMMAND _add_library)
 function(add_library library)
         
@@ -242,12 +241,13 @@ function(add_library library)
 
     string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
     _add_library(${library} ${ARGN})
+
+    string(TOUPPER ${MSP430_MCU} MSP430_MCU_DEFINE)
+    target_compile_definitions(${library} PRIVATE "__${MSP430_MCU_DEFINE}__")
     target_compile_definitions(${library} PRIVATE "TARGET_MCU")
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
     target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${${library}_LINKER_SCRIPT}")
-
-    unset(${library}_LINKER_SCRIPT)
 
 endfunction(add_library library)
 endif(NOT COMMAND _add_library)
