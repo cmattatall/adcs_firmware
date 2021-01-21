@@ -189,21 +189,20 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len)
 {
     CONFIG_ASSERT(bytes != NULL);
     CONFIG_ASSERT(len > 0);
-
     unsigned int i = 0;
     while (i < len)
     {
-        if ((UCB0STAT & UCBUSY) != UCBUSY)
+        while ((UCB0STAT & UCBUSY) == UCBUSY)
         {
-            UCB0TXBUF = bytes[i];
-            while ((UCB0IFG & UCTXIFG) != UCTXIFG)
-            {
-                /* Wait for tx shift register to be empty */
-            }
-            i++;
+            /* Wait for peripheral to become available */
         }
+        UCB0TXBUF = bytes[i];
+        while ((UCB0IFG & UCTXIFG) != UCTXIFG)
+        {
+            /* Wait for tx shift register to flush bits to PHY */
+        }
+        i++;
     }
-
     return 0;
 }
 
