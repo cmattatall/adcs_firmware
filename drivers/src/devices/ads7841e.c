@@ -154,8 +154,7 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     init.role     = SPI_ROLE_master;
     init.phy_cfg  = SPI_PHY_3;
     init.data_dir = SPI_DATA_DIR_msb;
-    init.tim_mode = SPI_TIM_MODE_async;
-
+    
     /*
      * ADS7841 shifts data on falling edge and latches data on rising edge
      *
@@ -163,9 +162,14 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
      * data shifted from ADS7841 on falling edge (edge2)
      */
 
-    
+#if 0 /* checkpoint */
     init.edge_phase = SPI_DATA_CHANGE_edge2;
     init.polarity   = SPI_CLK_POLARITY_low;
+#endif
+
+    init.edge_phase = SPI_DATA_CHANGE_edge1;
+    init.polarity   = SPI_CLK_POLARITY_high;
+
 
     uint16_t prescaler = 0x000F;
 

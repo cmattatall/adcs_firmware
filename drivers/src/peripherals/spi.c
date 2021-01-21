@@ -125,15 +125,8 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
         UCB0CTL0 &= ~UCMSB; /* LSB first */
     }
 
-
-    if (init->tim_mode == SPI_TIM_MODE_sync)
-    {
-        UCB0CTL0 |= UCSYNC;
-    }
-    else
-    {
-        UCB0CTL0 &= ~UCSYNC;
-    }
+    /* UCSYNC must be set to run USCI in SPI mode */
+    UCB0CTL0 |= UCSYNC;
 
     /* Explicitly disable loopback mode */
     UCB0STAT &= ~UCLISTEN;

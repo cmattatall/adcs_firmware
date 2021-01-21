@@ -37,12 +37,6 @@ typedef enum
 
 typedef enum
 {
-    SPI_TIM_MODE_sync,
-    SPI_TIM_MODE_async,
-} SPI_TIM_MODE_t;
-
-typedef enum
-{
     SPI_DATA_CHANGE_edge1, /* Data changed on edge1, captured on edge 2 */
     SPI_DATA_CHANGE_edge2, /* Data captured on edge1, changed on edge 2 */
 } SPI_DATA_CHANGE_t;
@@ -60,7 +54,6 @@ typedef struct
     SPI_ROLE_t         role;
     SPI_PHY_t          phy_cfg;
     SPI_DATA_DIR_t     data_dir;
-    SPI_TIM_MODE_t     tim_mode;
     SPI_DATA_CHANGE_t  edge_phase;
     SPI_CLK_POLARITY_t polarity;
 } SPI_init_struct;
