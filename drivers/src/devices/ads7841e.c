@@ -62,11 +62,13 @@
 #define ADS7841_BITMASK12 (0x0FFF) /* 12 bit mask */
 #define ADS7841_BITMASK8 (0x00FF)  /* 8 bit mask  */
 
+
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 8
+#define ADS7841_OVERSAMPLE_COUNT 1
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
+
 
 static struct
 {
@@ -181,7 +183,6 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 #endif
 
     /* Perform the required number of samples */
-    SPI0_enable_rx_irq();
     ADS7841_enable_chip();
     volatile unsigned int conv_timeout;
     unsigned int          timeout_counts = 0;
@@ -290,6 +291,7 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
 
 static void ADS7841_enable_chip(void)
 {
+    SPI0_enable_rx_irq();
     ADS7841_SPI_CHIP_SELECT_func();
     /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING
      */
@@ -300,5 +302,6 @@ static void ADS7841_disable_chip(void)
 {
     /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING
      */
+    SPI0_disable_rx_irq();
     ADS7841_SPI_CHIP_UNSELECT_func();
 }

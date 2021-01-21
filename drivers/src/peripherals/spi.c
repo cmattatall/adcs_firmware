@@ -54,8 +54,7 @@ typedef enum
 
 
 static receive_func SPI0_rx_callback = NULL;
-static void (*tx_cplt_callback)(void);
-static volatile int tx_flag;
+static void (*SPI0_tx_cplt_callback)(void);
 
 static void SPI0_PHY_config(void);
 
@@ -138,7 +137,7 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init)
     SPI0_PHY_config();
 
     /* Reset transmit configuration */
-    tx_cplt_callback = NULL;
+    SPI0_tx_cplt_callback = NULL;
     UCB0IE &= ~UCTXIE;
 
     /* Register IRQ service cb from caller */
@@ -160,7 +159,7 @@ void SPI0_deinit(void)
     SPI0_rx_callback = NULL;
 
     /* Reset transmit configuration */
-    tx_cplt_callback = NULL;
+    SPI0_tx_cplt_callback = NULL;
 }
 
 
@@ -176,46 +175,75 @@ void SPI0_disable_rx_irq(void)
     UCB0IE &= ~UCRXIE;
 }
 
+static volatile const uint8_t *SPI0_tx_ptr;
+static volatile const uint8_t *SPI0_tx_ptr_end;
+
+static void SPI0_transmit_byte(void)
+{
+    uint8_t byte = *SPI0_tx_ptr;
+    SPI0_tx_ptr++;
+    if (SPI0_tx_ptr == SPI0_tx_ptr_end)
+    {
+        SPI0_tx_ptr_end       = NULL;
+        SPI0_tx_ptr           = NULL;
+        SPI0_tx_cplt_callback = NULL;
+        UCB0IE &= ~UCTXIE;
+    }
+    UCB0TXBUF = byte;
+    while ((UCB0IFG & UCTXIFG) != UCTXIFG)
+    {
+        /* Wait for tx shift register to flush */
+    }
+}
 
 int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
 {
     CONFIG_ASSERT(bytes != NULL);
     CONFIG_ASSERT(len > 0);
-    tx_cplt_callback = tx_cb;
-    tx_flag          = 1;
-    unsigned int i   = 0;
-    while (i < len)
+    if (SPI0_tx_ptr == NULL)
     {
-        if (tx_flag)
+        SPI0_tx_ptr           = bytes;
+        SPI0_tx_ptr_end       = bytes + len;
+        SPI0_tx_cplt_callback = tx_cb;
+        SPI0_transmit_byte();
+        if (len > 1)
         {
-            tx_flag = 0;
-
-            while ((UCB0IFG & UCTXIFG) != UCTXIFG)
-            {
-                /* Wait for tx shift register to flush */
-            }
-            UCB0TXBUF = bytes[i];
-
-            if (tx_cplt_callback != NULL)
-            {
-                tx_cplt_callback();
-            }
-            i++;
+            UCB0IE |= UCTXIE; /* IRQ will handle subsequent bytes */
         }
+        return 0;
     }
-    return 0;
+    else
+    {
+        return -1;
+    }
 }
 
 
 __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
 {
-    if (UCB0IVRX & UCB0IV)
+    switch (UCB0IV)
     {
-        if (NULL != SPI0_rx_callback)
+        case UCB0IVRX:
         {
-            SPI0_rx_callback(UCB0RXBUF);
+            if (NULL != SPI0_rx_callback)
+            {
+                SPI0_rx_callback(UCB0RXBUF);
+            }
         }
-        tx_flag = 1;
+        break;
+        case UCB0IVTX:
+        {
+            if (SPI0_tx_cplt_callback != NULL)
+            {
+                SPI0_tx_cplt_callback();
+            }
+
+            if (SPI0_tx_ptr != NULL)
+            {
+                SPI0_transmit_byte();
+            }
+        }
+        break;
     }
 }
 
