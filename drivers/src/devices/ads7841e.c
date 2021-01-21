@@ -10,7 +10,7 @@
  * @note THIS MODULE EXPLICITLY DOES NOT USE BITFIELDS BECAUSE THE
  * __ANCIENT__ compiler that TI uses has known issues with the assembly it
  * emits regarding padding / ordering of bitfields. PLEASE PLEASE PLEASE
- * do not rewrite this to be clever and use bitfields
+ * do not rewrite this with bitfields...
  *
  *  - also, on a related note, as of C11, bitfield ordering is still compiler
  *  and not target endianness dependent...
