@@ -59,7 +59,7 @@ static void TIMERA0_init(void)
     TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
     TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
     TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
-    TA0CCR0  = 1000;
+    TA0CCR0  = 50000;
 }
 
 

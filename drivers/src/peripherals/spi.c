@@ -252,6 +252,7 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
             i++;
         }
     }
+    return 0;
 #endif /* #if defined(SPI0_TRANSMIT_IRQ) */
 }
 

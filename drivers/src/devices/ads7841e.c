@@ -151,14 +151,23 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
 
     SPI_init_struct init;
-    init.role       = SPI_ROLE_master;
-    init.phy_cfg    = SPI_PHY_3;
-    init.data_dir   = SPI_DATA_DIR_msb;
-    init.tim_mode   = SPI_TIM_MODE_async;
-    init.edge_phase = SPI_DATA_CHANGE_edge1;
+    init.role     = SPI_ROLE_master;
+    init.phy_cfg  = SPI_PHY_3;
+    init.data_dir = SPI_DATA_DIR_msb;
+    init.tim_mode = SPI_TIM_MODE_async;
+
+    /*
+     * ADS7841 shifts data on falling edge and latches data on rising edge
+     *
+     * So msp430f5529 should change data on rising edge (edge1) and capture the
+     * data shifted from ADS7841 on falling edge (edge2)
+     */
+
+    
+    init.edge_phase = SPI_DATA_CHANGE_edge2;
     init.polarity   = SPI_CLK_POLARITY_low;
 
-    uint16_t prescaler = 0x0008;
+    uint16_t prescaler = 0x000F;
 
     SPI0_init(ADS7841_receive_byte, &init, prescaler);
 }
@@ -311,6 +320,15 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
 }
 
 
+static void ADS7841_delay(void)
+{
+    volatile unsigned int i;
+    for (i = 0; i < 10; i++)
+    {
+        /* wait */
+    }
+}
+
 static void ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 {
     uint8_t ctrl_byte;
@@ -323,7 +341,7 @@ static void ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 #endif
 
     ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
-    SPI0_transmit(cmd, sizeof(cmd), NULL);
+    SPI0_transmit(cmd, sizeof(cmd), ADS7841_delay);
 }
 
 
