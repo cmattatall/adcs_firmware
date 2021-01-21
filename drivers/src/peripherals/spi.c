@@ -162,29 +162,6 @@ void SPI0_disable_rx_irq(void)
 }
 
 
-#if defined(SPI0_TRANSMIT_IRQ)
-
-static void SPI0_transmit_byte(void)
-{
-    uint8_t byte = *SPI0_tx_ptr;
-    SPI0_tx_ptr++;
-    if (SPI0_tx_ptr == SPI0_tx_ptr_end)
-    {
-        SPI0_tx_ptr_end       = NULL;
-        SPI0_tx_ptr           = NULL;
-        SPI0_tx_cplt_callback = NULL;
-        UCB0IE &= ~UCTXIE;
-    }
-    UCB0TXBUF = byte;
-    while ((UCB0IFG & UCTXIFG) != UCTXIFG)
-    {
-        /* Wait for tx shift register to flush */
-    }
-}
-
-#endif /* #if defined(SPI0_TRANSMIT_IRQ) */
-
-
 int SPI0_transmit(const uint8_t *bytes, uint16_t len)
 {
     CONFIG_ASSERT(bytes != NULL);

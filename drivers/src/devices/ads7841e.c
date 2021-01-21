@@ -140,6 +140,17 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
                                  ADS7841_PWRMODE_t pwr_mode,
                                  ADS7841_BITRES_t  conv_mode);
 
+/**
+ * @brief mcu spi peripheral cannot read and transfer data on the same
+ * clock edge so this means there is a factor of 2 error when receiving
+ * data from devices that shift on one edge and latch on the other
+ * (such as ADS7841)
+ *
+ * @param val value received from SPI peripheral
+ * @return uint16_t corrected value
+ */
+static uint16_t ADS7841_silicon_correction_factor(uint16_t val);
+
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
                          ADS7841_PWRMODE_t pwr_mode, ADS7841_BITRES_t res)
@@ -162,10 +173,10 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
      * data shifted from ADS7841 on falling edge (edge2)
      */
 
-    init.edge_phase = SPI_DATA_CHANGE_edge2;
-    init.polarity   = SPI_CLK_POLARITY_low;
+    init.edge_phase = SPI_DATA_CHANGE_edge1;
+    init.polarity   = SPI_CLK_POLARITY_high;
 
-    uint16_t prescaler = 0x0002;
+    uint16_t prescaler = 0x0008;
 
     SPI0_init(ADS7841_receive_byte, &init, prescaler);
 }
@@ -260,8 +271,10 @@ static void ADS7841_receive_byte(uint8_t byte)
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
             {
-                /* truncate 16 bit to 12 */
-                conv_samples[conv_cnt] = converted_val;
+                /* So frustrating... this bugfix took FOREVER */
+                uint16_t fixed_val;
+                fixed_val = ADS7841_silicon_correction_factor(converted_val);
+                conv_samples[conv_cnt] = fixed_val;
                 conv_cnt++;
             }
             SPI0_disable_rx_irq();
@@ -349,4 +362,10 @@ static void ADS7841_disable_chip(void)
      */
     SPI0_disable_rx_irq();
     ADS7841_SPI_CHIP_UNSELECT_func();
+}
+
+
+static uint16_t ADS7841_silicon_correction_factor(uint16_t val)
+{
+    return ((val * 2) & 0x0fffu);
 }
