@@ -70,7 +70,7 @@ static volatile unsigned int SPI0_tx_flag;
 
 static void SPI0_PHY_config(void);
 
-void SPI0_init(receive_func rx, const SPI_init_struct *init)
+void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
 {
 
     UCB0CTL1 |= UCSWRST; /* unlock peripheral to modify config */
@@ -140,9 +140,8 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init)
 
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
-
-    UCB0BR0 = 0x08;
-    UCB0BR1 = 0x00;
+    UCB0BR0 = (scaler & 0x00FF);
+    UCB0BR1 = ((scaler & 0xFF00) << 8);
 
     UCB0CTL1 &= ~UCSWRST;
 
@@ -262,16 +261,16 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     switch (UCB0IV)
     {
         case UCB0IVRX:
-        {   
+        {
             /* always read reg to prevent overrun error */
-            uint8_t received_byte = UCB0RXBUF; 
+            uint8_t received_byte = UCB0RXBUF;
             if (NULL != SPI0_rx_callback)
             {
                 SPI0_rx_callback(received_byte);
             }
 
 #if !defined(SPI0_TRANSMIT_IRQ)
-            while((UCB0STAT & UCBUSY) == UCBUSY)
+            while ((UCB0STAT & UCBUSY) == UCBUSY)
             {
                 /* Wait for bus to become available */
             }

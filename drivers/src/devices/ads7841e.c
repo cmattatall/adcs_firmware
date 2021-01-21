@@ -133,7 +133,7 @@ static const uint16_t ADS7841_conv_bitres_map[] = {
 
 
 static void    ADS7841_receive_byte(uint8_t byte);
-static int     ADS7841_convert_channel(ADS7841_CHANNEL_t);
+static void    ADS7841_convert_channel(ADS7841_CHANNEL_t);
 static void    ADS7841_enable_chip(void);
 static void    ADS7841_disable_chip(void);
 static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
@@ -158,7 +158,9 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     init.edge_phase = SPI_DATA_CHANGE_edge1;
     init.polarity   = SPI_CLK_POLARITY_low;
 
-    SPI0_init(ADS7841_receive_byte, &init);
+    uint16_t prescaler = 0x0008;
+
+    SPI0_init(ADS7841_receive_byte, &init, prescaler);
 }
 
 
@@ -309,7 +311,7 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
 }
 
 
-static int ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
+static void ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 {
     uint8_t ctrl_byte;
     ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_cfg.pwr_mode, ADS7841_BITRES_12);
@@ -321,7 +323,7 @@ static int ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 #endif
 
     ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
-    return SPI0_transmit(cmd, sizeof(cmd), NULL);
+    SPI0_transmit(cmd, sizeof(cmd), NULL);
 }
 
 
