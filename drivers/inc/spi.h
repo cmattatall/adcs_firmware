@@ -83,7 +83,7 @@ void SPI0_deinit(void);
  * @return int 0 if byte was transmitted successfully. Nonzero is SPI PHY is
  * busy.
  */
-int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
+int SPI0_transmit(const uint8_t *bytes, uint16_t len);
 
 /**
  * @brief Enable the receive event IRQ trigger for SPI0 on UCB0

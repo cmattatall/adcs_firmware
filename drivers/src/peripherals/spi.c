@@ -53,7 +53,7 @@ typedef enum
 } SPI_IRQ_t;
 
 
-static receive_func SPI0_rx_callback = NULL;
+static receive_func          SPI0_rx_callback = NULL;
 static volatile unsigned int SPI0_tx_flag;
 
 static void SPI0_PHY_config(void);
@@ -186,11 +186,10 @@ static void SPI0_transmit_byte(void)
 #endif /* #if defined(SPI0_TRANSMIT_IRQ) */
 
 
-int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
+int SPI0_transmit(const uint8_t *bytes, uint16_t len)
 {
     CONFIG_ASSERT(bytes != NULL);
     CONFIG_ASSERT(len > 0);
-
 
     unsigned int i = 0;
     SPI0_tx_flag   = 1;
@@ -199,15 +198,24 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
         if (SPI0_tx_flag)
         {
             SPI0_tx_flag = 0;
-
             while ((UCB0IFG & UCTXIFG) != UCTXIFG)
             {
                 /* Wait for tx shift register to be empty */
             }
             UCB0TXBUF = bytes[i];
             i++;
+
+            if (i == 0)
+            {
+                if (len > 1)
+                {
+                    UCB0IE |= UCTXIE;
+                }
+            }
         }
     }
+    UCB0IE &= ~UCTXIE;
+
     return 0;
 }
 
@@ -217,21 +225,26 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     switch (UCB0IV)
     {
         case UCB0IVRX:
-        {   
-            #if 0
+        {
             /* always read reg to prevent overrun error */
             uint8_t received_byte = UCB0RXBUF;
             if (NULL != SPI0_rx_callback)
             {
                 SPI0_rx_callback(received_byte);
             }
-            #endif
 
+#if 0
             /* If transmit interrupt */
             if ((UCB0IFG & UCTXIFG) == UCTXIFG)
             {
                 SPI0_tx_flag = 1;
             }
+#endif
+        }
+        break;
+        case UCB0IVTX:
+        {
+            SPI0_tx_flag = 1;
         }
         break;
     }

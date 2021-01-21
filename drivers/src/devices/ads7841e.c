@@ -330,7 +330,7 @@ static void ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 #endif
 
     ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
-    SPI0_transmit(cmd, sizeof(cmd), NULL);
+    SPI0_transmit(cmd, sizeof(cmd));
 }
 
 
