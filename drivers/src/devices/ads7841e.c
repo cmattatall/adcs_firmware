@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attributes.h"
 #include "config_assert.h"
 #include "ads7841e.h"
 #include "bufferlib.h"
@@ -69,7 +70,6 @@
 #define ADS7841_OVERSAMPLE_COUNT 1
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
-
 static struct
 {
     ADS7841_PWRMODE_t pwr_mode;
@@ -81,10 +81,6 @@ static volatile uint16_t conv_cnt;
 static volatile uint16_t conv_samples[ADS7841_OVERSAMPLE_COUNT];
 static volatile uint16_t converted_val;
 
-#include "attributes.h"
-
-static volatile uint8_t DEBUG_VAR_bhigh;
-static volatile uint8_t DEBUG_VAR_blow;
 
 /* State machine for SPI receive events */
 static volatile enum {
@@ -249,11 +245,6 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_hi:
         {
-
-#warning REMOVE ME LATER
-            DEBUG_VAR_bhigh = byte;
-
-
             converted_val = byte;
             converted_val <<= 4;
 
@@ -263,10 +254,6 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_lo:
         {
-#warning REMOVE ME LATER
-            DEBUG_VAR_blow = byte;
-
-
             converted_val |= (byte >> 4);
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
