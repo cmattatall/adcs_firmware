@@ -80,8 +80,8 @@
             "options": [
                 "adcs_executable.elf",
                 "drivers/examples/ADCS_DRIVERS_ads7841_example.elf",
-                "drivers/examples/ADCS_DRIVERS_blinky.elf",
                 "drivers/examples/ADCS_DRIVERS_spi_example.elf",
+w                "drivers/examples/ADCS_DRIVERS_blinky.elf",
                 "drivers/examples/ADCS_DRIVERS_sun_sensor.elf",
                 "drivers/examples/ADCS_DRIVERS_timer_blinky.elf",
                 "drivers/examples/ADCS_DRIVERS_uart_example.elf",

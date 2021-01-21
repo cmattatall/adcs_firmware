@@ -43,12 +43,12 @@ int main(void)
     init.phy_cfg  = SPI_PHY_3;
     init.data_dir = SPI_DATA_DIR_msb;
     init.edge_phase = SPI_DATA_CHANGE_edge1;
-    init.polarity   = SPI_CLK_POLARITY_high;
+    init.polarity   = SPI_CLK_POLARITY_low;
 
     uint16_t prescaler = 0x0002;
 
     SPI0_init(my_SPI_rx_callback, &init, prescaler);
-
+    SPI0_enable_rx_irq();
 
     enable_interrupts();
 
