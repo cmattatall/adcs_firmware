@@ -54,19 +54,7 @@ typedef enum
 
 
 static receive_func SPI0_rx_callback = NULL;
-static void (*SPI0_tx_cplt_callback)(void);
-
-
-#if defined(SPI0_TRANSMIT_IRQ)
-
-static volatile const uint8_t *SPI0_tx_ptr;
-static volatile const uint8_t *SPI0_tx_ptr_end;
-
-#else
-
 static volatile unsigned int SPI0_tx_flag;
-
-#endif
 
 static void SPI0_PHY_config(void);
 
@@ -140,8 +128,6 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler)
 
     SPI0_PHY_config();
 
-    /* Reset transmit configuration */
-    SPI0_tx_cplt_callback = NULL;
     UCB0IE &= ~UCTXIE;
 
     /* Register IRQ service cb from caller */
@@ -161,9 +147,6 @@ void SPI0_deinit(void)
 
     /* Reset callback */
     SPI0_rx_callback = NULL;
-
-    /* Reset transmit configuration */
-    SPI0_tx_cplt_callback = NULL;
 }
 
 
@@ -208,26 +191,6 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
     CONFIG_ASSERT(bytes != NULL);
     CONFIG_ASSERT(len > 0);
 
-#if defined(SPI0_TRANSMIT_IRQ)
-    if (SPI0_tx_ptr == NULL)
-    {
-        SPI0_tx_ptr           = bytes;
-        SPI0_tx_ptr_end       = bytes + len;
-        SPI0_tx_cplt_callback = tx_cb;
-        SPI0_transmit_byte();
-        if (len > 1)
-        {
-            UCB0IE |= UCTXIE; /* IRQ will handle subsequent bytes */
-        }
-        return 0;
-    }
-    else
-    {
-        return -1;
-    }
-#else
-
-    SPI0_tx_cplt_callback = tx_cb;
 
     unsigned int i = 0;
     SPI0_tx_flag   = 1;
@@ -246,7 +209,6 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
         }
     }
     return 0;
-#endif /* #if defined(SPI0_TRANSMIT_IRQ) */
 }
 
 
@@ -255,46 +217,21 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     switch (UCB0IV)
     {
         case UCB0IVRX:
-        {
+        {   
+            #if 0
             /* always read reg to prevent overrun error */
             uint8_t received_byte = UCB0RXBUF;
             if (NULL != SPI0_rx_callback)
             {
                 SPI0_rx_callback(received_byte);
             }
-
-#if !defined(SPI0_TRANSMIT_IRQ)
-            while ((UCB0STAT & UCBUSY) == UCBUSY)
-            {
-                /* Wait for bus to become available */
-            }
+            #endif
 
             /* If transmit interrupt */
             if ((UCB0IFG & UCTXIFG) == UCTXIFG)
             {
-                if (SPI0_tx_cplt_callback != NULL)
-                {
-                    SPI0_tx_cplt_callback();
-                }
                 SPI0_tx_flag = 1;
             }
-#endif /* #if !defined(SPI0_TRANSMIT_IRQ) */
-        }
-        break;
-        case UCB0IVTX:
-        {
-
-#if defined(SPI0_TRANSMIT_IRQ)
-            if (SPI0_tx_cplt_callback != NULL)
-            {
-                SPI0_tx_cplt_callback();
-            }
-
-            if (SPI0_tx_ptr != NULL)
-            {
-                SPI0_transmit_byte();
-            }
-#endif /* #if defined(SPI0_TRANSMIT_IRQ) */
         }
         break;
     }

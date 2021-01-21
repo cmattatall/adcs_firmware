@@ -154,7 +154,7 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
     init.role     = SPI_ROLE_master;
     init.phy_cfg  = SPI_PHY_3;
     init.data_dir = SPI_DATA_DIR_msb;
-    
+
     /*
      * ADS7841 shifts data on falling edge and latches data on rising edge
      *
@@ -162,16 +162,10 @@ void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
      * data shifted from ADS7841 on falling edge (edge2)
      */
 
-#if 0 /* checkpoint */
     init.edge_phase = SPI_DATA_CHANGE_edge2;
     init.polarity   = SPI_CLK_POLARITY_low;
-#endif
 
-    init.edge_phase = SPI_DATA_CHANGE_edge1;
-    init.polarity   = SPI_CLK_POLARITY_high;
-
-
-    uint16_t prescaler = 0x000F;
+    uint16_t prescaler = 0x0002;
 
     SPI0_init(ADS7841_receive_byte, &init, prescaler);
 }
@@ -324,15 +318,6 @@ static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
 }
 
 
-static void ADS7841_delay(void)
-{
-    volatile unsigned int i;
-    for (i = 0; i < 10; i++)
-    {
-        /* wait */
-    }
-}
-
 static void ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 {
     uint8_t ctrl_byte;
@@ -345,7 +330,7 @@ static void ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 #endif
 
     ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
-    SPI0_transmit(cmd, sizeof(cmd), ADS7841_delay);
+    SPI0_transmit(cmd, sizeof(cmd), NULL);
 }
 
 
