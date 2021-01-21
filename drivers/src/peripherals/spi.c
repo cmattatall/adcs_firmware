@@ -56,6 +56,18 @@ typedef enum
 static receive_func SPI0_rx_callback = NULL;
 static void (*SPI0_tx_cplt_callback)(void);
 
+
+#if defined(SPI0_TRANSMIT_IRQ)
+
+static volatile const uint8_t *SPI0_tx_ptr;
+static volatile const uint8_t *SPI0_tx_ptr_end;
+
+#else
+
+static volatile unsigned int SPI0_tx_flag;
+
+#endif
+
 static void SPI0_PHY_config(void);
 
 void SPI0_init(receive_func rx, const SPI_init_struct *init)
@@ -129,7 +141,7 @@ void SPI0_init(receive_func rx, const SPI_init_struct *init)
     UCB0CTL1 |= UCSSEL__SMCLK; /* Select SMclk (1MHz) to drive peripheral  */
 
 
-    UCB0BR0 = 0x0F;
+    UCB0BR0 = 0x08;
     UCB0BR1 = 0x00;
 
     UCB0CTL1 &= ~UCSWRST;
@@ -175,8 +187,8 @@ void SPI0_disable_rx_irq(void)
     UCB0IE &= ~UCRXIE;
 }
 
-static volatile const uint8_t *SPI0_tx_ptr;
-static volatile const uint8_t *SPI0_tx_ptr_end;
+
+#if defined(SPI0_TRANSMIT_IRQ)
 
 static void SPI0_transmit_byte(void)
 {
@@ -196,10 +208,15 @@ static void SPI0_transmit_byte(void)
     }
 }
 
+#endif /* #if defined(SPI0_TRANSMIT_IRQ) */
+
+
 int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
 {
     CONFIG_ASSERT(bytes != NULL);
     CONFIG_ASSERT(len > 0);
+
+#if defined(SPI0_TRANSMIT_IRQ)
     if (SPI0_tx_ptr == NULL)
     {
         SPI0_tx_ptr           = bytes;
@@ -216,6 +233,27 @@ int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void))
     {
         return -1;
     }
+#else
+
+    SPI0_tx_cplt_callback = tx_cb;
+
+    unsigned int i = 0;
+    SPI0_tx_flag   = 1;
+    while (i < len)
+    {
+        if (SPI0_tx_flag)
+        {
+            SPI0_tx_flag = 0;
+
+            while ((UCB0IFG & UCTXIFG) != UCTXIFG)
+            {
+                /* Wait for tx shift register to be empty */
+            }
+            UCB0TXBUF = bytes[i];
+            i++;
+        }
+    }
+#endif /* #if defined(SPI0_TRANSMIT_IRQ) */
 }
 
 
@@ -224,15 +262,36 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
     switch (UCB0IV)
     {
         case UCB0IVRX:
-        {
+        {   
+            /* always read reg to prevent overrun error */
+            uint8_t received_byte = UCB0RXBUF; 
             if (NULL != SPI0_rx_callback)
             {
-                SPI0_rx_callback(UCB0RXBUF);
+                SPI0_rx_callback(received_byte);
             }
+
+#if !defined(SPI0_TRANSMIT_IRQ)
+            while((UCB0STAT & UCBUSY) == UCBUSY)
+            {
+                /* Wait for bus to become available */
+            }
+
+            /* If transmit interrupt */
+            if ((UCB0IFG & UCTXIFG) == UCTXIFG)
+            {
+                if (SPI0_tx_cplt_callback != NULL)
+                {
+                    SPI0_tx_cplt_callback();
+                }
+                SPI0_tx_flag = 1;
+            }
+#endif /* #if !defined(SPI0_TRANSMIT_IRQ) */
         }
         break;
         case UCB0IVTX:
         {
+
+#if defined(SPI0_TRANSMIT_IRQ)
             if (SPI0_tx_cplt_callback != NULL)
             {
                 SPI0_tx_cplt_callback();
@@ -242,6 +301,7 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_B0_VECTOR_ISR(void)
             {
                 SPI0_transmit_byte();
             }
+#endif /* #if defined(SPI0_TRANSMIT_IRQ) */
         }
         break;
     }

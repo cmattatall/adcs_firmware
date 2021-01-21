@@ -72,8 +72,8 @@
 
 static struct
 {
-    ADS7841_PWRMODE_t  power_mode;
-    ADS7841_CONVMODE_t conv_mode;
+    ADS7841_PWRMODE_t pwr_mode;
+    ADS7841_BITRES_t  res;
 } ADS7841_cfg;
 
 /* Valid conversion value buffer */
@@ -103,11 +103,20 @@ static void (*ADS7841_SPI_CHIP_UNSELECT_func)(void) = NULL;
 
 /* See table 1 of page 9 datasheet.
  * I have NO clue why they chose a bit mapping like this... */
-static const uint8_t ADS7841_CHANNEL_MAP[] = {
-    [ADS7841_CHANNEL_0] = ((1 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
-    [ADS7841_CHANNEL_1] = ((5 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
-    [ADS7841_CHANNEL_2] = ((2 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
-    [ADS7841_CHANNEL_3] = ((6 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+static const uint8_t ADS7841_channel_map[] = {
+    [ADS7841_CHANNEL_SGL_0] = ((1 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_SGL_1] = ((5 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_SGL_2] = ((2 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_SGL_3] = ((6 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+
+    /* So literally the only difference for the differential conversion
+     * is in the SGL/DIFF bit... Not even controlled by the channel bits...
+     *
+     * You must have to be a special kind of idiot to work at TI... */
+    [ADS7841_CHANNEL_DIF_0P_1N] = ((1 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_DIF_1P_0N] = ((5 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_DIF_2P_3N] = ((2 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_DIF_3P_2N] = ((6 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
 };
 
 /* The manufacturer has a similarly idiotic bit layout for the power modes... */
@@ -117,27 +126,26 @@ static const uint8_t ADS7841_PWRMODE_MAP[] = {
 };
 
 
-static const uint16_t ADS7841_conv_mode_map[] = {
-    [ADS7841_CONVMODE_8]  = (CTL_MODE_8BIT),
-    [ADS7841_CONVMODE_12] = (CTL_MODE_12BIT),
+static const uint16_t ADS7841_conv_bitres_map[] = {
+    [ADS7841_BITRES_8]  = (CTL_MODE_8BIT),
+    [ADS7841_BITRES_12] = (CTL_MODE_12BIT),
 };
 
 
-static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
-                                 ADS7841_PWRMODE_t  pwr_mode,
-                                 ADS7841_CONVMODE_t conv_mode);
+static void    ADS7841_receive_byte(uint8_t byte);
+static int     ADS7841_convert_channel(ADS7841_CHANNEL_t);
+static void    ADS7841_enable_chip(void);
+static void    ADS7841_disable_chip(void);
+static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
+                                 ADS7841_PWRMODE_t pwr_mode,
+                                 ADS7841_BITRES_t  conv_mode);
 
-static void ADS7841_enable_chip(void);
-static void ADS7841_disable_chip(void);
-
-
-static void ADS7841_receive_byte(uint8_t byte);
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
-                         ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_mode)
+                         ADS7841_PWRMODE_t pwr_mode, ADS7841_BITRES_t res)
 {
-    ADS7841_cfg.power_mode = mode;
-    ADS7841_cfg.conv_mode  = conv_mode;
+    ADS7841_cfg.pwr_mode = pwr_mode;
+    ADS7841_cfg.res      = res;
 
     ADS7841_SPI_CHIP_SELECT_func   = ena_func;
     ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
@@ -172,32 +180,13 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
     memset((void *)conv_samples, 0, sizeof(conv_samples));
 
-    uint16_t power_mode = ADS7841_cfg.power_mode;
-    uint8_t  ctrl_byte;
-    ctrl_byte = ADS7841_ctrl_byte(ch, power_mode, ADS7841_CONVMODE_12);
-
-#if (ADS7841_OVERSAMPLE_COUNT > 1)
-    uint8_t cmd[] = {ctrl_byte, 0}; /* Overlap consecutive samples */
-#else
-    uint8_t cmd[] = {ctrl_byte, 0, 0};
-#endif
-
-    /* Desired value of ctrl byte == 0b11100111 */
-
-    // uint8_t cmd[] = {0b11100111, 0,0};
-
     /* Perform the required number of samples */
     ADS7841_enable_chip();
     volatile unsigned int conv_timeout;
     unsigned int          timeout_counts = 0;
     while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
     {
-        ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
-        if (SPI0_transmit(cmd, sizeof(cmd), NULL))
-        {
-            /* Abort. SPI bus possibly being hogged by some other device. */
-            break;
-        }
+        ADS7841_convert_channel(ch);
 
         /* wait for conversion to complete (with timeout) */
         conv_timeout = 0;
@@ -279,17 +268,60 @@ static void ADS7841_receive_byte(uint8_t byte)
 }
 
 
-static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
-                                 ADS7841_PWRMODE_t  pwr_mode,
-                                 ADS7841_CONVMODE_t conv_mode)
+static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
+                                 ADS7841_PWRMODE_t pwr_mode,
+                                 ADS7841_BITRES_t  conv_mode)
 {
     uint8_t control_byte = 0;
-    control_byte |= ADS7841_CHANNEL_MAP[channel];
-    control_byte |= ADS7841_PWRMODE_MAP[pwr_mode];
-    control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED; /* Force singled ended */
-    control_byte |= ADS7841_conv_mode_map[conv_mode];
+
     control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
+    switch (channel)
+    {
+        case ADS7841_CHANNEL_SGL_0:
+        case ADS7841_CHANNEL_SGL_1:
+        case ADS7841_CHANNEL_SGL_2:
+        case ADS7841_CHANNEL_SGL_3:
+        {
+            /* Single-ended conversion */
+            control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED;
+        }
+        break;
+        case ADS7841_CHANNEL_DIF_0P_1N:
+        case ADS7841_CHANNEL_DIF_1P_0N:
+        case ADS7841_CHANNEL_DIF_2P_3N:
+        case ADS7841_CHANNEL_DIF_3P_2N:
+        {
+            /* Differential conversion */
+            control_byte &= ~CTL_SGL_CONVERSION_SINGLE_ENDED;
+        }
+        break;
+        default:
+        {
+            control_byte = 0;
+            return control_byte;
+        }
+        break;
+    }
+    control_byte |= ADS7841_channel_map[channel];
+    control_byte |= ADS7841_PWRMODE_MAP[pwr_mode];
+    control_byte |= ADS7841_conv_bitres_map[conv_mode];
     return control_byte;
+}
+
+
+static int ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
+{
+    uint8_t ctrl_byte;
+    ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_cfg.pwr_mode, ADS7841_BITRES_12);
+
+#if (ADS7841_OVERSAMPLE_COUNT > 1)
+    uint8_t cmd[] = {ctrl_byte, 0}; /* Overlap consecutive samples */
+#else
+    uint8_t cmd[] = {ctrl_byte, 0, 0};
+#endif
+
+    ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
+    return SPI0_transmit(cmd, sizeof(cmd), NULL);
 }
 
 

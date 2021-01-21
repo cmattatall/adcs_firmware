@@ -51,11 +51,11 @@ static SUNSEN_intensity_t SUNSEN_get_sun_vector(void)
 {
 #if defined(TARGET_MCU)
     ADS7841_driver_init(SUNSEN_enable_ADS7841, SUNSEN_disable_ADS7841,
-                        ADS7841_PWRMODE_stayOn, ADS7841_CONVMODE_12);
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
     SUNSEN_intensity_t measurement;
-    measurement.first  = ADS7841_measure_channel(ADS7841_CHANNEL_1);
-    measurement.second = ADS7841_measure_channel(ADS7841_CHANNEL_2);
-    measurement.third  = ADS7841_measure_channel(ADS7841_CHANNEL_3);
+    measurement.first  = ADS7841_measure_channel(ADS7841_CHANNEL_SGL_1);
+    measurement.second = ADS7841_measure_channel(ADS7841_CHANNEL_SGL_2);
+    measurement.third  = ADS7841_measure_channel(ADS7841_CHANNEL_SGL_3);
     ADS7841_driver_deinit();
     return measurement;
 #else

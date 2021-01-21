@@ -86,7 +86,7 @@ int main(void)
     TIMERA0_init();
     ADS7841_chip_select_init();
     ADS7841_driver_init(ADS7841_chip_select_func, ADS7841_chip_unselect_func,
-                        ADS7841_PWRMODE_stayOn, ADS7841_CONVMODE_12);
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
     enable_interrupts();
     uint16_t val;
     while (1)
@@ -95,7 +95,7 @@ int main(void)
         {
             P1OUT ^= 0x01;
 
-            val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
+            val = ADS7841_measure_channel(ADS7841_CHANNEL_SGL_3);
             if (val != ADS7841_CONV_STATUS_BUSY)
             {
                 /* Do stuff with the digitized analog value */
