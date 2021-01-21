@@ -31,8 +31,8 @@ typedef enum
 
 typedef enum
 {
-    ADS7841_PWRMODE_inter_conv,
-    ADS7841_PWRMODE_always_on,
+    ADS7841_PWRMODE_lowpwr,
+    ADS7841_PWRMODE_stayOn,
 } ADS7841_PWRMODE_t;
 
 /**

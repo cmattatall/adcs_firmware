@@ -86,7 +86,7 @@ int main(void)
     TIMERA0_init();
     ADS7841_chip_select_init();
     ADS7841_driver_init(ADS7841_chip_select_func, ADS7841_chip_unselect_func,
-                        ADS7841_PWRMODE_always_on, ADS7841_CONVMODE_12);
+                        ADS7841_PWRMODE_stayOn, ADS7841_CONVMODE_12);
     enable_interrupts();
     uint16_t val;
     while (1)

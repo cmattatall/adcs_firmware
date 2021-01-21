@@ -57,7 +57,7 @@
 #define CTL_SGL_CONVERSION_DIFFERENTIAL ((0u << (CTL_SGL_POS)) & (CTL_SGL_MSK))
 
 #define CTL_PWRMODE_POS (0)
-#define CTL_PWRMODE_MSK (2u << (CTL_PWRMODE_POS))
+#define CTL_PWRMODE_MSK (3u << (CTL_PWRMODE_POS))
 
 #define ADS7841_BITMASK12 (0x0FFF) /* 12 bit mask */
 #define ADS7841_BITMASK8 (0x00FF)  /* 8 bit mask  */
@@ -104,16 +104,16 @@ static void (*ADS7841_SPI_CHIP_UNSELECT_func)(void) = NULL;
 /* See table 1 of page 9 datasheet.
  * I have NO clue why they chose a bit mapping like this... */
 static const uint8_t ADS7841_CHANNEL_MAP[] = {
-    [ADS7841_CHANNEL_0] = (1 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
-    [ADS7841_CHANNEL_1] = (5 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
-    [ADS7841_CHANNEL_2] = (2 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
-    [ADS7841_CHANNEL_3] = (6 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
+    [ADS7841_CHANNEL_0] = ((1 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_1] = ((5 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_2] = ((2 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_3] = ((6 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
 };
 
 /* The manufacturer has a similarly idiotic bit layout for the power modes... */
 static const uint8_t ADS7841_PWRMODE_MAP[] = {
-    [ADS7841_PWRMODE_inter_conv] = ((0 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
-    [ADS7841_PWRMODE_always_on]  = ((3 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
+    [ADS7841_PWRMODE_lowpwr] = ((0 << (CTL_PWRMODE_POS)) & (CTL_PWRMODE_MSK)),
+    [ADS7841_PWRMODE_stayOn] = ((3 << (CTL_PWRMODE_POS)) & (CTL_PWRMODE_MSK)),
 };
 
 
@@ -177,10 +177,14 @@ uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
     ctrl_byte = ADS7841_ctrl_byte(ch, power_mode, ADS7841_CONVMODE_12);
 
 #if (ADS7841_OVERSAMPLE_COUNT > 1)
-    uint8_t cmd[] = {ctrl_byte, '\0'}; /* Overlap consecutive samples */
+    uint8_t cmd[] = {ctrl_byte, 0}; /* Overlap consecutive samples */
 #else
-    uint8_t cmd[] = {ctrl_byte, '\0', '\0'};
+    uint8_t cmd[] = {ctrl_byte, 0, 0};
 #endif
+
+    /* Desired value of ctrl byte == 0b11100111 */
+
+    // uint8_t cmd[] = {0b11100111, 0,0};
 
     /* Perform the required number of samples */
     ADS7841_enable_chip();
