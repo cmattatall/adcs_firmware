@@ -153,13 +153,17 @@ set(CMAKE_CXX_FLAGS_INIT "-ffunction-sections -fdata-sections -fno-rtti -fno-exc
 set(CMAKE_C_FLAGS_DEBUG "-Wall -Wshadow -Wextra -O0 -g -ggdb -DDEBUG" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -O3 -DNDEBUG")
 
+
+set(LINKER_SCRIPT "${MSP430_MCU}.ld")
+
+
 # so aparently, even code composer studio was broken with the switch to gcc 9.2 backend in 2016
 # see https://e2e.ti.com/support/tools/ccs/f/81/t/504524?Linker-error-with-latest-msp430-gcc
 #
 # current workaround is to force gcc to link against the correct multiplication lib
 # code composer is doing this same thing behind the scenes but it's a shame that the maintainers of 
 # the msp430 gcc port STILL haven't fixed the issue after 4 years of active work on it...
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,--undefined=__mspabi_mpyi -lmul_f5")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--relax,--gc-sections,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${LINKER_SCRIPT},--undefined=__mspabi_mpyi -lmul_f5")
 
 include(CheckLinkerFlag)
 
@@ -174,20 +178,17 @@ function(add_executable executable)
         endif(DEFINED ENV{MSP430_MCU})
     endif(NOT MSP430_MCU)
 
-    set(${executable}_LINKER_SCRIPT "${MSP430_MCU}.ld")
     
-    string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
     _add_executable(${executable} ${ARGN})
 
     set(executable_output_name "${executable}.elf")
     set_target_properties(${executable} PROPERTIES OUTPUT_NAME ${executable_output_name})
 
-    string(TOUPPER ${MSP430_MCU} MSP430_MCU_DEFINE)
-    target_compile_definitions(${executable} PRIVATE "__${MSP430_MCU_DEFINE}__")
+    string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
+    target_compile_definitions(${executable} PRIVATE "__${UPPERCASE_MCU_MPN}__")
     target_compile_definitions(${executable} PRIVATE "TARGET_MCU")
     target_compile_options(${executable} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${executable} PUBLIC "${MCU_HEADER_DIR}")
-    target_link_options(${executable} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${${executable}_LINKER_SCRIPT}")
 
     add_custom_target(${executable}_postbuild ALL DEPENDS ${executable})
     add_custom_command( 
@@ -237,17 +238,13 @@ function(add_library library)
         endif(DEFINED ENV{MSP430_MCU})
     endif(NOT MSP430_MCU)
 
-    set(${library}_LINKER_SCRIPT "${MSP430_MCU}.ld")
-
-    string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
     _add_library(${library} ${ARGN})
 
-    string(TOUPPER ${MSP430_MCU} MSP430_MCU_DEFINE)
-    target_compile_definitions(${library} PRIVATE "__${MSP430_MCU_DEFINE}__")
+    string(TOUPPER "${MSP430_MCU}" UPPERCASE_MCU_MPN)
+    target_compile_definitions(${library} PRIVATE "__${UPPERCASE_MCU_MPN}__")
     target_compile_definitions(${library} PRIVATE "TARGET_MCU")
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
-    target_link_options(${library} PUBLIC "-Wl,-I${MCU_HEADER_DIR},-L${MCU_HEADER_DIR},-T,${${library}_LINKER_SCRIPT}")
 
 endfunction(add_library library)
 endif(NOT COMMAND _add_library)
