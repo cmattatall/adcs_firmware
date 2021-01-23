@@ -35,7 +35,17 @@ else()
 endif()
 
 set(TOOLCHAIN_PREFIX "msp430-elf")
+
+# THERE IS A VERY STRANGE ERROR WITH msp430-elf-ld where if the library is
+# static and the system is unix-based (which uses .a extension for static libs) 
+# then msp430-elf-ld will silently ignore the library, EVEN IF IT IS PART OF THE
+# BUILD TREE.
+#
+# solution is to forcibly change the suffix of statically linked libs
 set(CMAKE_STATIC_LIBRARY_SUFFIX_C ".statlib")
+set(CMAKE_STATIC_LIBRARY_SUFFIX_CXX ".statlib")
+mark_as_advanced(CMAKE_STATIC_LIBRARY_SUFFIX_C)
+mark_as_advanced(CMAKE_STATIC_LIBRARY_SUFFIX_CXX)
 
 set(TOOLCHAIN_GCC_EXE ${TOOLCHAIN_PREFIX}-gcc)
 execute_process(
@@ -245,6 +255,8 @@ function(add_library library)
     target_compile_definitions(${library} PRIVATE "TARGET_MCU")
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
+
+    add_custom_target(${library}_postbuild DEPENDS ALL)
 
 endfunction(add_library library)
 endif(NOT COMMAND _add_library)
