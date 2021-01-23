@@ -42,10 +42,13 @@ set(TOOLCHAIN_PREFIX "msp430-elf")
 # BUILD TREE.
 #
 # solution is to forcibly change the suffix of statically linked libs
-set(CMAKE_STATIC_LIBRARY_SUFFIX_C ".statlib")
-set(CMAKE_STATIC_LIBRARY_SUFFIX_CXX ".statlib")
+
+set(STATIC_LIBRARY_SUFFIX ".static")
+set(CMAKE_STATIC_LIBRARY_SUFFIX_C ${STATIC_LIBRARY_SUFFIX})
+set(CMAKE_STATIC_LIBRARY_SUFFIX_CXX ${STATIC_LIBRARY_SUFFIX})
 mark_as_advanced(CMAKE_STATIC_LIBRARY_SUFFIX_C)
 mark_as_advanced(CMAKE_STATIC_LIBRARY_SUFFIX_CXX)
+mark_as_advanced(STATIC_LIBRARY_SUFFIX)
 
 set(TOOLCHAIN_GCC_EXE ${TOOLCHAIN_PREFIX}-gcc)
 execute_process(
@@ -256,7 +259,43 @@ function(add_library library)
     target_compile_options(${library} PRIVATE "-mmcu=${MSP430_MCU}")
     target_include_directories(${library} PUBLIC "${MCU_HEADER_DIR}")
 
-    add_custom_target(${library}_postbuild DEPENDS ALL)
+
+    if(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(LIBRARY_OBJDUMP_OUTPUT_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/objdump")
+    else()
+        set(LIBRARY_OBJDUMP_OUTPUT_DIR "${CMAKE_BINARY_DIR}/objdump")
+    endif()
+
+    if(NOT EXISTS "${LIBRARY_OBJDUMP_OUTPUT_DIR}")
+        file(MAKE_DIRECTORY "${LIBRARY_OBJDUMP_OUTPUT_DIR}")
+    endif(NOT EXISTS "${LIBRARY_OBJDUMP_OUTPUT_DIR}")
+
+    get_target_property(type ${library} TYPE)
+    if(type STREQUAL STATIC_LIBRARY)
+        set(libbase "lib${library}")
+        set(libname "${libbase}${STATIC_LIBRARY_SUFFIX}")
+    elseif(type STREQUAL MODULE_LIBRARY)
+        set(libbase "lib${library}")
+        set(libname "${libbase}${MODULE_LIBRARY_SUFFIX}")
+    elseif(type STREQUAL SHARED_LIBRARY)
+        set(libbase "lib${library}")
+        set(libname "${libbase}${SHARED_LIBRARY_SUFFIX}")
+    elseif(type STREQUAL OBJECT_LIBRARY)
+        set(libbase "lib${library}")
+        set(libname "${libbase}${OBJECT_LIBRARY_SUFFIX}")
+    elseif(type STREQUAL INTERFACE_LIBRARY)
+        set(libbase "lib${library}")
+        set(libname "${libbase}${INTERFACE_LIBRARY_SUFFIX}")
+    endif()
+    
+    add_custom_target(${library}_postbuild ALL DEPENDS ${library})
+    add_custom_command( 
+        TARGET ${library}_postbuild
+        POST_BUILD
+        DEPENDS ALL
+        COMMENT "Generating lss file from ${elf_file} using ${CMAKE_OBJDUMP}"
+        COMMAND ${CMAKE_OBJDUMP} -xh "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${libname}" > "${LIBRARY_OBJDUMP_OUTPUT_DIR}/${libname}.lss"
+    )
 
 endfunction(add_library library)
 endif(NOT COMMAND _add_library)
