@@ -6,6 +6,10 @@
 # @note MUST BE RUN WITH ROOT PERMISSIONS ON LINUX                             # 
 #                                                                              # 
 ################################################################################
+
+
+############ THIS INSTALLER IS SUPER BUGGY - CARL #####
+
 import pip
 import sys
 import platform
@@ -18,10 +22,6 @@ import zipfile
 import shutil
 
 
-###############################################################################
-## CONSTANTS. DON'T EVER TOUCH THESE
-###############################################################################
- 
 toolchain_url_base = "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_0/export"
 
 support_files_folder_name = "msp430-gcc-support-files"
@@ -188,13 +188,18 @@ def install_linux():
     "texinfo",
     "libreadline-dev",
     "zip",
-    "libusb-dev"]
-
+    "libusb-dev",
+    "snapd"
+    "squashfuse"]
     os.system("apt-get update -y")
     for pkg in required_packages:
         if 0 != os.system("apt-get install -y %s" % (pkg)):
             print("Error installing package : %s. Please try installing it manually before continuing" % (pkg))
             exit(1)
+    os.system("/sbin/init")
+    os.system("service snapd start")
+    os.system("snap install --classic cmake")
+    
 
     archive_ext = ".tar.bz2"
     if systemIs32Bit():
@@ -251,26 +256,6 @@ def install_linux():
     # go back to directory we started in
     os.chdir(current_workdir)
 
-
-    ## INSTALL CMAKE
-    cmake_version="3.18.5"
-    cmake_url="https://cmake.org/files/v3.18/cmake-3.18.5.tar.gz"
-
-    tmpdir = "tmp"
-    os.mkdir(tmpdir)
-    os.chdir(tmpdir)
-    if 0 != os.system("wget %s && tar -xzvf cmake-3.18.5.tar.gz" % (cmake_url)):
-        print("Could not download cmake-%s from %s" % (cmake_version, cmake_url))
-        exit(1)
-    
-    os.chdir("cmake-3.18.5")
-
-    os.system("./bootstrap && make -j $(nproc) && make install -j $(nproc)")
-
-    # go back to directory we started in
-    os.chdir(current_workdir)
-
-    shutil.rmtree(tmpdir)
 
 # @brief install toolchain on apple
 # @todo ACTUALLY IMPLEMENT THE DAMN THING 
