@@ -105,7 +105,6 @@ def main():
     parser.add_argument("--verbose", action="store_true", default=False, dest="verbose", help="Option to emit verbose information during generation.")
     parser.add_argument("--build-examples", action="store_true", default=False, dest="build_examples", help="Build the usage and API examples.")
     parser.add_argument("--analyze", action="store_true", default=False, dest="analyze", help="Run static analysis after the generation step.")
-
     args=parser.parse_args()
 
     if args.run_tests and not args.make_tests:
