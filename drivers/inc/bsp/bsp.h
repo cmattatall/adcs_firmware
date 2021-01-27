@@ -19,21 +19,21 @@ void BSP_init(void);
  *
  * @param args UNUSED
  */
-void BSP_toggle_red_led(__unused callback_args args);
+void BSP_toggle_red_led(callback_args args);
 
 /**
  * @brief turn on the onboard red LED
  *
  * @param args UNUSED
  */
-void BSP_set_red_led(__unused callback_args args);
+void BSP_set_red_led(callback_args args);
 
 /**
  * @brief turn off the onboard red LED
  *
  * @param args UNUSED
  */
-void BSP_clr_red_led(__unused callback_args args);
+void BSP_clr_red_led(callback_args args);
 
 #ifdef __cplusplus
 /* clang-format off */

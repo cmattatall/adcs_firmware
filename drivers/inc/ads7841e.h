@@ -17,24 +17,27 @@ extern "C"
 
 typedef enum
 {
-    ADS7841_CHANNEL_0,
-    ADS7841_CHANNEL_1,
-    ADS7841_CHANNEL_2,
-    ADS7841_CHANNEL_3,
+    ADS7841_CHANNEL_SGL_0, /* V+ == ch0, V- == gnd */
+    ADS7841_CHANNEL_SGL_1, /* V+ == ch1, V- == gnd */
+    ADS7841_CHANNEL_SGL_2, /* V+ == ch2, V- == gnd */
+    ADS7841_CHANNEL_SGL_3, /* V+ == ch3, V- == gnd */
+    ADS7841_CHANNEL_DIF_0P_1N,
+    ADS7841_CHANNEL_DIF_1P_0N,
+    ADS7841_CHANNEL_DIF_2P_3N,
+    ADS7841_CHANNEL_DIF_3P_2N,
 } ADS7841_CHANNEL_t;
 
 typedef enum
 {
-    ADS7841_CONVMODE_8,
-    ADS7841_CONVMODE_12,
-} ADS7841_CONVMODE_t;
+    ADS7841_BITRES_8,
+    ADS7841_BITRES_12,
+} ADS7841_BITRES_t;
 
 typedef enum
 {
-    ADS7841_PWRMODE_inter_conv,
-    ADS7841_PWRMODE_always_on,
+    ADS7841_PWRMODE_lowpwr,
+    ADS7841_PWRMODE_stayOn,
 } ADS7841_PWRMODE_t;
-
 
 /**
  * @brief Initialize the ADS7841 driver API
@@ -43,10 +46,10 @@ typedef enum
  * @param dis_func function to drive the CS pin on ADS7841 high
  * @param mode one of ADS7841_PWRMODE_t. Determines device behaviour when not
  * being used.
- * @param conv_type one of ADS7841_CONVMODE_t. Set to 12 or 8 bit conversions.
+ * @param conv_type one of ADS7841_BITRES_t. Set to 12 or 8 bit conversions.
  */
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
-                         ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type);
+                         ADS7841_PWRMODE_t pwr_mode, ADS7841_BITRES_t res);
 
 
 /**

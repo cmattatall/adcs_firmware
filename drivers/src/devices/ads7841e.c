@@ -10,7 +10,7 @@
  * @note THIS MODULE EXPLICITLY DOES NOT USE BITFIELDS BECAUSE THE
  * __ANCIENT__ compiler that TI uses has known issues with the assembly it
  * emits regarding padding / ordering of bitfields. PLEASE PLEASE PLEASE
- * do not rewrite this to be clever and use bitfields
+ * do not rewrite this with bitfields...
  *
  *  - also, on a related note, as of C11, bitfield ordering is still compiler
  *  and not target endianness dependent...
@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attributes.h"
 #include "config_assert.h"
 #include "ads7841e.h"
 #include "bufferlib.h"
@@ -57,30 +58,29 @@
 #define CTL_SGL_CONVERSION_DIFFERENTIAL ((0u << (CTL_SGL_POS)) & (CTL_SGL_MSK))
 
 #define CTL_PWRMODE_POS (0)
-#define CTL_PWRMODE_MSK (2u << (CTL_PWRMODE_POS))
+#define CTL_PWRMODE_MSK (3u << (CTL_PWRMODE_POS))
 
 #define ADS7841_BITMASK12 (0x0FFF) /* 12 bit mask */
 #define ADS7841_BITMASK8 (0x00FF)  /* 8 bit mask  */
 
+
 #if defined(ADS7841_OVERSAMPLE_COUNT)
 #warning ADS7841_OVERSAMPLE_COUNT is being overridden!
 #else
-#define ADS7841_OVERSAMPLE_COUNT 16
+#define ADS7841_OVERSAMPLE_COUNT 1
 #endif /* #if defined(ADS7841_OVERSAMPLE_COUNT) */
 
 static struct
 {
-    ADS7841_PWRMODE_t  power_mode;
-    ADS7841_CONVMODE_t conv_type;
-    uint16_t           sample_mask;
+    ADS7841_PWRMODE_t pwr_mode;
+    ADS7841_BITRES_t  res;
 } ADS7841_cfg;
 
 /* Valid conversion value buffer */
 static volatile uint16_t conv_cnt;
 static volatile uint16_t conv_samples[ADS7841_OVERSAMPLE_COUNT];
+static volatile uint16_t converted_val;
 
-/* Temporary conversion value holder */
-static volatile uint16_t conv_val_holder;
 
 /* State machine for SPI receive events */
 static volatile enum {
@@ -99,53 +99,82 @@ static void (*ADS7841_SPI_CHIP_UNSELECT_func)(void) = NULL;
 
 /* See table 1 of page 9 datasheet.
  * I have NO clue why they chose a bit mapping like this... */
-static const uint8_t ADS7841_CHANNEL_MAP[] = {
-    [ADS7841_CHANNEL_0] = (1 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
-    [ADS7841_CHANNEL_1] = (5 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
-    [ADS7841_CHANNEL_2] = (2 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
-    [ADS7841_CHANNEL_3] = (6 << CTL_CHANNEL_POS) & CTL_CHANNEL_MSK,
+static const uint8_t ADS7841_channel_map[] = {
+    [ADS7841_CHANNEL_SGL_0] = ((1 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_SGL_1] = ((5 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_SGL_2] = ((2 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_SGL_3] = ((6 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+
+    /* So literally the only difference for the differential conversion
+     * is in the SGL/DIFF bit... Not even controlled by the channel bits...
+     *
+     * You must have to be a special kind of idiot to work at TI... */
+    [ADS7841_CHANNEL_DIF_0P_1N] = ((1 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_DIF_1P_0N] = ((5 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_DIF_2P_3N] = ((2 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
+    [ADS7841_CHANNEL_DIF_3P_2N] = ((6 << CTL_CHANNEL_POS) & (CTL_CHANNEL_MSK)),
 };
 
 /* The manufacturer has a similarly idiotic bit layout for the power modes... */
 static const uint8_t ADS7841_PWRMODE_MAP[] = {
-    [ADS7841_PWRMODE_inter_conv] = ((0 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
-    [ADS7841_PWRMODE_always_on]  = ((3 << CTL_PWRMODE_POS) & CTL_PWRMODE_MSK),
+    [ADS7841_PWRMODE_lowpwr] = ((0 << (CTL_PWRMODE_POS)) & (CTL_PWRMODE_MSK)),
+    [ADS7841_PWRMODE_stayOn] = ((3 << (CTL_PWRMODE_POS)) & (CTL_PWRMODE_MSK)),
 };
 
-static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
-                                 ADS7841_PWRMODE_t  mode,
-                                 ADS7841_CONVMODE_t conv_type);
 
-static void ADS7841_receive_byte(uint8_t byte);
-static int  ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type);
+static const uint16_t ADS7841_conv_bitres_map[] = {
+    [ADS7841_BITRES_8]  = (CTL_MODE_8BIT),
+    [ADS7841_BITRES_12] = (CTL_MODE_12BIT),
+};
 
-static void ADS7841_inter_byte_delay(void);
+
+static void    ADS7841_receive_byte(uint8_t byte);
+static void    ADS7841_convert_channel(ADS7841_CHANNEL_t);
+static void    ADS7841_enable_chip(void);
+static void    ADS7841_disable_chip(void);
+static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
+                                 ADS7841_PWRMODE_t pwr_mode,
+                                 ADS7841_BITRES_t  conv_mode);
+
+/**
+ * @brief mcu spi peripheral cannot read and transfer data on the same
+ * clock edge so this means there is a factor of 2 error when receiving
+ * data from devices that shift on one edge and latch on the other
+ * (such as ADS7841)
+ *
+ * @param val value received from SPI peripheral
+ * @return uint16_t corrected value
+ */
+static uint16_t ADS7841_silicon_correction_factor(uint16_t val);
+
 
 void ADS7841_driver_init(void (*ena_func)(void), void (*dis_func)(void),
-                         ADS7841_PWRMODE_t mode, ADS7841_CONVMODE_t conv_type)
+                         ADS7841_PWRMODE_t pwr_mode, ADS7841_BITRES_t res)
 {
-    ADS7841_cfg.power_mode = mode;
-    switch (conv_type)
-    {
-        case ADS7841_CONVMODE_8:
-        {
-            ADS7841_cfg.sample_mask = ADS7841_BITMASK8;
-        }
-        break;
-        case ADS7841_CONVMODE_12:
-        {
-            ADS7841_cfg.sample_mask = ADS7841_BITMASK12;
-        }
-        break;
-        default:
-        {
-            ADS7841_cfg.sample_mask = ADS7841_BITMASK12;
-        }
-        break;
-    }
+    ADS7841_cfg.pwr_mode = pwr_mode;
+    ADS7841_cfg.res      = res;
+
     ADS7841_SPI_CHIP_SELECT_func   = ena_func;
     ADS7841_SPI_CHIP_UNSELECT_func = dis_func;
-    SPI0_init(ADS7841_receive_byte, SPI_DATA_DIR_msb, SPI_MODE_async);
+
+    SPI_init_struct init;
+    init.role     = SPI_ROLE_master;
+    init.phy_cfg  = SPI_PHY_3;
+    init.data_dir = SPI_DATA_DIR_msb;
+
+    /*
+     * ADS7841 shifts data on falling edge and latches data on rising edge
+     *
+     * So msp430f5529 should change data on rising edge (edge1) and capture the
+     * data shifted from ADS7841 on falling edge (edge2)
+     */
+
+    init.edge_phase = SPI_DATA_CHANGE_edge1;
+    init.polarity   = SPI_CLK_POLARITY_high;
+
+    uint16_t prescaler = 0x0008;
+
+    SPI0_init(ADS7841_receive_byte, &init, prescaler);
 }
 
 
@@ -159,36 +188,46 @@ void ADS7841_driver_deinit(void)
 
 uint16_t ADS7841_measure_channel(ADS7841_CHANNEL_t ch)
 {
+    /* Initialize with error value that is not a possible value in 12 bits */
     uint16_t conversion_value = ADS7841_CONV_STATUS_BUSY;
+
+
     CONFIG_ASSERT(ADS7841_SPI_CHIP_SELECT_func != NULL);
     CONFIG_ASSERT(ADS7841_SPI_CHIP_UNSELECT_func != NULL);
     memset((void *)conv_samples, 0, sizeof(conv_samples));
-    ADS7841_SPI_CHIP_SELECT_func();
 
+    /* Perform the required number of samples */
+    ADS7841_enable_chip();
     volatile unsigned int conv_timeout;
+    unsigned int          timeout_counts = 0;
     while (conv_cnt != ADS7841_OVERSAMPLE_COUNT)
     {
-        /* Perform the required number of samples */
-        ADS7841_conv_SINGLE(ch, ADS7841_cfg.conv_type);
+        ADS7841_convert_channel(ch);
 
+        /* wait for conversion to complete (with timeout) */
         conv_timeout = 0;
         while (ADS7841_RX_EVT != ADS7841_RX_EVT_complete)
         {
-            /* wait for conversion to complete (with timeout) */
             if (++conv_timeout > 1000)
             {
+                timeout_counts++;
                 break;
             }
         }
+
+        /* Abort if too many conversion fail */
+        if (timeout_counts > ADS7841_OVERSAMPLE_COUNT)
+        {
+            return conversion_value;
+        }
     }
-    ADS7841_SPI_CHIP_UNSELECT_func();
+    ADS7841_disable_chip();
 
     /* Compute average value from set of samples */
     conversion_value = 0;
     while (conv_cnt)
     {
-        conversion_value += conv_samples[conv_cnt];
-        conv_cnt--;
+        conversion_value += conv_samples[--conv_cnt];
     }
     conversion_value /= ADS7841_OVERSAMPLE_COUNT;
     return conversion_value;
@@ -201,15 +240,13 @@ static void ADS7841_receive_byte(uint8_t byte)
     {
         case ADS7841_RX_EVT_ctrl:
         {
-            conv_val_holder = 0;
-
-            /* Expect high byte next */
             ADS7841_RX_EVT = ADS7841_RX_EVT_hi;
         }
         break;
         case ADS7841_RX_EVT_hi:
         {
-            conv_val_holder |= byte << CHAR_BIT;
+            converted_val = byte;
+            converted_val <<= 4;
 
             /* Expect low byte next */
             ADS7841_RX_EVT = ADS7841_RX_EVT_lo;
@@ -217,13 +254,14 @@ static void ADS7841_receive_byte(uint8_t byte)
         break;
         case ADS7841_RX_EVT_lo:
         {
-            conv_val_holder |= byte;
-
+            converted_val |= (byte >> 4);
             /* If we don't have enough conversions, store the converted value */
             if (conv_cnt < ADS7841_OVERSAMPLE_COUNT)
             {
-                conv_val_holder &= ADS7841_cfg.sample_mask;
-                conv_samples[conv_cnt] = conv_val_holder;
+                /* So frustrating... this bugfix took FOREVER */
+                uint16_t fixed_val;
+                fixed_val = ADS7841_silicon_correction_factor(converted_val);
+                conv_samples[conv_cnt] = fixed_val;
                 conv_cnt++;
             }
             SPI0_disable_rx_irq();
@@ -239,94 +277,82 @@ static void ADS7841_receive_byte(uint8_t byte)
 }
 
 
-static int ADS7841_conv_SINGLE(ADS7841_CHANNEL_t ch, ADS7841_CONVMODE_t type)
-{
-    uint16_t power_mode = ADS7841_cfg.power_mode;
-    uint8_t  ctrl_byte  = ADS7841_ctrl_byte(ch, power_mode, type);
-    uint8_t  msg[]      = {ctrl_byte, '\0', '\0'};
-    uint16_t msglen     = (uint16_t)(sizeof(msg) / sizeof(*msg));
-    ADS7841_RX_EVT      = ADS7841_RX_EVT_ctrl;
-    SPI0_enable_rx_irq();
-    int status = SPI0_transmit(msg, msglen, ADS7841_inter_byte_delay);
-    return status;
-}
-
-
-static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t  channel,
-                                 ADS7841_PWRMODE_t  mode,
-                                 ADS7841_CONVMODE_t conv_type)
+static uint8_t ADS7841_ctrl_byte(ADS7841_CHANNEL_t channel,
+                                 ADS7841_PWRMODE_t pwr_mode,
+                                 ADS7841_BITRES_t  conv_mode)
 {
     uint8_t control_byte = 0;
 
+    control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
     switch (channel)
     {
-        case ADS7841_CHANNEL_0:
-        case ADS7841_CHANNEL_1:
-        case ADS7841_CHANNEL_2:
-        case ADS7841_CHANNEL_3:
+        case ADS7841_CHANNEL_SGL_0:
+        case ADS7841_CHANNEL_SGL_1:
+        case ADS7841_CHANNEL_SGL_2:
+        case ADS7841_CHANNEL_SGL_3:
         {
-            control_byte |= ADS7841_CHANNEL_MAP[channel];
+            /* Single-ended conversion */
+            control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED;
+        }
+        break;
+        case ADS7841_CHANNEL_DIF_0P_1N:
+        case ADS7841_CHANNEL_DIF_1P_0N:
+        case ADS7841_CHANNEL_DIF_2P_3N:
+        case ADS7841_CHANNEL_DIF_3P_2N:
+        {
+            /* Differential conversion */
+            control_byte &= ~CTL_SGL_CONVERSION_SINGLE_ENDED;
         }
         break;
         default:
         {
-            control_byte &= ~(CTL_CHANNEL_MSK);
+            control_byte = 0;
+            return control_byte;
         }
         break;
     }
-
-    switch (mode)
-    {
-        case ADS7841_PWRMODE_inter_conv:
-        case ADS7841_PWRMODE_always_on:
-        {
-            control_byte |= ADS7841_PWRMODE_MAP[mode];
-        }
-        break;
-        default:
-        {
-            control_byte &= ~(CTL_PWRMODE_MSK);
-        }
-    }
-
-    /* We're only going to do single-ended conversions so just force
-     * the control byte into single mode */
-    control_byte |= CTL_SGL_CONVERSION_SINGLE_ENDED;
-
-    /** @note this is a bit hacky but whatever */
-    switch (conv_type)
-    {
-        case ADS7841_CONVMODE_8:
-        {
-            control_byte |= CTL_MODE_8BIT;
-        }
-        break;
-        case ADS7841_CONVMODE_12:
-        {
-            control_byte |= CTL_MODE_12BIT;
-        }
-        break;
-        default:
-        {
-            control_byte &= ~(CTL_MODE_MSK);
-        }
-        break;
-    }
-    control_byte |= ((1 << CTL_START_POS) & CTL_START_MSK);
+    control_byte |= ADS7841_channel_map[channel];
+    control_byte |= ADS7841_PWRMODE_MAP[pwr_mode];
+    control_byte |= ADS7841_conv_bitres_map[conv_mode];
     return control_byte;
 }
 
 
-static void ADS7841_inter_byte_delay(void)
+static void ADS7841_convert_channel(ADS7841_CHANNEL_t ch)
 {
-    /* So normally you're supposed to wait for the ADS7841 to pulse
-     * its BUSY pin. But on the current implementation of sun sensor,
-     * we do not have the BUSY pin connected to the MCU. Thus, I have to
-     * introduce an artificial blocking delay between each 8 clock
-     * pulses we send to the ADS7841 */
-    volatile unsigned int i;
-    for (i = 0; i < 450; i++)
-    {
-        /* Force delay */
-    }
+    uint8_t ctrl_byte;
+    ctrl_byte = ADS7841_ctrl_byte(ch, ADS7841_cfg.pwr_mode, ADS7841_BITRES_12);
+
+#if (ADS7841_OVERSAMPLE_COUNT > 1)
+    uint8_t cmd[] = {ctrl_byte, 0}; /* Overlap consecutive samples */
+#else
+    uint8_t cmd[] = {ctrl_byte, 0, 0};
+#endif
+
+    ADS7841_RX_EVT = ADS7841_RX_EVT_ctrl;
+    SPI0_transmit(cmd, sizeof(cmd));
+}
+
+
+static void ADS7841_enable_chip(void)
+{
+    SPI0_enable_rx_irq();
+    ADS7841_SPI_CHIP_SELECT_func();
+    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING
+     */
+}
+
+
+static void ADS7841_disable_chip(void)
+{
+    /** @todo MIGHT NEED A BLOCKING DELAY HERE. DATASHEET PAGE 12 FOR TIMING
+     */
+    SPI0_disable_rx_irq();
+    ADS7841_SPI_CHIP_UNSELECT_func();
+}
+
+
+static uint16_t ADS7841_silicon_correction_factor(uint16_t val)
+{
+    return ((val * 2) & 0x0fffu);
 }

@@ -30,12 +30,8 @@ project(
     DESCRIPTION "Core firmware components (HW independent) for ADCS project "
     LANGUAGES C ASM
 )
-
 set(EXE "${PROJECT_NAME}_executable")
-
-if(NOT CMAKE_CROSSCOMPILING)
-    add_subdirectory(emulated)
-endif(NOT CMAKE_CROSSCOMPILING)
+message("Configuring target : ${PROJECT_NAME}")
 
 add_subdirectory(jsons)
 add_subdirectory(magnetorquers)
@@ -44,6 +40,10 @@ add_subdirectory(obc_interface)
 add_subdirectory(sun_sensors)
 add_subdirectory(accelerometer)
 add_subdirectory(inertial_measurement_unit)
+
+if(NOT CMAKE_CROSSCOMPILING)
+    add_subdirectory(emulated)
+endif(NOT CMAKE_CROSSCOMPILING)
 
 # FIRMWARE EXECUTABLE 
 add_executable(${EXE})

@@ -8,10 +8,7 @@
  * @copyright Copyright (c) 2020 DSS Loris project
  *
  */
-
-#if !defined(TARGET_MCU)
-#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
-#endif /* !defined(TARGET_MCU) */
+#if defined(TARGET_MCU)
 
 #include <msp430.h>
 #include <stdlib.h>
@@ -19,7 +16,6 @@
 
 #include "clocks.h"
 #include "timer_a0.h"
-
 
 volatile bool heartbeat_flag = false;
 
@@ -63,17 +59,14 @@ void TIMERA0_heartbeat_init(void)
     TA0CCR0 = 50000;
 }
 
-/* clang-format off */
-#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
-#pragma vector = TIMER0_A0_VECTOR
-__interrupt
-#elif defined(__GNUC__)
-__attribute__((interrupt(TIMER0_A0_VECTOR)))
-#else
-#error Compiler not supported!
-#endif
-void TIMERA0_ISR (void)
-/* clang-format on */
+
+__interrupt_vec(TIMER0_A0_VECTOR) void TIMERA0_ISR(void)
 {
     callback_exec(TIMERA0_callback_handle);
 }
+
+#else
+
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+
+#endif /* !defined(TARGET_MCU) */

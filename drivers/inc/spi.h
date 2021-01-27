@@ -16,6 +16,19 @@ extern "C"
 
 #include "injection_api.h"
 
+
+typedef enum
+{
+    SPI_PHY_3, /* 3 pin SPI */
+    SPI_PHY_4, /* 4 pin SPI */
+} SPI_PHY_t;
+
+typedef enum
+{
+    SPI_ROLE_master,
+    SPI_ROLE_slave,
+} SPI_ROLE_t;
+
 typedef enum
 {
     SPI_DATA_DIR_lsb,
@@ -24,19 +37,35 @@ typedef enum
 
 typedef enum
 {
-    SPI_MODE_sync,
-    SPI_MODE_async,
-} SPI_MODE_t;
+    SPI_DATA_CHANGE_edge1, /* Data changed on edge1, captured on edge 2 */
+    SPI_DATA_CHANGE_edge2, /* Data captured on edge1, changed on edge 2 */
+} SPI_DATA_CHANGE_t;
 
+
+typedef enum
+{
+    SPI_CLK_POLARITY_low,
+    SPI_CLK_POLARITY_high,
+} SPI_CLK_POLARITY_t;
+
+
+typedef struct
+{
+    SPI_ROLE_t         role;
+    SPI_PHY_t          phy_cfg;
+    SPI_DATA_DIR_t     data_dir;
+    SPI_DATA_CHANGE_t  edge_phase;
+    SPI_CLK_POLARITY_t polarity;
+} SPI_init_struct;
 
 /**
- * @brief Initialize the SPI peripheral on UCB0
+ * @brief
  *
- * @param rx byte receive callback function
- * @param dir data transmit order. one of SPI_DATA_DIR_t
- * @param mode SPI mode. SPI_MODE_sync or SPI_MODE_async
+ * @param rx SPI receive event callback func
+ * @param init init struct with init params
+ * @param scaler clock prescaler
  */
-void SPI0_init(receive_func rx, SPI_DATA_DIR_t dir, SPI_MODE_t mode);
+void SPI0_init(receive_func rx, const SPI_init_struct *init, uint16_t scaler);
 
 
 /**
@@ -54,7 +83,7 @@ void SPI0_deinit(void);
  * @return int 0 if byte was transmitted successfully. Nonzero is SPI PHY is
  * busy.
  */
-int SPI0_transmit(const uint8_t *bytes, uint16_t len, void (*tx_cb)(void));
+int SPI0_transmit(const uint8_t *bytes, uint16_t len);
 
 /**
  * @brief Enable the receive event IRQ trigger for SPI0 on UCB0

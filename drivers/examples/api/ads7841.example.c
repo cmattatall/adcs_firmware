@@ -18,6 +18,7 @@
  *   P3.2 (UCB0CLK) --------------- CLK
  *   P2.3 (SPICS_other)-------------CS
  *   3.3V ------------------------- 3.3V
+ *   3.3v ------------------------- CHANNEL_3
  ****************************************
  */
 #include <msp430.h>
@@ -45,7 +46,8 @@ static void red_led_init(void)
 
 static void enable_interrupts(void)
 {
-    _BIS_SR(GIE); // Enter LPM0 w/ interrupt
+    _BIS_SR(GIE);    // Enter LPM0 w/ interrupt
+    _no_operation(); /* Fixes bug due to silicon erratta */
 }
 
 
@@ -84,15 +86,16 @@ int main(void)
     TIMERA0_init();
     ADS7841_chip_select_init();
     ADS7841_driver_init(ADS7841_chip_select_func, ADS7841_chip_unselect_func,
-                        ADS7841_PWRMODE_always_on, ADS7841_CONVMODE_12);
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
     enable_interrupts();
     uint16_t val;
     while (1)
     {
-        if (timer_count == 3)
+        if (timer_count)
         {
             P1OUT ^= 0x01;
-            val = ADS7841_measure_channel(ADS7841_CHANNEL_3);
+
+            val = ADS7841_measure_channel(ADS7841_CHANNEL_SGL_3);
             if (val != ADS7841_CONV_STATUS_BUSY)
             {
                 /* Do stuff with the digitized analog value */

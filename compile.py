@@ -12,7 +12,7 @@ import argparse
 import shutil
 import multiprocessing
 
-toolchain_file = "msp430toolchain.cmake" # just going to hard-code this for now
+toolchain_file = "msp430gcc_toolchain.cmake" # just going to hard-code this for now
 
 ################################################################################
 # SCRIPT START. DON'T TOUCH STUFF BEYOND THIS POINT
@@ -27,15 +27,15 @@ def space_args(string):
     return " " + str(string) + " "
 
 
-def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_tests=False, verbose=False, build_examples=False):
+def configure(source_dir=".", bdir="build", btype="Debug", cross_compile=False, build_tests=False, verbose=False, build_examples=False, analyze=False):
 
     configure_string = space_args("cmake")
 
-    if not os.path.exists(sdir):
-        print("directory %s does not exist! Aborting!" % (sdir))
+    if not os.path.exists(source_dir):
+        print("directory %s does not exist! Aborting!" % (source_dir))
         exit(1)
 
-    configure_string += space_args("-S %s" % (sdir))
+    configure_string += space_args("-S %s" % (source_dir))
     if not os.path.exists(bdir):
         # if we could check the return value of this, I would be sooo happy :(
         os.mkdir(bdir)
@@ -61,6 +61,13 @@ def configure(sdir=".", bdir="build", btype="Debug", cross_compile=False, build_
         configure_string += space_args("-DBUILD_EXAMPLES:BOOL=ON")
     else:
         configure_string += space_args("-DBUILD_EXAMPLES:BOOL=OFF")
+
+    # sadly, static analysis tools for microcontrollers frequently flag 
+    # errors when they shouldnt...
+    if(analyze):
+        configure_string += space_args("-DANALYZE:BOOL=ON")
+    else:
+        configure_string += space_args("-DANALYZE:BOOL=OFF")
 
     return os.system(configure_string)
 
@@ -88,15 +95,16 @@ def main():
     checkPythonVersion()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--cross-compile", action="store_true", dest="cross", help="Option to cross compile for the target device")
-    parser.add_argument("--build-type", action="store", dest="btype", choices=["Debug", "Release"], default ="Debug", help="String indicating the cmake build type")
-    parser.add_argument("--source-dir", action="store", dest="sdir", default=os.getcwd(), help="name of directory that contains the top level CMakeLists.txt file")
-    parser.add_argument("--run-tests", action="store_true", dest="run_tests", help="option to build and run the automated tests as well as the project source")
-    parser.add_argument("--build-tests", action="store_true", dest="make_tests", help="Option to build (but not run) tests")
-    parser.add_argument("--rebuild", action="store_true", default=False, dest="clean", help="Option to build clean")
-    parser.add_argument("--build-dir", action="store", default="build", dest="bdir", help="String for the build directory")
-    parser.add_argument("--verbose", action="store_true", default=False, dest="verbose", help="Option to emit verbose information during configuration, build, and test steps")
-    parser.add_argument("--build-examples", action="store_true", default=False, dest="build_examples", help="Option to build the usage and API examples for link libraries as well as the core exectuable")
+    parser.add_argument("--cross-compile", action="store_true", dest="cross", help="Cross compile for the target device.")
+    parser.add_argument("--build-type", action="store", dest="btype", choices=["Debug", "Release"], default ="Debug", help="String indicating the cmake build type.")
+    parser.add_argument("--source-dir", action="store", dest="source_dir", default=os.getcwd(), help="Path to the top level CMakeLists.txt file.")
+    parser.add_argument("--run-tests", action="store_true", dest="run_tests", help="Build and run tests in addition to project.")
+    parser.add_argument("--build-tests", action="store_true", dest="make_tests", help="Build (but don't run) tests.")
+    parser.add_argument("--rebuild", action="store_true", default=False, dest="clean", help="Clean existing object files before building.")
+    parser.add_argument("--build-dir", action="store", default="build", dest="bdir", help="String for the build directory.")
+    parser.add_argument("--verbose", action="store_true", default=False, dest="verbose", help="Option to emit verbose information during generation.")
+    parser.add_argument("--build-examples", action="store_true", default=False, dest="build_examples", help="Build the usage and API examples.")
+    parser.add_argument("--analyze", action="store_true", default=False, dest="analyze", help="Run static analysis after the generation step.")
 
     args=parser.parse_args()
 
@@ -124,7 +132,7 @@ def main():
                         print("COULD NOT CREATE DIRECTORY %s" % (args.bdir))
                     exit(1)
 
-    if 0 != configure(sdir=args.sdir, bdir=args.bdir,cross_compile=args.cross, btype=args.btype, build_tests=args.make_tests, verbose=args.verbose, build_examples=args.build_examples):
+    if 0 != configure(source_dir=args.source_dir, bdir=args.bdir,cross_compile=args.cross, btype=args.btype, build_tests=args.make_tests, verbose=args.verbose, build_examples=args.build_examples, analyze=args.analyze):
         if args.verbose:
             print("\nError configuring project!\n")
         exit(-1)

@@ -8,15 +8,12 @@
  * @copyright Copyright (c) 2020
  *
  */
+#if defined(TARGET_MCU)
+
 #include <msp430.h>
 
 #include "mcu.h"
 #include "targets.h"
-
-#if !defined(TARGET_MCU)
-#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
-#endif /* !defined(TARGET_MCU) */
-
 
 void enable_interrupts(void)
 {
@@ -24,3 +21,9 @@ void enable_interrupts(void)
 
     __bis_SR_register(GIE);
 }
+
+#else
+#error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
+#endif /* !defined(TARGET_MCU) */
+
+

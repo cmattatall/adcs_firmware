@@ -15,10 +15,8 @@ extern "C"
 #undef __interrupt
 #endif
 #define __interrupt(isr) _Pragma vector = isr __interrupt
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__GNUG__)
 #define __weak __attribute__((weak))
-#else
-#error Compiler not supported!
 #endif
 
 #ifndef __EMULATABLE
