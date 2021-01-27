@@ -57,6 +57,10 @@ static void *parse_pwm_mqtr_x(json_handler_args args);
 static void *parse_pwm_mqtr_y(json_handler_args args);
 static void *parse_pwm_mqtr_z(json_handler_args args);
 
+static void *parse_dir_mqtr_x(json_handler_args args);
+static void *parse_dir_mqtr_y(json_handler_args args);
+static void *parse_dir_mqtr_z(json_handler_args args);
+
 /* JSON PARSE TABLE */
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
@@ -71,6 +75,9 @@ static const json_parse_table_item json_parse_table[] = {
     {.key = "pwm_mqtr_x", .handler = parse_pwm_mqtr_x},
     {.key = "pwm_mqtr_y", .handler = parse_pwm_mqtr_y},
     {.key = "pwm_mqtr_z", .handler = parse_pwm_mqtr_z},
+    {.key = "dir_mqtr_x", .handler = parse_dir_mqtr_x},
+    {.key = "dir_mqtr_y", .handler = parse_dir_mqtr_y},
+    {.key = "dir_mqtr_z", .handler = parse_dir_mqtr_z},
 
 
 
@@ -529,8 +536,7 @@ static void *parse_pwm_mqtr_x(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-            /** @todo IMPLEMENT */
-
+        /** @todo IMPLEMENT */
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -538,7 +544,6 @@ static void *parse_pwm_mqtr_x(json_handler_args args)
         if (jtok_tokcmp("value", &tkns[*t]))
         {
             /** @todo IMPLEMENT */
-
         }
         else
         {
@@ -562,8 +567,7 @@ static void *parse_pwm_mqtr_y(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-            /** @todo IMPLEMENT */
-
+        /** @todo IMPLEMENT */
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -595,8 +599,7 @@ static void *parse_pwm_mqtr_z(json_handler_args args)
     *t += 1; /* don't do ++ because * has higher precedence than ++ */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-            /** @todo IMPLEMENT */
-
+        /** @todo IMPLEMENT */
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
@@ -604,7 +607,147 @@ static void *parse_pwm_mqtr_z(json_handler_args args)
         if (jtok_tokcmp("value", &tkns[*t]))
         {
             /** @todo IMPLEMENT */
+        }
+        else
+        {
+            /* we were missing data from the payload. */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
 
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static void *parse_dir_mqtr_x(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* don't do ++ because * has higher precedence than ++ */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        /** @todo IMPLEMENT */
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            *t += 1;
+            if (jtok_tokcmp("clock", &tkns[*t]))
+            {
+                /** @todo IMPLEMENT */
+            }
+            else if (jtok_tokcmp("antiClock", &tkns[*t]))
+            {
+                /** @todo IMPLEMENT */
+            }
+            else
+            {
+                /*
+                 * We won't set value because we knows its an invalid command
+                 * and can handle it here (rather than rely on caller)
+                 */
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+        }
+        else
+        {
+            /* we were missing data from the payload. */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static void *parse_dir_mqtr_y(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* don't do ++ because * has higher precedence than ++ */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        /** @todo IMPLEMENT */
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            *t += 1;
+            if (jtok_tokcmp("clock", &tkns[*t]))
+            {
+                /** @todo IMPLEMENT */
+            }
+            else if (jtok_tokcmp("antiClock", &tkns[*t]))
+            {
+                /** @todo IMPLEMENT */
+            }
+            else
+            {
+                /*
+                 * We won't set value because we knows its an invalid command
+                 * and can handle it here (rather than rely on caller)
+                 */
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+        }
+        else
+        {
+            /* we were missing data from the payload. */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static void *parse_dir_mqtr_z(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* don't do ++ because * has higher precedence than ++ */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        /** @todo IMPLEMENT */
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            *t += 1;
+            if (jtok_tokcmp("clock", &tkns[*t]))
+            {
+                /** @todo IMPLEMENT */
+            }
+            else if (jtok_tokcmp("antiClock", &tkns[*t]))
+            {
+                /** @todo IMPLEMENT */
+            }
+            else
+            {
+                /*
+                 * We won't set value because we knows its an invalid command
+                 * and can handle it here (rather than rely on caller)
+                 */
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
         }
         else
         {
