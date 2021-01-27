@@ -111,8 +111,6 @@ add_subdirectory(bufferlib)
 add_subdirectory(drivers)
 add_subdirectory(core)
 
-
-
 # STATIC ANALYSIS
 if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 

@@ -331,3 +331,7 @@ if(CMAKE_CROSSCOMPILING)
 else()
     target_link_libraries(${CURRENT_TARGET} PRIVATE ADCS_IF_EMU)
 endif(CMAKE_CROSSCOMPILING)
+
+
+target_link_libraries(${CURRENT_TARGET} PRIVATE BUFFERLIB)
+target_link_libraries(${CURRENT_TARGET} PRIVATE INJECTION_API)
