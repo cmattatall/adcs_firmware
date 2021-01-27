@@ -53,18 +53,25 @@ static void *parse_pwm_rw_z(json_handler_args args);
 static void *parse_dir_rw_x(json_handler_args args);
 static void *parse_dir_rw_y(json_handler_args args);
 static void *parse_dir_rw_z(json_handler_args args);
+static void *parse_pwm_mqtr_x(json_handler_args args);
+static void *parse_pwm_mqtr_y(json_handler_args args);
+static void *parse_pwm_mqtr_z(json_handler_args args);
 
 /* JSON PARSE TABLE */
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
-    {.key = "fwVersion", .handler = parse_firmware_json},
-    {.key = "hwVersion", .handler = parse_hardware_json},
-    {.key = "pwm_rw_x",  .handler = parse_pwm_rw_x},
-    {.key = "pwm_rw_y",  .handler = parse_pwm_rw_y},
-    {.key = "pwm_rw_z",  .handler = parse_pwm_rw_z},
-    {.key = "dir_rw_x",  .handler = parse_dir_rw_x},
-    {.key = "dir_rw_y",  .handler = parse_dir_rw_y},
-    {.key = "dir_rw_z",  .handler = parse_dir_rw_z},
+    {.key = "fwVersion",  .handler = parse_firmware_json},
+    {.key = "hwVersion",  .handler = parse_hardware_json},
+    {.key = "pwm_rw_x",   .handler = parse_pwm_rw_x},
+    {.key = "pwm_rw_y",   .handler = parse_pwm_rw_y},
+    {.key = "pwm_rw_z",   .handler = parse_pwm_rw_z},
+    {.key = "dir_rw_x",   .handler = parse_dir_rw_x},
+    {.key = "dir_rw_y",   .handler = parse_dir_rw_y},
+    {.key = "dir_rw_z",   .handler = parse_dir_rw_z},
+    {.key = "pwm_mqtr_x", .handler = parse_pwm_mqtr_x},
+    {.key = "pwm_mqtr_y", .handler = parse_pwm_mqtr_y},
+    {.key = "pwm_mqtr_z", .handler = parse_pwm_mqtr_z},
+
 
 
 };
@@ -503,6 +510,105 @@ static void *parse_dir_rw_z(json_handler_args args)
              * we were missing data from the payload.
              * eg : { "dir_rw_z" : "write" } <-- notice "value" missing
              */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static void *parse_pwm_mqtr_x(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* don't do ++ because * has higher precedence than ++ */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+            /** @todo IMPLEMENT */
+
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            /** @todo IMPLEMENT */
+
+        }
+        else
+        {
+            /* we were missing data from the payload. */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static void *parse_pwm_mqtr_y(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* don't do ++ because * has higher precedence than ++ */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+            /** @todo IMPLEMENT */
+
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+
+            /** @todo IMPLEMENT */
+        }
+        else
+        {
+            /* we were missing data from the payload. */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static void *parse_pwm_mqtr_z(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* don't do ++ because * has higher precedence than ++ */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+            /** @todo IMPLEMENT */
+
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            /** @todo IMPLEMENT */
+
+        }
+        else
+        {
+            /* we were missing data from the payload. */
             return JSON_HANDLER_RETVAL_ERROR;
         }
     }
