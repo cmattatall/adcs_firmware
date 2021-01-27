@@ -13,8 +13,6 @@
 #include "obc_interface.h"
 #include "jsons.h"
 
-#include "injection_api.h"
-
 /* NOTE THESE 2 HEADERS ARE JUST TEMPORARY STUFF  */
 
 static uint8_t msg[128];
