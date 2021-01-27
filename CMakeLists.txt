@@ -114,7 +114,7 @@ add_subdirectory(core)
 
 
 # STATIC ANALYSIS
-if(ANALYZE)
+if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 
     function(get_all_targets var)
         set(targets)
@@ -148,7 +148,7 @@ if(ANALYZE)
         endif()
     endforeach(target ${${CMAKE_PROJECT_NAME}_target_list})
 
-    find_program(CPPCHECK_BIN NAMES cppcheck)
+    find_program(CPPCHECK_BIN NAMES cppcheck REQUIRED)
     if(CPPCHECK_BIN)
         execute_process(COMMAND ${CPPCHECK_BIN} --version
             OUTPUT_VARIABLE CPPCHECK_VERSION
@@ -214,8 +214,6 @@ if(ANALYZE)
                 --xml-version=2
                 2> ${CPPCHECK_XML_OUTPUT})
         endif()
-    else()
-        message(FATAL_ERROR "Could not find cppcheck executable. Either it is not installed or not added to PATH. If you are on a debian-based linux distribution, you can try installing the cppcheck and clang-tools packages with your package manager.")
     endif(CPPCHECK_BIN)
     
     # handle the QUIETLY and REQUIRED arguments 
@@ -243,19 +241,31 @@ if(ANALYZE)
     
     # If found add a cppcheck-analysis target
     if(CPPCHECK_FOUND)
-        file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/analysis/cppcheck)
-        add_custom_target(cppcheck-analysis ALL DEPENDS ${${CMAKE_PROJECT_NAME}_target_list})
-        add_custom_command(
-            TARGET cppcheck-analysis
-            POST_BUILD
-            DEPENDS ${${CMAKE_PROJECT_NAME}_target_list}
-            COMMENT "Performing static analysis with cppcheck"
-            COMMAND ${CPPCHECK_COMMAND}
-        )
-        message("cppcheck found. Use cppccheck-analysis targets to run it")
+        if(NOT TARGET cppcheck-analysis)
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis")
+
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+            
+            add_custom_target(cppcheck-analysis ALL DEPENDS ${${CMAKE_PROJECT_NAME}_target_list})
+            add_custom_command(
+                TARGET cppcheck-analysis
+                POST_BUILD
+                DEPENDS ${${CMAKE_PROJECT_NAME}_target_list}
+                COMMENT "Performing static analysis with cppcheck"
+                COMMAND ${CPPCHECK_COMMAND}
+            )
+        endif(NOT TARGET cppcheck-analysis)
     else()
         message("cppcheck not found. No cppccheck-analysis targets")
     endif()
-endif(ANALYZE)
+endif(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 
 

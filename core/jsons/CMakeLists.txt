@@ -195,7 +195,7 @@ endif(BUILD_EXAMPLES)
 
 
 # STATIC ANALYSIS
-if(ANALYZE)
+if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 
     function(get_all_targets var)
         set(targets)
@@ -324,20 +324,32 @@ if(ANALYZE)
     
     # If found add a cppcheck-analysis target
     if(CPPCHECK_FOUND)
-        file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/analysis/cppcheck)
-        add_custom_target(cppcheck-analysis ALL DEPENDS ${${CMAKE_PROJECT_NAME}_target_list})
-        add_custom_command(
-            TARGET cppcheck-analysis
-            POST_BUILD
-            DEPENDS ${${CMAKE_PROJECT_NAME}_target_list}
-            COMMENT "Performing static analysis with cppcheck"
-            COMMAND ${CPPCHECK_COMMAND}
-        )
-        message("cppcheck found. Use cppccheck-analysis targets to run it")
+        if(NOT TARGET cppcheck-analysis)
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis")
+
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+            
+            add_custom_target(cppcheck-analysis ALL DEPENDS ${${CMAKE_PROJECT_NAME}_target_list})
+            add_custom_command(
+                TARGET cppcheck-analysis
+                POST_BUILD
+                DEPENDS ${${CMAKE_PROJECT_NAME}_target_list}
+                COMMENT "Performing static analysis with cppcheck"
+                COMMAND ${CPPCHECK_COMMAND}
+            )
+        endif(NOT TARGET cppcheck-analysis)
     else()
         message("cppcheck not found. No cppccheck-analysis targets")
     endif()
-endif(ANALYZE)
+endif(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 
 
 ################################################################################
