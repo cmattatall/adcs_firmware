@@ -105,11 +105,14 @@ endif()
 
 include_directories(share)
 add_subdirectory(injection_api)
-
+add_subdirectory(core)
 add_subdirectory(JTOK)
 add_subdirectory(bufferlib)
-add_subdirectory(drivers)
-add_subdirectory(core)
+
+if(CMAKE_CROSSCOMPILING)
+    add_subdirectory(drivers)
+endif(CMAKE_CROSSCOMPILING)
+
 
 # STATIC ANALYSIS
 if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)

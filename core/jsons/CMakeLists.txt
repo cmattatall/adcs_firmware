@@ -77,22 +77,6 @@ endif(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 if(TARGET ${CURRENT_TARGET})
     get_target_property(type ${CURRENT_TARGET} TYPE)
-    if(type STREQUAL STATIC_LIBRARY)
-
-    elseif(type STREQUAL MODULE_LIBRARY)
-
-    elseif(type STREQUAL SHARED_LIBRARY)
-
-    elseif(type STREQUAL OBJECT_LIBRARY)
-
-    elseif(type STREQUAL INTERFACE_LIBRARY)
-
-    elseif(type STREQUAL EXECUTABLE)
-
-    elseif(type STREQUAL UTILITY) # added by add_custom_target
-
-    endif()
-
     message(FATAL_ERROR "Target ${CURRENT_TARGET} already exists with type ${type}")
 else()
     add_library(${CURRENT_TARGET})
