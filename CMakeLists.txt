@@ -250,9 +250,9 @@ if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
                 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
             endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
 
-            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
-                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
-            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
             
             add_custom_target(cppcheck-analysis ALL DEPENDS ${${CMAKE_PROJECT_NAME}_target_list})
             add_custom_command(

@@ -1,17 +1,15 @@
 cmake_minimum_required(VERSION 3.18)
 
-
 option(BUILD_TESTING "[ON/OFF] Build tests in addition to library." OFF)
 option(BUILD_EXAMPLES "[ON/OFF] Build examples in addition to library." OFF)
 option(VERBOSE "[ON/OFF] Emit verbose messages during configuration" OFF)
 option(ANALYZE "[ON/OFF] Perform static analysis on project" OFF)
 
-
 project(
-    ADCS_MAGNETORQUERS 
-    VERSION 1.0 
-    DESCRIPTION "(OPTIONALLY) THREAD-SAFE BUFFER API LIBRARY"
-    LANGUAGES C
+    ADCS_MAGNETORQUERS
+    VERSION 1.0
+    DESCRIPTION "Magnetorquer API for ADCS hardware on LORIS project"
+    LANGUAGES C CXX
 )
 set(CURRENT_TARGET ${PROJECT_NAME})
 message("Configuring target : ${PROJECT_NAME}")
@@ -37,7 +35,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         endforeach(type ${${CMAKE_PROJECT_NAME}_SUPPORTED_BUILD_TYPES})
         message(FATAL_ERROR "The configuration script will now exit.")
     endif()
-
 
     if(WIN32)
         set(CMAKE_EXECUTABLE_SUFFIX ".exe")
@@ -77,22 +74,6 @@ endif(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 if(TARGET ${CURRENT_TARGET})
     get_target_property(type ${CURRENT_TARGET} TYPE)
-    if(type STREQUAL STATIC_LIBRARY)
-
-    elseif(type STREQUAL MODULE_LIBRARY)
-
-    elseif(type STREQUAL SHARED_LIBRARY)
-
-    elseif(type STREQUAL OBJECT_LIBRARY)
-
-    elseif(type STREQUAL INTERFACE_LIBRARY)
-
-    elseif(type STREQUAL EXECUTABLE)
-
-    elseif(type STREQUAL UTILITY) # added by add_custom_target
-
-    endif()
-
     message(FATAL_ERROR "Target ${CURRENT_TARGET} already exists with type ${type}")
 else()
     add_library(${CURRENT_TARGET})
@@ -102,19 +83,13 @@ endif(TARGET ${CURRENT_TARGET})
 # PRIVATE SOURCES
 get_property(${CURRENT_TARGET}_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
 foreach(LANG ${${CURRENT_TARGET}_languages})
-    #message("\nIndexing ${LANG} sources for target : ${CURRENT_TARGET}")
     foreach(EXTENSION ${CMAKE_${LANG}_SOURCE_FILE_EXTENSIONS})
         set(GLOBBING_EXPR "${CMAKE_CURRENT_SOURCE_DIR}/src/*.${EXTENSION}")
-        #message("Indexing ${CURRENT_TARGET} sources that match ${GLOBBING_EXPR}")
-        file(GLOB_RECURSE ${LANG}_${EXTENSION}_sources "${GLOBBING_EXPR}")
-        list(APPEND ${CURRENT_TARGET}_${LANG}_sources ${${LANG}_${EXTENSION}_sources})
-        foreach(src ${${LANG}_${EXTENSION}_sources})
-            #message("\tfound ${src}")
-        endforeach(src ${${LANG}_${EXTENSION}_sources})
+        file(GLOB_RECURSE ${CURRENT_TARGET}_${LANG}_${EXTENSION}_sources "${GLOBBING_EXPR}")
+        list(APPEND ${CURRENT_TARGET}_${LANG}_sources ${${CURRENT_TARGET}_${LANG}_${EXTENSION}_sources})
     endforeach(EXTENSION ${CMAKE_${LANG}_SOURCE_FILE_EXTENSIONS})
     list(REMOVE_DUPLICATES ${CURRENT_TARGET}_${LANG}_sources)
     target_sources(${CURRENT_TARGET} PRIVATE ${${CURRENT_TARGET}_${LANG}_sources})
-    #message("\n")
 endforeach(LANG ${${CURRENT_TARGET}_languages})
 
 
@@ -149,13 +124,14 @@ foreach(LANG ${${CURRENT_TARGET}_languages})
     if(LANG STREQUAL CXX)
         file(GLOB_RECURSE ${CURRENT_TARGET}_${LANG}_public_hdrs 
             "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h"
         )
     elseif(LANG STREQUAL C)
         file(GLOB_RECURSE ${CURRENT_TARGET}_${LANG}_public_hdrs 
             "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h"
         )
     elseif(LANG STREQUAL ASM)
-    
+        # asm doesn't have headers
     else()
         # language not supported
     endif()
@@ -168,10 +144,6 @@ foreach(LANG ${${CURRENT_TARGET}_languages})
     list(REMOVE_DUPLICATES ${CURRENT_TARGET}_${LANG}_public_inc_dirs)
     target_include_directories(${CURRENT_TARGET} PUBLIC ${${CURRENT_TARGET}_${LANG}_public_inc_dirs})
 endforeach(LANG ${${CURRENT_TARGET}_languages})
-
-
-
-
 
 # CONFIGURE TESTS
 if(BUILD_TESTING)
@@ -195,8 +167,6 @@ endif(BUILD_EXAMPLES)
 
 
 # STATIC ANALYSIS
-
-# STATIC ANALYSIS
 if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 
     function(get_all_targets var)
@@ -216,8 +186,6 @@ if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
     endmacro()
 
     get_all_targets(${CMAKE_PROJECT_NAME}_target_list)
-    message("targets for ${CMAKE_PROJECT_NAME} : ${${CMAKE_PROJECT_NAME}_target_list}")
-
     foreach(target ${${CMAKE_PROJECT_NAME}_target_list})
         get_target_property(type ${target} TYPE)
 
@@ -227,15 +195,16 @@ if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
         elseif(type STREQUAL OBJECT_LIBRARY)
         elseif(type STREQUAL EXECUTABLE)
         else()
-            # if the target doesn't have code associated with it, remove it from
-            # the static analysis dependency list
+            # only analyze targets that have code associated with them.
+            # (so no utility, interface, or installation targets)
             list(REMOVE_ITEM ${CMAKE_PROJECT_NAME}_target_list ${target})
         endif()
     endforeach(target ${${CMAKE_PROJECT_NAME}_target_list})
 
     find_program(CPPCHECK_BIN NAMES cppcheck REQUIRED)
     if(CPPCHECK_BIN)
-        execute_process(COMMAND ${CPPCHECK_BIN} --version
+        execute_process(
+            COMMAND ${CPPCHECK_BIN} --version
             OUTPUT_VARIABLE CPPCHECK_VERSION
             ERROR_QUIET
             OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -248,7 +217,7 @@ if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
         set(CPPCHECK_PROJECT_ARG "--project=${PROJECT_BINARY_DIR}/compile_commands.json")
         set(CPPCHECK_BUILD_DIR_ARG "--cppcheck-build-dir=${PROJECT_BINARY_DIR}/analysis/cppcheck" CACHE STRING "The build directory to use")
 
-        # Don't show thise errors
+        # Don't show these errors
         if(EXISTS "${CMAKE_SOURCE_DIR}/.cppcheck_suppressions")
             set(CPPCHECK_SUPPRESSIONS "--suppressions-list=${CMAKE_SOURCE_DIR}/.cppcheck_suppressions" CACHE STRING "The suppressions file to use")
         else()
@@ -335,9 +304,9 @@ if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
                 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
             endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
 
-            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
-                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
-            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck/${CURRENT_TARGET}")
+            if(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+                file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
+            endif(NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/analysis/cppcheck")
             
             add_custom_target(cppcheck-analysis ALL DEPENDS ${${CMAKE_PROJECT_NAME}_target_list})
             add_custom_command(
@@ -352,7 +321,6 @@ if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
         message("cppcheck not found. No cppccheck-analysis targets")
     endif()
 endif(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
-
 
 ################################################################################
 #   USER CONFIGURATION STARTS HERE
