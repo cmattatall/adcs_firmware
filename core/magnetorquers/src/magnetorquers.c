@@ -8,3 +8,42 @@
  * @copyright Copyright (c) 2020
  *
  */
+#include <stdlib.h>
+#include <limits.h>
+
+#include "magnetorquers.h"
+#include "targets.h"
+
+
+/** @todo refactor this && reaction wheel table because they're effectively duplicates */
+static const char *mqtr_dir_jsonvalue_string[] = {
+    [MQTR_DIR_clockwise]     = "clock",
+    [MQTR_DIR_anticlockwise] = "antiClock",
+    [MQTR_DIR_invalid]       = "invalid",
+};
+
+pwm_t mqtr_set_wheel_pwm(MQTR_t wheel, pwm_t value)
+{
+
+}
+
+
+MQTR_DIR_t mqtr_set_wheel_dir(MQTR_t wheel, MQTR_DIR_t dir)
+{
+
+}
+
+
+pwm_t    mqtr_get_wheel_pwm(MQTR_t wheel)
+{
+
+}
+MQTR_DIR_t mqtr_get_wheel_dir(MQTR_t wheel)
+{
+
+}
+
+char *mqtr_dir_str(MQTR_DIR_t dir)
+{
+
+}
