@@ -22,6 +22,17 @@ static const char *mqtr_dir_jsonvalue_string[] = {
     [MQTR_DIR_invalid]       = "invalid",
 };
 
+
+static struct
+{
+    pwm_t    pwm;
+    MQTR_DIR_t dir;
+} reaction_wheel_configs[] = {
+    [MQTR_x] = {.pwm = PWM_DEFAULT, .dir = MQTR_DIR_clockwise},
+    [MQTR_y] = {.pwm = PWM_DEFAULT, .dir = MQTR_DIR_clockwise},
+    [MQTR_z] = {.pwm = PWM_DEFAULT, .dir = MQTR_DIR_clockwise},
+};
+
 pwm_t mqtr_set_wheel_pwm(MQTR_t wheel, pwm_t value)
 {
 

@@ -1,60 +1,42 @@
-/**
- * @file dir_rw_x_read_response_check.c
- * @author Carl Mattatall (cmattatall2@gmail.com)
- * @brief Source module to test the response to {"dir_rw_x":"read"} OBC request
- * @version 0.1
- * @date 2020-12-27
- *
- * @copyright Copyright (c) 2020 Carl Mattatall
- *
- * @note
- */
-
 #if defined(TARGET_MCU)
 #error NATIVE TESTS CANNOT BE RUN ON A BARE METAL MICROCONTROLLER
 #endif /* #if defined(TARGET_MCU) */
 
-#include <stdio.h>
-#include <string.h>
+#include <stdio.h> /* sprintf */
+#include <stdlib.h>
+#include <limits.h>
 
 #include "jtok.h"
 #include "jsons.h"
 #include "json_test_hook.h"
-
-#include "reaction_wheels.h"
-
-#include "version.h"
+#include "magnetorquers.h"
 
 #define TKN_POOL_SIZE (250u)
 
-
 static jtok_tkn_t tokens1[TKN_POOL_SIZE];
-
 static jtok_tkn_t tokens2[TKN_POOL_SIZE];
-
 
 int main(void)
 {
-    uint8_t json[] = "{\"dir_rw_x\" : \"read\" }";
+    uint8_t json[] = "{\"dir_mqtr_y\" : \"read\" }";
     printf("Testing ADCS response to OBC Request %s\n", json);
     int retval = json_parse(json);
     if (retval != 0)
     {
         return retval;
     }
+    mqtr_set_wheel_dir(MQTR_y, MQTR_DIR_clockwise);
 
-
-    reacwheel_set_wheel_dir(REACTION_WHEEL_x, RW_DIR_clockwise);
 
     char  expect[250];
-    char *dir_string = reacwheel_dir_str(RW_DIR_clockwise);
+    char *dir_string = reacwheel_dir_str(MQTR_DIR_clockwise);
     if (dir_string == NULL)
     {
-        snprintf(expect, sizeof(expect), "{\"dir_rw_x\": \"(NULL)\" }");
+        snprintf(expect, sizeof(expect), "{\"mqtr_rw_y\": \"(NULL)\" }");
     }
     else
     {
-        snprintf(expect, sizeof(expect), "{\"dir_rw_x\": \"%s\" }", dir_string);
+        snprintf(expect, sizeof(expect), "{\"mqtr_rw_y\": \"%s\" }", dir_string);
     }
 
     JTOK_PARSE_STATUS_t status;
@@ -90,6 +72,4 @@ int main(void)
             }
         }
     }
-
-    return 0;
 }
