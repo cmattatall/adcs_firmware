@@ -268,5 +268,3 @@ if(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
         message("cppcheck not found. No cppccheck-analysis targets")
     endif()
 endif(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
-
-

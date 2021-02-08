@@ -45,6 +45,7 @@ foreach(LANG ${${CURRENT_TARGET}_languages})
             if(NOT TARGET ${test_target})
                 add_executable(${test_target})
                 target_sources(${test_target} PRIVATE ${test})
+                target_include_directories(${test_target} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
         
                 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
                     target_compile_options(${test_target} PRIVATE "-Wall")

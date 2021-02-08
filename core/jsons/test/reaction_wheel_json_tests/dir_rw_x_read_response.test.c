@@ -57,7 +57,6 @@ int main(void)
         snprintf(expect, sizeof(expect), "{\"dir_rw_x\": \"%s\" }", dir_string);
     }
 
-
     JTOK_PARSE_STATUS_t status;
     status = jtok_parse(expect, tokens1, TKN_POOL_SIZE);
     if (status != JTOK_PARSE_STATUS_OK)
