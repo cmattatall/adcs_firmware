@@ -38,6 +38,9 @@ RW_DIR_t reacwheel_get_wheel_dir(REACTION_WHEEL_t wheel);
 char *reacwheel_dir_str(RW_DIR_t dir);
 
 
+void reacwheel_config_apply(void);
+
+
 #ifdef __cplusplus
 /* clang-format off */
 }

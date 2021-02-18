@@ -30,14 +30,18 @@ typedef enum
 #define MQTR_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
 
 
-pwm_t    mqtr_set_wheel_pwm(MQTR_t wheel, pwm_t value);
-MQTR_DIR_t mqtr_set_wheel_dir(MQTR_t wheel, MQTR_DIR_t dir);
+pwm_t      mqtr_set_pwm(MQTR_t wheel, pwm_t value);
+MQTR_DIR_t mqtr_set_dir(MQTR_t wheel, MQTR_DIR_t dir);
 
 
-pwm_t    mqtr_get_wheel_pwm(MQTR_t wheel);
-MQTR_DIR_t mqtr_get_wheel_dir(MQTR_t wheel);
+pwm_t      mqtr_get_pwm(MQTR_t wheel);
+MQTR_DIR_t mqtr_get_dir(MQTR_t wheel);
 
 char *mqtr_dir_str(MQTR_DIR_t dir);
+
+
+
+void mqtr_config_apply(void);
 
 
 #ifdef __cplusplus

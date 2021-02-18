@@ -11,8 +11,13 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#if defined(TARGET_MCU)
+#include <msp430.h>
+#endif /* #if defined(TARGET_MCU) */
+
 #include "reaction_wheels.h"
 #include "targets.h"
+
 
 
 static const char *rw_dir_jsonvalue_string[] = {
@@ -49,6 +54,7 @@ pwm_t reacwheel_set_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
         default:
         {
         }
+        break;
     }
     return set_value;
 }
@@ -69,6 +75,7 @@ pwm_t reacwheel_get_wheel_pwm(REACTION_WHEEL_t wheel)
         {
             /* no way to indicate error to caller */
         }
+        break;
     }
     return value;
 }
@@ -128,6 +135,7 @@ RW_DIR_t reacwheel_get_wheel_dir(REACTION_WHEEL_t wheel)
         default:
         {
         }
+        break;
     }
     return dir;
 }
@@ -147,5 +155,23 @@ char *reacwheel_dir_str(RW_DIR_t dir)
         {
             return (char *)rw_dir_jsonvalue_string[RW_DIR_invalid];
         }
+        break;
     }
+}
+
+
+void reacwheel_config_apply(void)
+{
+#if defined(TARGET_MCU)
+    unsigned int i;
+    for (i = 0;
+         i < sizeof(reaction_wheel_configs) / sizeof(*reaction_wheel_configs);
+         i++)
+    {
+        /** @todo WRITE THE PWM VALUES TO THE CORRECT REGISTERS */
+    }
+#else
+
+
+#endif /* #if defined(TARGET_MCU) */
 }
