@@ -42,7 +42,9 @@ apt-get install -y zip
 apt-get install -y squashfuse
 apt-get install -y valgrind
 apt-get install -y clang
+apt-get install -y libboost-dev
 apt-get install -y libboost-all-dev
+
 apt-get install -y libudev-dev
 apt-get install -y libfox-1.6-dev
 
@@ -73,6 +75,7 @@ pushd ./hidapi
 ./configure --prefix=/usr
 make && make install
 popd # leave hidapi
+
 
 mkdir -p -- $TOOLCHAIN_INSTALL_ROOT/libmsp430
 pushd $TOOLCHAIN_INSTALL_ROOT/libmsp430
