@@ -4,9 +4,9 @@
  * @brief Source module to test magnetorquer API for x direction
  * @version 0.1
  * @date 2021-02-18
- * 
+ *
  * @copyright Copyright (c) 2021 Carl Mattatall
- * 
+ *
  */
 
 #if defined(TARGET_MCU)
@@ -24,7 +24,7 @@ int main(void)
 {
     /* Expect set direction is stored correclty */
     MQTR_DIR_t dirs[2] = {MQTR_DIR_anticlockwise, MQTR_DIR_clockwise};
-    uint16_t i;
+    uint16_t   i;
     for (i = 0; i < 2; i++)
     {
         char *dir_str = mqtr_dir_str(dirs[i]);
