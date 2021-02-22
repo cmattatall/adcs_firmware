@@ -4,3 +4,9 @@
 [submodule "bufferlib"]
 	path = bufferlib
 	url = https://github.com/cmattatall/bufferlib
+[submodule "BNO055_driver"]
+	path = drivers/extern/BNO055_driver
+	url = https://github.com/BoschSensortec/BNO055_driver.git
+[submodule "drivers/extern/BNO055_driver"]
+	path = drivers/extern/BNO055_driver
+	url = https://github.com/BoschSensortec/BNO055_driver.git
