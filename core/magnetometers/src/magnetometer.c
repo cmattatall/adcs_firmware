@@ -33,6 +33,7 @@ MAGTOM_measurement_t MAGTOM_get_measurement(void)
     MAGTOM_measurement_t data = {0};
 #if defined(TARGET_MCU)
 
+ 
     ADS7841_driver_init(MAGTOM_enable_ADS7841, MAGTOM_disable_ADS7841,
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
 
