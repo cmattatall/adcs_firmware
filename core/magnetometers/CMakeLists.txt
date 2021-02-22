@@ -12,7 +12,7 @@ option(BUILD_EXAMPLES "[ON/OFF] Build examlples in addition to library" ON)
 #  PROJECT INIT
 ################################################################################
 project(
-    ADCS_MAGNETOMETER
+    ADCS_MAGNETOMETERS
     VERSION 1.0
     DESCRIPTION "MAGNETOMETER INTERFACE LIBRARY FOR ADCS FIRMWARE"
     LANGUAGES C CXX

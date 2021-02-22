@@ -41,8 +41,6 @@ SUNSEN_measurement_t SUNSEN_measure_intensities(void)
     }
     return measurement;
 #else
-
-
 #endif /* #if defined(TARGET_MCU) */
 }
 
