@@ -89,7 +89,6 @@ target_compile_options(${LIB} PRIVATE "-Werror=incompatible-pointer-types")
 target_compile_options(${LIB} PRIVATE "-Wshadow")
 
 
-
 ################################################################################
 # LINK AGAINST THE NECESSARY LIBRARIES 
 ################################################################################

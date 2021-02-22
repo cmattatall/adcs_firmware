@@ -41,7 +41,7 @@ endif(NOT ${CURRENT_TARGET}_languages)
 
 foreach(LANG ${${CURRENT_TARGET}_languages})
     foreach(EXTENSION ${CMAKE_${LANG}_SOURCE_FILE_EXTENSIONS})
-        set(GLOBBING_EXPR "${CMAKE_CURRENT_SOURCE_DIR}/*.test.${EXTENSION}")
+        set(GLOBBING_EXPR "${CMAKE_CURRENT_SOURCE_DIR}/*\.test\.${EXTENSION}")
         file(GLOB_RECURSE ${LANG}_${EXTENSION}_tests "${GLOBBING_EXPR}")
         list(APPEND ${CURRENT_TARGET}_${LANG}_tests ${${LANG}_${EXTENSION}_tests})
         foreach(test ${${LANG}_${EXTENSION}_tests})

@@ -22,6 +22,7 @@
 #include "version.h"
 
 #include "reaction_wheels.h"
+#include "magnetorquers.h"
 
 #define BASE_10 10
 #define JSON_TKN_CNT 20
@@ -543,7 +544,23 @@ static void *parse_pwm_mqtr_x(json_handler_args args)
         *t += 1;
         if (jtok_tokcmp("value", &tkns[*t]))
         {
-            /** @todo IMPLEMENT */
+            /* getting values from JSON is a little unelegant in C ... */
+            *t += 1;
+            memset(value_holder, '\0', sizeof(value_holder));
+            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
+            char *endptr    = value_holder;
+            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            if (*endptr != '\0')
+            {
+                /* error parsing the value - couldn't reach end of token */
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+            else
+            {
+                mqtr_set_pwm(MQTR_x, new_value);
+                OBC_IF_printf("{\"mqtr_x\":\"written\"}");
+            }
+            memset(value_holder, 0, sizeof(value_holder));
         }
         else
         {
@@ -574,8 +591,23 @@ static void *parse_pwm_mqtr_y(json_handler_args args)
         *t += 1;
         if (jtok_tokcmp("value", &tkns[*t]))
         {
-
-            /** @todo IMPLEMENT */
+            /* getting values from JSON is a little unelegant in C ... */
+            *t += 1;
+            memset(value_holder, '\0', sizeof(value_holder));
+            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
+            char *endptr    = value_holder;
+            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            if (*endptr != '\0')
+            {
+                /* error parsing the value - couldn't reach end of token */
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+            else
+            {
+                mqtr_set_pwm(MQTR_y, new_value);
+                OBC_IF_printf("{\"mqtr_y\":\"written\"}");
+            }
+            memset(value_holder, 0, sizeof(value_holder));
         }
         else
         {
@@ -606,7 +638,23 @@ static void *parse_pwm_mqtr_z(json_handler_args args)
         *t += 1;
         if (jtok_tokcmp("value", &tkns[*t]))
         {
-            /** @todo IMPLEMENT */
+            /* getting values from JSON is a little unelegant in C ... */
+            *t += 1;
+            memset(value_holder, '\0', sizeof(value_holder));
+            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
+            char *endptr    = value_holder;
+            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            if (*endptr != '\0')
+            {
+                /* error parsing the value - couldn't reach end of token */
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+            else
+            {
+                mqtr_set_pwm(MQTR_z, new_value);
+                OBC_IF_printf("{\"mqtr_z\":\"written\"}");
+            }
+            memset(value_holder, 0, sizeof(value_holder));
         }
         else
         {
@@ -640,11 +688,11 @@ static void *parse_dir_mqtr_x(json_handler_args args)
             *t += 1;
             if (jtok_tokcmp("clock", &tkns[*t]))
             {
-                /** @todo IMPLEMENT */
+                mqtr_set_dir(MQTR_x, RW_DIR_clockwise);
             }
             else if (jtok_tokcmp("antiClock", &tkns[*t]))
             {
-                /** @todo IMPLEMENT */
+                mqtr_set_dir(MQTR_x, RW_DIR_anticlockwise);
             }
             else
             {
@@ -687,11 +735,11 @@ static void *parse_dir_mqtr_y(json_handler_args args)
             *t += 1;
             if (jtok_tokcmp("clock", &tkns[*t]))
             {
-                /** @todo IMPLEMENT */
+                mqtr_set_dir(MQTR_y, RW_DIR_clockwise);
             }
             else if (jtok_tokcmp("antiClock", &tkns[*t]))
             {
-                /** @todo IMPLEMENT */
+                mqtr_set_dir(MQTR_y, RW_DIR_anticlockwise);
             }
             else
             {
@@ -734,11 +782,11 @@ static void *parse_dir_mqtr_z(json_handler_args args)
             *t += 1;
             if (jtok_tokcmp("clock", &tkns[*t]))
             {
-                /** @todo IMPLEMENT */
+                mqtr_set_dir(MQTR_z, RW_DIR_clockwise);
             }
             else if (jtok_tokcmp("antiClock", &tkns[*t]))
             {
-                /** @todo IMPLEMENT */
+                mqtr_set_dir(MQTR_z, RW_DIR_anticlockwise);
             }
             else
             {

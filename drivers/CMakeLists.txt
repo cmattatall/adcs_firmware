@@ -336,3 +336,8 @@ endif(ANALYZE AND PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
 ################################################################################
 target_link_libraries(${CURRENT_TARGET} PUBLIC INJECTION_API)
 target_link_libraries(${CURRENT_TARGET} PRIVATE BUFFERLIB)
+
+add_subdirectory(extern)
+
+target_link_libraries(${CURRENT_TARGET} PUBLIC EXTERN_DRIVERS)
+
