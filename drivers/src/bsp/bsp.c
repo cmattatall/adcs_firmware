@@ -30,7 +30,8 @@ void BSP_init(void)
 }
 
 void BSP_toggle_red_led(callback_args args)
-{
+{   
+    (void)args;
 #if defined(TARGET_MCU)
     P1OUT ^= 0x01;
 #else
@@ -40,6 +41,7 @@ void BSP_toggle_red_led(callback_args args)
 
 void BSP_set_red_led(callback_args args)
 {
+    (void)args;
 #if defined(TARGET_MCU)
     P1OUT = 0x01;
 #else
@@ -49,6 +51,7 @@ void BSP_set_red_led(callback_args args)
 
 void BSP_clr_red_led(callback_args args)
 {
+    (void)args;
 #if defined(TARGET_MCU)
     P1OUT = 0x00;
 #else

@@ -13,8 +13,15 @@
 
 #if defined(TARGET_MCU)
 
-/** @todo I DON'T KNOW WHAT PHY INTERFACE IS BEING USED TO TALK TO THE
- * ACCELEROMETER */
+#include "bno055.h"
+
+struct bno055_t bno055;
+
+void imu_init(void)
+{
+
+}
+
 
 #else
 
