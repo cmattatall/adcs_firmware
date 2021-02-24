@@ -79,9 +79,6 @@ static const json_parse_table_item json_parse_table[] = {
     {.key = "dir_mqtr_x", .handler = parse_dir_mqtr_x},
     {.key = "dir_mqtr_y", .handler = parse_dir_mqtr_y},
     {.key = "dir_mqtr_z", .handler = parse_dir_mqtr_z},
-
-
-
 };
 /* clang-format on */
 
