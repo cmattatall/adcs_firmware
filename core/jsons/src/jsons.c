@@ -48,36 +48,29 @@ static char       value_holder[50];
 /* JSON HANDLER DECLARATIONS */
 static void *parse_hardware_json(json_handler_args args);
 static void *parse_firmware_json(json_handler_args args);
-static void *parse_pwm_rw_x(json_handler_args args);
-static void *parse_pwm_rw_y(json_handler_args args);
-static void *parse_pwm_rw_z(json_handler_args args);
-static void *parse_dir_rw_x(json_handler_args args);
-static void *parse_dir_rw_y(json_handler_args args);
-static void *parse_dir_rw_z(json_handler_args args);
-static void *parse_pwm_mqtr_x(json_handler_args args);
-static void *parse_pwm_mqtr_y(json_handler_args args);
-static void *parse_pwm_mqtr_z(json_handler_args args);
-static void *parse_dir_mqtr_x(json_handler_args args);
-static void *parse_dir_mqtr_y(json_handler_args args);
-static void *parse_dir_mqtr_z(json_handler_args args);
+static void  parse_rw_speed(json_handler_args args);
+static void  parse_rw_current(json_handler_args args);
+static void  parse_mqtr_volts(json_handler_args args);
+static void  parse_sunSen(json_handler_args args);
+static void  parse_magSen(json_handler_args args);
+static void  parse_burnWire(json_handler_args args);
+static void  parse_imu(json_handler_args args);
+static void  parse_current(json_handler_args args);
 
 /* JSON PARSE TABLE */
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
     {.key = "fwVersion",  .handler = parse_firmware_json},
     {.key = "hwVersion",  .handler = parse_hardware_json},
-    {.key = "pwm_rw_x",   .handler = parse_pwm_rw_x},
-    {.key = "pwm_rw_y",   .handler = parse_pwm_rw_y},
-    {.key = "pwm_rw_z",   .handler = parse_pwm_rw_z},
-    {.key = "dir_rw_x",   .handler = parse_dir_rw_x},
-    {.key = "dir_rw_y",   .handler = parse_dir_rw_y},
-    {.key = "dir_rw_z",   .handler = parse_dir_rw_z},
-    {.key = "pwm_mqtr_x", .handler = parse_pwm_mqtr_x},
-    {.key = "pwm_mqtr_y", .handler = parse_pwm_mqtr_y},
-    {.key = "pwm_mqtr_z", .handler = parse_pwm_mqtr_z},
-    {.key = "dir_mqtr_x", .handler = parse_dir_mqtr_x},
-    {.key = "dir_mqtr_y", .handler = parse_dir_mqtr_y},
-    {.key = "dir_mqtr_z", .handler = parse_dir_mqtr_z},
+    {.key = "rw_speed",   .handler = parse_rw_speed},
+    {.key = "rw_current", .handler = parse_rw_current},
+    {.key = "mqtr_volts", .handler = parse_mqtr_volts},
+    {.key = "sunSen",     .handler = parse_sunSen},
+    {.key = "magSen",     .handler = parse_magSen},
+    {.key = "burnWire",   .handler = parse_burnWire},
+    {.key = "imu",        .handler = parse_imu},
+    {.key = "current",    .handler = parse_current}
+
 };
 /* clang-format on */
 
@@ -177,6 +170,89 @@ static void *parse_hardware_json(json_handler_args args)
 }
 
 
+static void parse_rw_speed(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+    
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        pwm_t current_x_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_x);
+        OBC_IF_printf("{\"pwm_rw_x\" : %u}", current_x_pwm);
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            /* getting values from JSON is a little unelegant in C ... */
+            *t += 1;
+
+
+            memset(value_holder, 0, sizeof(value_holder));
+            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
+            char *endptr    = value_holder;
+            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            if (*endptr != '\0')
+            {
+                /* error parsing the value - couldn't reach end of token */
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+            else
+            {
+                reacwheel_set_wheel_pwm(REACTION_WHEEL_x, new_value);
+                OBC_IF_printf("{\"pwm_rw_x\":\"written\"}");
+            }
+            memset(value_holder, 0, sizeof(value_holder));
+        }
+        else
+        {
+            /* we were missing data from the payload.
+             * eg : { "pwm_rw_x" : "write" } <-- notice "value" : 55 is missing
+             */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static void parse_rw_current(json_handler_args args)
+{}
+
+
+static void parse_mqtr_volts(json_handler_args args)
+{}
+
+
+static void parse_sunSen(json_handler_args args)
+{}
+
+
+static void parse_magSen(json_handler_args args)
+{}
+
+
+static void parse_burnWire(json_handler_args args)
+{}
+
+
+static void parse_imu(json_handler_args args)
+{}
+
+
+static void parse_current(json_handler_args args)
+{}
+
+
+#if 0
 static void *parse_pwm_rw_x(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
@@ -806,3 +882,4 @@ static void *parse_dir_mqtr_z(json_handler_args args)
     }
     return t;
 }
+#endif
