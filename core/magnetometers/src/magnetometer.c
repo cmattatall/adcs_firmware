@@ -33,6 +33,7 @@ static void                 MAGTOM_enable_ADS7841(void);
 static void                 MAGTOM_disable_ADS7841(void);
 static MAGTOM_measurement_t MAGTOM_get_measurement(void);
 
+
 void MAGTOM_reset(void)
 {
 #if defined(TARGET_MCU)

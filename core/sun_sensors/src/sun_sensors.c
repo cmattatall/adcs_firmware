@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "attributes.h"
 #include "config_assert.h"
@@ -83,12 +84,16 @@ int SUNSEN_face_lux_to_string(char *buf, unsigned int len, SUNSEN_FACE_t face)
 int SUNSEN_get_z_pos_temp(void)
 {
     int adc_val = 0;
+#if defined(TARGET_MCU)
     ADS7841_driver_init(SUNSEN_enable_functions[SUNSEN_FACE_z_pos],
                         SUNSEN_disable_functions[SUNSEN_FACE_z_pos],
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
     adc_val = ADS7841_measure_channel(ADS7841_CHANNEL_SGL_0);
 
     ADS7841_driver_deinit();
+#else
+    printf("called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
     return SUNSEN_adcs_to_temp_deg_c(adc_val);
 }
 
@@ -96,11 +101,15 @@ int SUNSEN_get_z_pos_temp(void)
 int SUNSEN_get_z_neg_temp(void)
 {
     int adc_val = 0;
+#if defined(TARGET_MCU)
     ADS7841_driver_init(SUNSEN_enable_functions[SUNSEN_FACE_z_neg],
                         SUNSEN_disable_functions[SUNSEN_FACE_z_neg],
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
     adc_val = ADS7841_measure_channel(ADS7841_CHANNEL_SGL_0);
     ADS7841_driver_deinit();
+#else
+    printf("called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
     return SUNSEN_adcs_to_temp_deg_c(adc_val);
 }
 
