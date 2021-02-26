@@ -43,6 +43,7 @@ reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel);
 void                     rw_set_config(REAC_WHEEL_t wheel, int speed);
 void                     rw_apply_configs(void);
 int                      rw_config_to_string(char *buf, unsigned int buflen);
+int                      rw_measure_current_ma(REAC_WHEEL_t wheel);
 
 #ifdef __cplusplus
 /* clang-format off */

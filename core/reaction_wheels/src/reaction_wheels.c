@@ -26,7 +26,6 @@
 #define RW_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
 
 
-
 /* clang-format off */
 static reac_wheel_configs rw_configs = 
 {
@@ -90,11 +89,7 @@ reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel)
 
 
 void rw_set_config(REAC_WHEEL_t wheel, int speed)
-{
-
-}
-
-
+{}
 
 
 void rw_apply_configs(void)
@@ -124,4 +119,27 @@ int rw_config_to_string(char *buf, unsigned int buflen)
         rw_configs.configs[REAC_WHEEL_z].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
         rw_configs.configs[REAC_WHEEL_z].pwm);
     return required_len < buflen ? 0 : 1;
+}
+
+
+int rw_measure_current_ma(REAC_WHEEL_t wheel)
+{
+    int current_ma;
+    switch (wheel)
+    {
+        case REAC_WHEEL_x:
+        case REAC_WHEEL_y:
+        case REAC_WHEEL_z:
+        {
+#warning NOT IMPLEMENTED YET
+            /** @todo implement API call to driver */
+        }
+        break;
+        default:
+        {
+            current_ma = -1;
+        }
+        break;
+    }
+    return current_ma;
 }
