@@ -11,11 +11,11 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
+#include <stdio.h>
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
 #else
-#include <stdio.h>
 #endif /* #if defined(TARGET_MCU) */
 
 #include "magnetorquers.h"
@@ -44,10 +44,10 @@ static struct
 
 
 static pwm_t mqtr_voltage_to_pwm(int voltage_mv);
-static pwm_t mqtr_pwm_to_voltage(pwm_t pwm);
+static int   mqtr_pwm_to_voltage(pwm_t pwm);
 
 
-void mqtr_config_update(MQTR_t mqtr, int volts_mv)
+void mqtr_set_config(MQTR_t mqtr, int volts_mv)
 {
     switch (mqtr)
     {
@@ -94,7 +94,7 @@ int mqtr_config_to_str(char *buf, unsigned int buflen)
         mqtr_configs[MQTR_x].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_x,
         mqtr_configs[MQTR_y].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_y,
         mqtr_configs[MQTR_z].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_z);
-    return required_len < buflen ? 0 : 1;
+    return (((unsigned int)required_len) < buflen) ? 0 : 1;
 }
 
 
@@ -115,7 +115,7 @@ static pwm_t mqtr_voltage_to_pwm(int voltage_mv)
 
 static int mqtr_pwm_to_voltage(pwm_t pwm)
 {
-    int voltage_mv = 0;
+    int voltage_mv = 50 * pwm;
 
 /** @todo IMPLEMENT CONVERSION */
 #warning NOT IMPLEMENTED YET

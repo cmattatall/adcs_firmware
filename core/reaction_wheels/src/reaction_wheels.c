@@ -12,11 +12,11 @@
 #include <limits.h>
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
 #else
-#include <stdio.h>
 #endif /* #if defined(TARGET_MCU) */
 
 #include "reaction_wheels.h"
@@ -54,8 +54,12 @@ static reac_wheel_configs rw_configs =
 
 static pwm_t rw_speed_to_pwm(int speed)
 {
-    pwm_t pwm_val = 50;
+    pwm_t pwm_val = speed / 50;
 
+/* The 50 thing is a placeholder value */
+
+/** @todo */
+#warning NOT IMPLEMENTED YET
 
     return pwm_val;
 }
@@ -144,7 +148,7 @@ int rw_config_to_string(char *buf, unsigned int buflen)
         rw_configs.configs[REAC_WHEEL_y].pwm,
         rw_configs.configs[REAC_WHEEL_z].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
         rw_configs.configs[REAC_WHEEL_z].pwm);
-    return required_len < buflen ? 0 : 1;
+    return ((unsigned int)(required_len) < buflen) ? 0 : 1;
 }
 
 
