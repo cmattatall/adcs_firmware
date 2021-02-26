@@ -24,8 +24,14 @@
 #include <stdio.h>
 #endif /* #if defined(TARGET_MCU) */
 
-static void MAGTOM_enable_ADS7841(void);
-static void MAGTOM_disable_ADS7841(void);
+typedef struct
+{
+    int structure_fields_to_change_as_needed;
+} MAGTOM_measurement_t;
+
+static void                 MAGTOM_enable_ADS7841(void);
+static void                 MAGTOM_disable_ADS7841(void);
+static MAGTOM_measurement_t MAGTOM_get_measurement(void);
 
 void MAGTOM_reset(void)
 {
@@ -38,26 +44,16 @@ void MAGTOM_reset(void)
 }
 
 
-MAGTOM_measurement_t MAGTOM_get_measurement(void)
+int MAGTOM_measurement_to_string(char *buf, unsigned int buflen)
 {
-    MAGTOM_measurement_t data = {0};
-#if defined(TARGET_MCU)
+    CONFIG_ASSERT(NULL != buf);
+    MAGTOM_measurement_t measurement     = MAGTOM_get_measurement();
+    int                  required_length = 0;
 
+/** @todo IMPLEMENT */
+#warning STRING FORMAT FOR MAGNETOMETER MEASUREMENT NOT IMLPEMENTED YET BECAUSE WE DONT KNOW HOW TO FULLY USE THE BNO055 API YET
 
-    ADS7841_driver_init(MAGTOM_enable_ADS7841, MAGTOM_disable_ADS7841,
-                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
-
-    /* Measure the conversion value (singled ended mode) from channel 2 on the
-     * ADS7841 chip that is selected using functions MAGTOM_enable_ADS7841 and
-     * MAGTOM_disable_ADS7841
-     */
-    data.structure_fields_to_change_as_needed =
-        ADS7841_measure_channel(ADS7841_CHANNEL_SGL_2);
-    ADS7841_driver_deinit();
-#else
-    printf("Called %s\n", __func__);
-#endif /* #if defined(TARGET_MCU) */
-    return data;
+    return (required_length < (int)buflen) ? 0 : 1;
 }
 
 
@@ -87,4 +83,26 @@ static void MAGTOM_disable_ADS7841(void)
 #else
     printf("Called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
+}
+
+
+static MAGTOM_measurement_t MAGTOM_get_measurement(void)
+{
+    MAGTOM_measurement_t data = {0};
+#if defined(TARGET_MCU)
+    ADS7841_driver_init(MAGTOM_enable_ADS7841, MAGTOM_disable_ADS7841,
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
+
+    /*
+     * Measure the conversion value (singled ended mode) from channel 2 on the
+     * ADS7841 chip that is selected using functions MAGTOM_enable_ADS7841 and
+     * MAGTOM_disable_ADS7841
+     */
+    data.structure_fields_to_change_as_needed =
+        ADS7841_measure_channel(ADS7841_CHANNEL_SGL_2);
+    ADS7841_driver_deinit();
+#else
+    printf("Called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
+    return data;
 }

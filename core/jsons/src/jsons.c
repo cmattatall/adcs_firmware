@@ -513,12 +513,12 @@ static json_handler_retval parse_magSen(json_handler_args args)
     if (jtok_tokcmp("read", &tkns[*t]))
     {
         memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-
-        /** @todo IMPLEMENT */
+        MAGTOM_measurement_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
+        OBC_IF_printf("{ \"magSen\" : %s}", tmp_chrbuf);
     }
     else if (jtok_tokcmp("reset", &tkns[*t]))
     {
-
+        MAGTOM_reset();
         OBC_IF_printf("{\"magSen\" : \"restarted\"}");
     }
     else

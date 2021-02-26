@@ -76,7 +76,7 @@ int SUNSEN_face_lux_to_string(char *buf, unsigned int len, SUNSEN_FACE_t face)
     SUNSEN_measurement_t m = SUNSEN_get_face_lux(face);
     int                  req; /* required length to fill message buffer */
     req = snprintf(buf, len, "[ %.3f, %.3f, %.3f ]", m.lux_1, m.lux_2, m.lux_3);
-    return (((unsigned int)req) < len) ? 0 : 1;
+    return (req < (int)len) ? 0 : 1;
 }
 
 

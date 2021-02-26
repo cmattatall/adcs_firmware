@@ -7,15 +7,7 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-
-typedef struct
-{
-   int structure_fields_to_change_as_needed;
-} MAGTOM_measurement_t;
-
-MAGTOM_measurement_t MAGTOM_get_measurement(void);
-
-
+int  MAGTOM_measurement_to_string(char *buf, unsigned int buflen);
 void MAGTOM_reset(void);
 
 
