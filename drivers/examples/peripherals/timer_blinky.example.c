@@ -26,7 +26,7 @@ int main(void)
     {
         if (timer_expired)
         {
-            P1OUT ^= 0x01;
+            P6OUT ^= BIT0;
             timer_expired = 0;
         }
     }
@@ -47,7 +47,7 @@ static void stop_watchdog(void)
 
 static void red_led_init(void)
 {
-    P1DIR |= 0x01; // Set P1.0 to output direction
+    P6DIR |= BIT0; // Set P1.0 to output direction
 }
 
 static void enable_interrupts(void)

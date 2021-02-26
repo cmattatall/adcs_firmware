@@ -10,168 +10,166 @@
  */
 #include <stdlib.h>
 #include <limits.h>
+#include <assert.h>
+#include <string.h>
+#include <stdio.h>
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
+#else
 #endif /* #if defined(TARGET_MCU) */
 
 #include "reaction_wheels.h"
 #include "targets.h"
 
 
+#define RW_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
 
-static const char *rw_dir_jsonvalue_string[] = {
-    [RW_DIR_clockwise]     = "clock",
-    [RW_DIR_anticlockwise] = "antiClock",
-    [RW_DIR_invalid]       = "invalid",
-};
 
-static struct
+/* clang-format off */
+static reac_wheel_configs rw_configs = 
 {
-    pwm_t    pwm;
-    RW_DIR_t dir;
-} reaction_wheel_configs[] = {
-    [REACTION_WHEEL_x] = {.pwm = PWM_DEFAULT, .dir = RW_DIR_clockwise},
-    [REACTION_WHEEL_y] = {.pwm = PWM_DEFAULT, .dir = RW_DIR_clockwise},
-    [REACTION_WHEEL_z] = {.pwm = PWM_DEFAULT, .dir = RW_DIR_clockwise},
+    .configs = 
+    {
+        [REAC_WHEEL_x] = 
+        {
+            .pwm = PWM_DEFAULT,
+            .dir = REAC_WHEEL_DIR_pos,
+        },
+        [REAC_WHEEL_y] = 
+        {
+            .pwm = PWM_DEFAULT,
+            .dir = REAC_WHEEL_DIR_pos,
+
+        },
+        [REAC_WHEEL_z] = 
+        {
+            .pwm = PWM_DEFAULT,
+            .dir = REAC_WHEEL_DIR_pos,
+        },
+    }
 };
+/* clang-format on */
 
 
-pwm_t reacwheel_set_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value)
+static pwm_t rw_speed_to_pwm(int speed)
 {
-    pwm_t set_value = PWM_INVALID;
+    pwm_t pwm_val = speed / 50;
+
+/* The 50 thing is a placeholder value */
+
+/** @todo */
+#warning NOT IMPLEMENTED YET
+
+    return pwm_val;
+}
+
+
+reac_wheel_configs rw_get_configs(void)
+{
+    return rw_configs;
+}
+
+
+reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel)
+{
     switch (wheel)
     {
-        case REACTION_WHEEL_x:
-        case REACTION_WHEEL_y:
-        case REACTION_WHEEL_z:
+        case REAC_WHEEL_x:
+        case REAC_WHEEL_y:
+        case REAC_WHEEL_z:
         {
-            reaction_wheel_configs[wheel].pwm = value;
-
-            set_value = value;
+            return rw_configs.configs[wheel];
         }
         break;
         default:
         {
+            reac_wheel_config_single error_value = {0};
+            return error_value;
         }
         break;
     }
-    return set_value;
-}
-
-pwm_t reacwheel_get_wheel_pwm(REACTION_WHEEL_t wheel)
-{
-    pwm_t value = PWM_INVALID;
-    switch (wheel)
-    {
-        case REACTION_WHEEL_x:
-        case REACTION_WHEEL_y:
-        case REACTION_WHEEL_z:
-        {
-            value = reaction_wheel_configs[wheel].pwm;
-        }
-        break;
-        default:
-        {
-            /* no way to indicate error to caller */
-        }
-        break;
-    }
-    return value;
 }
 
 
-RW_DIR_t reacwheel_set_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir)
+void rw_set_config(REAC_WHEEL_t wheel, int speed)
 {
-    RW_DIR_t set_value = RW_DIR_invalid;
     switch (wheel)
     {
-        case REACTION_WHEEL_x:
-        case REACTION_WHEEL_y:
-        case REACTION_WHEEL_z:
+        case REAC_WHEEL_x:
+        case REAC_WHEEL_y:
+        case REAC_WHEEL_z:
         {
-            switch (dir)
+            pwm_t pwm                     = rw_speed_to_pwm(speed);
+            rw_configs.configs[wheel].pwm = pwm;
+            if (speed < 0)
             {
-                case RW_DIR_clockwise:
-                case RW_DIR_anticlockwise:
-                {
-                    reaction_wheel_configs[wheel].dir = dir;
-                    set_value = reaction_wheel_configs[wheel].dir;
-                }
-                break;
-                default:
-                {
-                    /*
-                     * do nothing, this is just here
-                     * so compile doesn't complain
-                     */
-                }
-                break;
+                rw_configs.configs[wheel].dir = REAC_WHEEL_DIR_pos;
+            }
+            else
+            {
+                rw_configs.configs[wheel].dir = REAC_WHEEL_DIR_neg;
             }
         }
         break;
         default:
         {
-            /* no way to indicate error to caller */
-        }
-        break;
-    }
-    return set_value;
-}
-
-
-RW_DIR_t reacwheel_get_wheel_dir(REACTION_WHEEL_t wheel)
-{
-    RW_DIR_t dir = RW_DIR_invalid;
-    switch (wheel)
-    {
-        case REACTION_WHEEL_x:
-        case REACTION_WHEEL_y:
-        case REACTION_WHEEL_z:
-        {
-            dir = reaction_wheel_configs[wheel].dir;
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
-    return dir;
-}
-
-
-char *reacwheel_dir_str(RW_DIR_t dir)
-{
-    switch (dir)
-    {
-        case RW_DIR_clockwise:
-        case RW_DIR_anticlockwise:
-        {
-            return (char *)rw_dir_jsonvalue_string[dir];
-        }
-        break;
-        default:
-        {
-            return (char *)rw_dir_jsonvalue_string[RW_DIR_invalid];
+            /* do nothing */
         }
         break;
     }
 }
 
 
-void reacwheel_config_apply(void)
+void rw_apply_configs(void)
 {
 #if defined(TARGET_MCU)
     unsigned int i;
-    for (i = 0;
-         i < sizeof(reaction_wheel_configs) / sizeof(*reaction_wheel_configs);
-         i++)
+    for (i = 0; i < NUM_REACTION_WHEELS; i++)
     {
+#warning NOT IMPLEMENTED YET
         /** @todo WRITE THE PWM VALUES TO THE CORRECT REGISTERS */
     }
 #else
-
-
+    printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
+}
+
+
+/** @todo this could be made much cleaner but it works for now */
+int rw_config_to_string(char *buf, unsigned int buflen)
+{
+    CONFIG_ASSERT(NULL != buf);
+    int required_len = snprintf(
+        buf, buflen, "[ %c%d, %c%d, %c%d ]",
+        rw_configs.configs[REAC_WHEEL_x].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
+        rw_configs.configs[REAC_WHEEL_x].pwm,
+        rw_configs.configs[REAC_WHEEL_y].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
+        rw_configs.configs[REAC_WHEEL_y].pwm,
+        rw_configs.configs[REAC_WHEEL_z].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
+        rw_configs.configs[REAC_WHEEL_z].pwm);
+    return ((unsigned int)(required_len) < buflen) ? 0 : 1;
+}
+
+
+int rw_measure_current_ma(REAC_WHEEL_t wheel)
+{
+    int current_ma;
+    switch (wheel)
+    {
+        case REAC_WHEEL_x:
+        case REAC_WHEEL_y:
+        case REAC_WHEEL_z:
+        {
+#warning NOT IMPLEMENTED YET
+            /** @todo implement API call to driver */
+        }
+        break;
+        default:
+        {
+            current_ma = -1;
+        }
+        break;
+    }
+    return current_ma;
 }

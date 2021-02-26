@@ -44,7 +44,6 @@ int main(void)
     char expect[250];
     snprintf(expect, sizeof(expect), "{\"fwVersion\":%s}", FW_VERSION);
 
-
     JTOK_PARSE_STATUS_t status;
     status = jtok_parse(expect, tokens1, TKN_POOL_SIZE);
     if (status != JTOK_PARSE_STATUS_OK)

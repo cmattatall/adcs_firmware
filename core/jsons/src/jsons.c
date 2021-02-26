@@ -28,7 +28,7 @@
 #define JSON_TKN_CNT 20
 #define JSON_HANDLER_RETVAL_ERROR NULL
 
-typedef uint_fast16_t token_index_t;
+typedef int token_index_t;
 
 typedef void *         json_handler_retval;
 typedef token_index_t *json_handler_args;
@@ -42,46 +42,35 @@ typedef struct
 
 
 static jtok_tkn_t tkns[JSON_TKN_CNT];
-static char       value_holder[50];
+static char       tmp_chrbuf[50];
 
 
 /* JSON HANDLER DECLARATIONS */
-static void *parse_hardware_json(json_handler_args args);
-static void *parse_firmware_json(json_handler_args args);
-static void *parse_pwm_rw_x(json_handler_args args);
-static void *parse_pwm_rw_y(json_handler_args args);
-static void *parse_pwm_rw_z(json_handler_args args);
-static void *parse_dir_rw_x(json_handler_args args);
-static void *parse_dir_rw_y(json_handler_args args);
-static void *parse_dir_rw_z(json_handler_args args);
-static void *parse_pwm_mqtr_x(json_handler_args args);
-static void *parse_pwm_mqtr_y(json_handler_args args);
-static void *parse_pwm_mqtr_z(json_handler_args args);
+static json_handler_retval parse_hardware_json(json_handler_args args);
+static json_handler_retval parse_firmware_json(json_handler_args args);
+static json_handler_retval parse_rw_speed(json_handler_args args);
+static json_handler_retval parse_rw_current(json_handler_args args);
+static json_handler_retval parse_mqtr_volts(json_handler_args args);
+static json_handler_retval parse_sunSen(json_handler_args args);
+static json_handler_retval parse_magSen(json_handler_args args);
+static json_handler_retval parse_burnWire(json_handler_args args);
+static json_handler_retval parse_imu(json_handler_args args);
+static json_handler_retval parse_current(json_handler_args args);
 
-static void *parse_dir_mqtr_x(json_handler_args args);
-static void *parse_dir_mqtr_y(json_handler_args args);
-static void *parse_dir_mqtr_z(json_handler_args args);
 
 /* JSON PARSE TABLE */
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
     {.key = "fwVersion",  .handler = parse_firmware_json},
     {.key = "hwVersion",  .handler = parse_hardware_json},
-    {.key = "pwm_rw_x",   .handler = parse_pwm_rw_x},
-    {.key = "pwm_rw_y",   .handler = parse_pwm_rw_y},
-    {.key = "pwm_rw_z",   .handler = parse_pwm_rw_z},
-    {.key = "dir_rw_x",   .handler = parse_dir_rw_x},
-    {.key = "dir_rw_y",   .handler = parse_dir_rw_y},
-    {.key = "dir_rw_z",   .handler = parse_dir_rw_z},
-    {.key = "pwm_mqtr_x", .handler = parse_pwm_mqtr_x},
-    {.key = "pwm_mqtr_y", .handler = parse_pwm_mqtr_y},
-    {.key = "pwm_mqtr_z", .handler = parse_pwm_mqtr_z},
-    {.key = "dir_mqtr_x", .handler = parse_dir_mqtr_x},
-    {.key = "dir_mqtr_y", .handler = parse_dir_mqtr_y},
-    {.key = "dir_mqtr_z", .handler = parse_dir_mqtr_z},
-
-
-
+    {.key = "rw_speed",   .handler = parse_rw_speed},
+    {.key = "rw_current", .handler = parse_rw_current},
+    {.key = "mqtr_volts", .handler = parse_mqtr_volts},
+    {.key = "sunSen",     .handler = parse_sunSen},
+    {.key = "magSen",     .handler = parse_magSen},
+    {.key = "burnWire",   .handler = parse_burnWire},
+    {.key = "imu",        .handler = parse_imu},
+    {.key = "current",    .handler = parse_current},
 };
 /* clang-format on */
 
@@ -111,8 +100,7 @@ int json_parse(uint8_t *json)
              * command for the key */
             t++;
 
-            unsigned int k_max =
-                sizeof(json_parse_table) / sizeof(*json_parse_table);
+            int k_max = sizeof(json_parse_table) / sizeof(*json_parse_table);
             for (k = 0; k < k_max; k++)
             {
                 /*
@@ -149,7 +137,7 @@ int json_parse(uint8_t *json)
 }
 
 
-static void *parse_firmware_json(json_handler_args args)
+static json_handler_retval parse_firmware_json(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     *t += 1;
@@ -165,7 +153,7 @@ static void *parse_firmware_json(json_handler_args args)
 }
 
 
-static void *parse_hardware_json(json_handler_args args)
+static json_handler_retval parse_hardware_json(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     *t += 1;
@@ -181,6 +169,319 @@ static void *parse_hardware_json(json_handler_args args)
 }
 
 
+static json_handler_retval parse_rw_speed(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+        rw_config_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
+        OBC_IF_printf("{\"rw_speed\": %s}", tmp_chrbuf);
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            *t += 1;
+            if (tkns[*t].type == JTOK_ARRAY)
+            {
+                *t += 1; /* Advance token index to the first element of arr */
+                const jtok_tkn_t *tkn;
+                unsigned int      i           = 0;
+                token_index_t *   arr_tkn_idx = t;
+
+                /* Traverse sibling tree of array elements */
+                do
+                {
+                    tkn = &tkns[*t];
+                    memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+                    jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+                    char *endptr = tmp_chrbuf;
+                    int   new_speed;
+                    new_speed = (int)strtoul(tmp_chrbuf, &endptr, BASE_10);
+                    if (*endptr == '\0')
+                    {
+                        i++;
+                        switch (i)
+                        {
+                            case 1:
+                            {
+                                rw_set_config(REAC_WHEEL_x, new_speed);
+                            }
+                            break;
+                            case 2:
+                            {
+                                rw_set_config(REAC_WHEEL_y, new_speed);
+                            }
+                            break;
+                            case 3:
+                            {
+                                rw_set_config(REAC_WHEEL_z, new_speed);
+                            }
+                            break;
+                            default:
+                            {
+                                return JSON_HANDLER_RETVAL_ERROR;
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        /*
+                         * error parsing the value
+                         * - couldn't reach end of token
+                         */
+                        return JSON_HANDLER_RETVAL_ERROR;
+                    }
+                    memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+
+                    *t = tkn->sibling;
+                } while (*t != NO_SIBLING_IDX);
+
+
+                if (i != NUM_REACTION_WHEELS)
+                {
+                    /* Array didn't contain speed values for all the params
+                     * eg : [ 12, 34] <-- missing third value for rw_z */
+                    OBC_IF_printf("{\"rw_speed\": \"write error\"}");
+                    return JSON_HANDLER_RETVAL_ERROR;
+                }
+                else
+                {
+                    OBC_IF_printf("{\"rw_speed\": \"set\"}");
+                    t = arr_tkn_idx;
+                    /*
+                     * After we walk past last element of
+                     * array, *t will be set to NO_SIBLING_IDX
+                     * but we don't want to return an error
+                     * value from correct parse of json values
+                     */
+                }
+            }
+            else
+            {
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+        }
+        else
+        {
+            /*
+             * we were missing data from the payload.
+             * eg : { "rw_speed" : "write" } <-- notice "value" : [ NUMBERS ]
+             * is missing
+             */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static json_handler_retval parse_rw_current(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        int current_ma_x = rw_measure_current_ma(REAC_WHEEL_x);
+        int current_ma_y = rw_measure_current_ma(REAC_WHEEL_y);
+        int current_ma_z = rw_measure_current_ma(REAC_WHEEL_z);
+        OBC_IF_printf("{\"rw_current\": [ %d, %d, %d]}", current_ma_x,
+                      current_ma_y, current_ma_z);
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static json_handler_retval parse_mqtr_volts(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+        mqtr_config_to_str(tmp_chrbuf, sizeof(tmp_chrbuf));
+        OBC_IF_printf("{\"mqtr_volts\": %s}", tmp_chrbuf);
+    }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            *t += 1;
+            if (tkns[*t].type == JTOK_ARRAY)
+            {
+                *t += 1; /* Advance token index to the first element of arr */
+                const jtok_tkn_t *tkn;
+                unsigned int      i           = 0;
+                token_index_t *   arr_tkn_idx = t;
+
+                /* Traverse sibling tree of array elements */
+                do
+                {
+                    tkn = &tkns[*t];
+                    memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+                    jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+                    char *endptr = tmp_chrbuf;
+                    int   new_voltage;
+                    new_voltage = (int)strtoul(tmp_chrbuf, &endptr, BASE_10);
+                    if (*endptr == '\0')
+                    {
+                        i++;
+                        switch (i)
+                        {
+                            case 1:
+                            {
+                                mqtr_set_config(MQTR_x, new_voltage);
+                            }
+                            break;
+                            case 2:
+                            {
+                                mqtr_set_config(MQTR_y, new_voltage);
+                            }
+                            break;
+                            case 3:
+                            {
+                                mqtr_set_config(MQTR_z, new_voltage);
+                            }
+                            break;
+                            default:
+                            {
+                                return JSON_HANDLER_RETVAL_ERROR;
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        /*
+                         * error parsing the value
+                         * - couldn't reach end of token
+                         */
+                        return JSON_HANDLER_RETVAL_ERROR;
+                    }
+                    memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+
+                    *t = tkn->sibling;
+                } while (*t != NO_SIBLING_IDX);
+
+
+                if (i != NUM_REACTION_WHEELS)
+                {
+                    /* Array didn't contain speed values for all the params
+                     * eg : [ 12, 34] <-- missing third value for rw_z */
+                    OBC_IF_printf("{\"mqtr_volts\": \"write error\"}");
+                    return JSON_HANDLER_RETVAL_ERROR;
+                }
+                else
+                {
+                    OBC_IF_printf("{\"mqtr_volts\": \"set\"}");
+                    t = arr_tkn_idx;
+                    /*
+                     * After we walk past last element of
+                     * array, *t will be set to NO_SIBLING_IDX
+                     * but we don't want to return an error
+                     * value from correct parse of json values
+                     */
+                }
+            }
+            else
+            {
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+        }
+        else
+        {
+            /*
+             * we were missing data from the payload.
+             * eg : { "rw_speed" : "write" } <-- notice "value" : [ NUMBERS ]
+             * is missing
+             */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
+
+
+static json_handler_retval parse_sunSen(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+
+    return t;
+}
+
+
+static json_handler_retval parse_magSen(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+
+    return t;
+}
+
+
+static json_handler_retval parse_burnWire(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+
+    return t;
+}
+
+
+static json_handler_retval parse_imu(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+
+    return t;
+}
+
+
+static json_handler_retval parse_current(json_handler_args args)
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+
+    return t;
+}
+
+
+#if 0
 static void *parse_pwm_rw_x(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
@@ -200,10 +501,10 @@ static void *parse_pwm_rw_x(json_handler_args args)
             *t += 1;
 
 
-            memset(value_holder, 0, sizeof(value_holder));
-            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
-            char *endptr    = value_holder;
-            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+            char *endptr    = tmp_chrbuf;
+            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
             if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
@@ -214,7 +515,7 @@ static void *parse_pwm_rw_x(json_handler_args args)
                 reacwheel_set_wheel_pwm(REACTION_WHEEL_x, new_value);
                 OBC_IF_printf("{\"pwm_rw_x\":\"written\"}");
             }
-            memset(value_holder, 0, sizeof(value_holder));
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
         }
         else
         {
@@ -250,10 +551,10 @@ static void *parse_pwm_rw_y(json_handler_args args)
         {
             /* getting values from JSON is a little unelegant in C ... */
             *t += 1;
-            memset(value_holder, '\0', sizeof(value_holder));
-            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
-            char *endptr    = value_holder;
-            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
+            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+            char *endptr    = tmp_chrbuf;
+            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
             if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
@@ -264,7 +565,7 @@ static void *parse_pwm_rw_y(json_handler_args args)
                 reacwheel_set_wheel_pwm(REACTION_WHEEL_y, new_value);
                 OBC_IF_printf("{\"pwm_rw_y\":\"written\"}");
             }
-            memset(value_holder, 0, sizeof(value_holder));
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
         }
         else
         {
@@ -300,10 +601,10 @@ static void *parse_pwm_rw_z(json_handler_args args)
         {
             /* getting values from JSON is a little unelegant in C ... */
             *t += 1;
-            memset(value_holder, '\0', sizeof(value_holder));
-            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
-            char *endptr    = value_holder;
-            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
+            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+            char *endptr    = tmp_chrbuf;
+            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
             if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
@@ -314,7 +615,7 @@ static void *parse_pwm_rw_z(json_handler_args args)
                 reacwheel_set_wheel_pwm(REACTION_WHEEL_z, new_value);
                 OBC_IF_printf("{\"pwm_rw_z\":\"written\"}");
             }
-            memset(value_holder, 0, sizeof(value_holder));
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
         }
         else
         {
@@ -546,10 +847,10 @@ static void *parse_pwm_mqtr_x(json_handler_args args)
         {
             /* getting values from JSON is a little unelegant in C ... */
             *t += 1;
-            memset(value_holder, '\0', sizeof(value_holder));
-            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
-            char *endptr    = value_holder;
-            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
+            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+            char *endptr    = tmp_chrbuf;
+            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
             if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
@@ -560,7 +861,7 @@ static void *parse_pwm_mqtr_x(json_handler_args args)
                 mqtr_set_pwm(MQTR_x, new_value);
                 OBC_IF_printf("{\"mqtr_x\":\"written\"}");
             }
-            memset(value_holder, 0, sizeof(value_holder));
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
         }
         else
         {
@@ -593,10 +894,10 @@ static void *parse_pwm_mqtr_y(json_handler_args args)
         {
             /* getting values from JSON is a little unelegant in C ... */
             *t += 1;
-            memset(value_holder, '\0', sizeof(value_holder));
-            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
-            char *endptr    = value_holder;
-            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
+            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+            char *endptr    = tmp_chrbuf;
+            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
             if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
@@ -607,7 +908,7 @@ static void *parse_pwm_mqtr_y(json_handler_args args)
                 mqtr_set_pwm(MQTR_y, new_value);
                 OBC_IF_printf("{\"mqtr_y\":\"written\"}");
             }
-            memset(value_holder, 0, sizeof(value_holder));
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
         }
         else
         {
@@ -640,10 +941,10 @@ static void *parse_pwm_mqtr_z(json_handler_args args)
         {
             /* getting values from JSON is a little unelegant in C ... */
             *t += 1;
-            memset(value_holder, '\0', sizeof(value_holder));
-            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
-            char *endptr    = value_holder;
-            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
+            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
+            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+            char *endptr    = tmp_chrbuf;
+            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
             if (*endptr != '\0')
             {
                 /* error parsing the value - couldn't reach end of token */
@@ -654,7 +955,7 @@ static void *parse_pwm_mqtr_z(json_handler_args args)
                 mqtr_set_pwm(MQTR_z, new_value);
                 OBC_IF_printf("{\"mqtr_z\":\"written\"}");
             }
-            memset(value_holder, 0, sizeof(value_holder));
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
         }
         else
         {
@@ -810,3 +1111,4 @@ static void *parse_dir_mqtr_z(json_handler_args args)
     }
     return t;
 }
+#endif

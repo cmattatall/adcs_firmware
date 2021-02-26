@@ -1,5 +1,5 @@
-#ifndef __REACTION_WHEELS_H__
-#define __REACTION_WHEELS_H__
+#ifndef __REAC_WHEELS_H__
+#define __REAC_WHEELS_H__
 #ifdef __cplusplus
 /* clang-format off */
 extern "C"
@@ -9,41 +9,45 @@ extern "C"
 
 #include <stdint.h>
 #include "pwm.h"
+#include "rotational_directions.h"
 
-
-typedef enum
-{
-    REACTION_WHEEL_x,
-    REACTION_WHEEL_y,
-    REACTION_WHEEL_z,
-} REACTION_WHEEL_t;
+#define NUM_REACTION_WHEELS ((unsigned int)(3))
 
 typedef enum
 {
-    RW_DIR_clockwise,
-    RW_DIR_anticlockwise,
-    RW_DIR_invalid, /* <-- USED TO INDICATE API ERROR TO CALLER */
-} RW_DIR_t;
+    REAC_WHEEL_x,
+    REAC_WHEEL_y,
+    REAC_WHEEL_z,
+} REAC_WHEEL_t;
 
-#define RW_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
+typedef enum
+{
+    REAC_WHEEL_DIR_pos = ROT_DIR_clock,
+    REAC_WHEEL_DIR_neg = ROT_DIR_anticlock,
+} REAC_WHEEL_DIR_t;
+
+typedef struct
+{
+    pwm_t            pwm;
+    REAC_WHEEL_DIR_t dir;
+} reac_wheel_config_single;
+
+typedef struct
+{
+    reac_wheel_config_single configs[NUM_REACTION_WHEELS];
+} reac_wheel_configs;
 
 
-pwm_t    reacwheel_set_wheel_pwm(REACTION_WHEEL_t wheel, pwm_t value);
-RW_DIR_t reacwheel_set_wheel_dir(REACTION_WHEEL_t wheel, RW_DIR_t dir);
-
-
-pwm_t    reacwheel_get_wheel_pwm(REACTION_WHEEL_t wheel);
-RW_DIR_t reacwheel_get_wheel_dir(REACTION_WHEEL_t wheel);
-
-char *reacwheel_dir_str(RW_DIR_t dir);
-
-
-void reacwheel_config_apply(void);
-
+reac_wheel_configs       rw_get_configs(void);
+reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel);
+void                     rw_set_config(REAC_WHEEL_t wheel, int speed);
+void                     rw_apply_configs(void);
+int                      rw_config_to_string(char *buf, unsigned int buflen);
+int                      rw_measure_current_ma(REAC_WHEEL_t wheel);
 
 #ifdef __cplusplus
 /* clang-format off */
 }
 /* clang-format on */
 #endif /* End C linkage */
-#endif /* __REACTION_WHEELS_H__ */
+#endif /* __REAC_WHEELS_H__ */
