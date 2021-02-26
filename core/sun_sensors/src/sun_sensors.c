@@ -21,6 +21,7 @@
 #include "spi.h"
 #include "ads7841e.h"
 #else
+#include <stdio.h>
 #endif /* #if defined(TARGET_MCU) */
 
 
@@ -57,8 +58,7 @@ static SUNSEN_intensity_t SUNSEN_get_sun_vector(void)
     ADS7841_driver_deinit();
     return measurement;
 #else
-
-
+    printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
 }
 
@@ -71,8 +71,7 @@ static void SUNSEN_enable_ADS7841(void)
 
 #warning NOT IMPLEMENTED YET
 #else
-
-
+    printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
 }
 
@@ -85,5 +84,6 @@ static void SUNSEN_disable_ADS7841(void)
     /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR HIGH */
 
 #else
+    printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
 }
