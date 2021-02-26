@@ -27,13 +27,23 @@
 static void MAGTOM_enable_ADS7841(void);
 static void MAGTOM_disable_ADS7841(void);
 
+void MAGTOM_reset(void)
+{
+#if defined(TARGET_MCU)
+    /* Issue reset command to IMU */
+#warning NOT IMPLEMENTED YET
+#else
+    printf("Called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
+}
+
 
 MAGTOM_measurement_t MAGTOM_get_measurement(void)
 {
     MAGTOM_measurement_t data = {0};
 #if defined(TARGET_MCU)
 
- 
+
     ADS7841_driver_init(MAGTOM_enable_ADS7841, MAGTOM_disable_ADS7841,
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
 

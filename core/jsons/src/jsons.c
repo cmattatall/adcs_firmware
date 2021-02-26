@@ -23,6 +23,8 @@
 
 #include "reaction_wheels.h"
 #include "magnetorquers.h"
+#include "sun_sensors.h"
+#include "magnetometer.h"
 
 #define BASE_10 10
 #define JSON_TKN_CNT 20
@@ -42,7 +44,7 @@ typedef struct
 
 
 static jtok_tkn_t tkns[JSON_TKN_CNT];
-static char       tmp_chrbuf[50];
+static char       tmp_chrbuf[100];
 
 
 /* JSON HANDLER DECLARATIONS */
@@ -430,9 +432,75 @@ static json_handler_retval parse_sunSen(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
+    *t += 1; /* Advance to value of "sunSen" key */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        *t += 1; /* Advance to next key in parent object */
+        if (jtok_tokcmp("face", &tkns[*t]))
+        {
+            *t += 1; /* Advance to value for "face" key */
 
-
+            /** @note admittedly this could be refactored to use a table
+             * of some sort */
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+            if (jtok_tokcmp("x+", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_x_pos);
+                OBC_IF_printf("{ \"sunSen\" : \"x+\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("x-", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_x_neg);
+                OBC_IF_printf("{ \"sunSen\" : \"x-\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("y+", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_y_pos);
+                OBC_IF_printf("{ \"sunSen\" : \"y+\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("y-", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_y_neg);
+                OBC_IF_printf("{ \"sunSen\" : \"y-\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("z+", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_z_pos);
+                OBC_IF_printf(
+                    "{ \"sunSen\" : \"z+\", \"lux\" : %s , \"temp\" : %d}",
+                    tmp_chrbuf, SUNSEN_get_z_pos_temp());
+            }
+            else if (jtok_tokcmp("z-", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_z_neg);
+                OBC_IF_printf(
+                    "{ \"sunSen\" : \"z-\", \"lux\" : %s, \"temp\" :%d}",
+                    tmp_chrbuf, SUNSEN_get_z_neg_temp());
+            }
+            else
+            {
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+        }
+        else
+        {
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
     return t;
 }
 
@@ -441,8 +509,22 @@ static json_handler_retval parse_magSen(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
+    *t += 1; /* Advance to first key of json */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
 
+        /** @todo IMPLEMENT */
+    }
+    else if (jtok_tokcmp("reset", &tkns[*t]))
+    {
+
+        OBC_IF_printf("{\"magSen\" : \"restarted\"}");
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
 
     return t;
 }
@@ -452,7 +534,7 @@ static json_handler_retval parse_burnWire(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
+    *t += 1; /* Advance to first key of json */
 
 
     return t;
@@ -463,7 +545,7 @@ static json_handler_retval parse_imu(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
+    *t += 1; /* Advance to first key of json */
 
 
     return t;
@@ -474,7 +556,7 @@ static json_handler_retval parse_current(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
+    *t += 1; /* Advance to first key of json */
 
 
     return t;

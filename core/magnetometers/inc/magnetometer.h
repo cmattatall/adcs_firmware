@@ -15,6 +15,10 @@ typedef struct
 
 MAGTOM_measurement_t MAGTOM_get_measurement(void);
 
+
+void MAGTOM_reset(void);
+
+
 #ifdef __cplusplus
 /* clang-format off */
 }
