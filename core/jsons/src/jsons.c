@@ -57,7 +57,6 @@ static void *parse_dir_rw_z(json_handler_args args);
 static void *parse_pwm_mqtr_x(json_handler_args args);
 static void *parse_pwm_mqtr_y(json_handler_args args);
 static void *parse_pwm_mqtr_z(json_handler_args args);
-
 static void *parse_dir_mqtr_x(json_handler_args args);
 static void *parse_dir_mqtr_y(json_handler_args args);
 static void *parse_dir_mqtr_z(json_handler_args args);

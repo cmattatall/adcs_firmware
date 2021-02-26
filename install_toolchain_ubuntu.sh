@@ -90,8 +90,6 @@ popd # leave $TOOLCHAIN_INSTALL_ROOT/libmsp430
 git clone https://github.com/dlbeer/mspdebug.git
 pushd $TOOLCHAIN_INSTALL_ROOT/mspdebug
 make && make install
-#ln -s $TOOLCHAIN_INSTALL_ROOT/mspdebug/mspdebug /usr/local/bin/mspdebug
-udevadm control --reload-rules && udevadm trigger
 popd # leave $TOOLCHAIN_INSTALL_ROOT/mspdebug
 
 # DEVICE SUPPORT FILES
@@ -104,3 +102,7 @@ wget "http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSPGCC/9_2_0_
 pushd $TOOLCHAIN_INSTALL_ROOT/msp430-gcc-9.2.0.50_linux64/bin
 find ~+ -type f -executable -exec sh -c 'ln -s {} /usr/local/bin/"$(basename {})" ' \;
 popd # leave $TOOLCHAIN_INSTALL_ROOT/msp430-gcc-9.2.0.50_linux64/bin
+
+
+echo "SUBSYSTEM==\"usb\", MODE=\"0666\"" >> /etc/udev/rules.d/usb.rules
+udevadm control --reload-rules && udevadm trigger
