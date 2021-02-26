@@ -94,7 +94,7 @@ int mqtr_config_to_str(char *buf, unsigned int buflen)
         mqtr_configs[MQTR_x].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_x,
         mqtr_configs[MQTR_y].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_y,
         mqtr_configs[MQTR_z].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_z);
-    return (((unsigned int)required_len) < buflen) ? 0 : 1;
+    return (required_len < (int)buflen) ? 0 : 1;
 }
 
 

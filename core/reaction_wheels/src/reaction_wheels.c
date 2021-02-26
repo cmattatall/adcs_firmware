@@ -148,7 +148,7 @@ int rw_config_to_string(char *buf, unsigned int buflen)
         rw_configs.configs[REAC_WHEEL_y].pwm,
         rw_configs.configs[REAC_WHEEL_z].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
         rw_configs.configs[REAC_WHEEL_z].pwm);
-    return ((unsigned int)(required_len) < buflen) ? 0 : 1;
+    return (required_len < (int)buflen) ? 0 : 1;
 }
 
 

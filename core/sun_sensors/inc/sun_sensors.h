@@ -7,28 +7,20 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-#define NUM_SUN_SENSORS 18
-
-typedef struct
+typedef enum
 {
-    /* Cylindrical coords centered on ideal nadir orientation?? */
-    float first;
-    float second;
-    float third;
-} SUNSEN_intensity_t;
+    SUNSEN_FACE_x_pos,
+    SUNSEN_FACE_x_neg,
+    SUNSEN_FACE_y_pos,
+    SUNSEN_FACE_y_neg,
+    SUNSEN_FACE_z_pos,
+    SUNSEN_FACE_z_neg,
+} SUNSEN_FACE_t;
 
-typedef struct
-{
-    SUNSEN_intensity_t vals[NUM_SUN_SENSORS];
-} SUNSEN_measurement_t;
 
-/**
- * @brief Measure the intensities of all the photodiodes.
- *
- * @return SUNSEN_measurement_t structure containing all the intensity
- * measurements
- */
-SUNSEN_measurement_t SUNSEN_measure_intensities(void);
+int SUNSEN_get_z_pos_temp(void);
+int SUNSEN_get_z_neg_temp(void);
+int SUNSEN_face_lux_to_string(char *buf, unsigned int len, SUNSEN_FACE_t face);
 
 
 #ifdef __cplusplus

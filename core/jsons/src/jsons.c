@@ -2,7 +2,7 @@
  * @file jsons.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief JSON ADCS payload parsing file for ADCS firmware
- * @version 0.1
+ * @version 0.3
  * @date 2020-12-09
  *
  * @copyright Copyright (c) 2020 DSS - LORIS project
@@ -23,6 +23,8 @@
 
 #include "reaction_wheels.h"
 #include "magnetorquers.h"
+#include "sun_sensors.h"
+#include "magnetometer.h"
 
 #define BASE_10 10
 #define JSON_TKN_CNT 20
@@ -42,7 +44,7 @@ typedef struct
 
 
 static jtok_tkn_t tkns[JSON_TKN_CNT];
-static char       tmp_chrbuf[50];
+static char       tmp_chrbuf[100];
 
 
 /* JSON HANDLER DECLARATIONS */
@@ -430,9 +432,75 @@ static json_handler_retval parse_sunSen(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
+    *t += 1; /* Advance to value of "sunSen" key */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        *t += 1; /* Advance to next key in parent object */
+        if (jtok_tokcmp("face", &tkns[*t]))
+        {
+            *t += 1; /* Advance to value for "face" key */
 
-
+            /** @note admittedly this could be refactored to use a table
+             * of some sort */
+            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+            if (jtok_tokcmp("x+", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_x_pos);
+                OBC_IF_printf("{ \"sunSen\" : \"x+\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("x-", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_x_neg);
+                OBC_IF_printf("{ \"sunSen\" : \"x-\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("y+", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_y_pos);
+                OBC_IF_printf("{ \"sunSen\" : \"y+\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("y-", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_y_neg);
+                OBC_IF_printf("{ \"sunSen\" : \"y-\", \"lux\" : %s}",
+                              tmp_chrbuf);
+            }
+            else if (jtok_tokcmp("z+", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_z_pos);
+                OBC_IF_printf(
+                    "{ \"sunSen\" : \"z+\", \"lux\" : %s , \"temp\" : %d}",
+                    tmp_chrbuf, SUNSEN_get_z_pos_temp());
+            }
+            else if (jtok_tokcmp("z-", &tkns[*t]))
+            {
+                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                          SUNSEN_FACE_z_neg);
+                OBC_IF_printf(
+                    "{ \"sunSen\" : \"z-\", \"lux\" : %s, \"temp\" :%d}",
+                    tmp_chrbuf, SUNSEN_get_z_neg_temp());
+            }
+            else
+            {
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+        }
+        else
+        {
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
     return t;
 }
 
@@ -441,8 +509,22 @@ static json_handler_retval parse_magSen(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
-
+    *t += 1; /* Advance to first key of json */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+        memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+        MAGTOM_measurement_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
+        OBC_IF_printf("{ \"magSen\" : %s}", tmp_chrbuf);
+    }
+    else if (jtok_tokcmp("reset", &tkns[*t]))
+    {
+        MAGTOM_reset();
+        OBC_IF_printf("{\"magSen\" : \"restarted\"}");
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
 
     return t;
 }
@@ -452,9 +534,16 @@ static json_handler_retval parse_burnWire(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
-
-
+    *t += 1; /* Advance to first key of json */
+    if (jtok_tokcmp("set", &tkns[*t]))
+    {
+#warning NOT IMPLEMENTED YET.
+        /** @todo API call to set the GPIO pin high so the burnwire deploys */
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
     return t;
 }
 
@@ -463,9 +552,16 @@ static json_handler_retval parse_imu(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
-
-
+    *t += 1; /* Advance to first key of json */
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+#warning NOT IMPLEMENTED YET.
+        /** @todo IMPLEMENT */
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
     return t;
 }
 
@@ -474,641 +570,20 @@ static json_handler_retval parse_current(json_handler_args args)
 {
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance json token index */
-
-
-    return t;
-}
-
-
-#if 0
-static void *parse_pwm_rw_x(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
+    *t += 1; /* Advance to first key of json */
+    if (jtok_tokcmp("rw", &tkns[*t]))
     {
-        pwm_t current_x_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_x);
-        OBC_IF_printf("{\"pwm_rw_x\" : %u}", current_x_pwm);
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-
-
-            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
-            char *endptr    = tmp_chrbuf;
-            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
-            if (*endptr != '\0')
-            {
-                /* error parsing the value - couldn't reach end of token */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-            else
-            {
-                reacwheel_set_wheel_pwm(REACTION_WHEEL_x, new_value);
-                OBC_IF_printf("{\"pwm_rw_x\":\"written\"}");
-            }
-            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        }
-        else
-        {
-            /* we were missing data from the payload.
-             * eg : { "pwm_rw_x" : "write" } <-- notice "value" : 55 is missing
-             */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_pwm_rw_y(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        pwm_t current_y_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_y);
-        OBC_IF_printf("{\"pwm_rw_y\" : %u}", current_y_pwm);
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
-            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
-            char *endptr    = tmp_chrbuf;
-            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
-            if (*endptr != '\0')
-            {
-                /* error parsing the value - couldn't reach end of token */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-            else
-            {
-                reacwheel_set_wheel_pwm(REACTION_WHEEL_y, new_value);
-                OBC_IF_printf("{\"pwm_rw_y\":\"written\"}");
-            }
-            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        }
-        else
-        {
-            /* we were missing data from the payload.
-             * eg : { "pwm_rw_y" : "write" } <-- notice "value" : 55 is missing
-             */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_pwm_rw_z(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        pwm_t current_z_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_z);
-        OBC_IF_printf("{\"pwm_rw_z\" : %u}", current_z_pwm);
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
-            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
-            char *endptr    = tmp_chrbuf;
-            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
-            if (*endptr != '\0')
-            {
-                /* error parsing the value - couldn't reach end of token */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-            else
-            {
-                reacwheel_set_wheel_pwm(REACTION_WHEEL_z, new_value);
-                OBC_IF_printf("{\"pwm_rw_z\":\"written\"}");
-            }
-            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        }
-        else
-        {
-            /*
-             * we were missing data from the payload.
-             * eg : { "pwm_rw_z" : "write" } <-- notice "value" : 55 is missing
-             */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_dir_rw_x(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        RW_DIR_t current_dir = reacwheel_get_wheel_pwm(REACTION_WHEEL_x);
-        OBC_IF_printf("{\"dir_rw_x\": \"%s\"}", reacwheel_dir_str(current_dir));
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            if (jtok_tokcmp("clock", &tkns[*t]))
-            {
-                reacwheel_set_wheel_dir(REACTION_WHEEL_x, RW_DIR_clockwise);
-            }
-            else if (jtok_tokcmp("antiClock", &tkns[*t]))
-            {
-                reacwheel_set_wheel_dir(REACTION_WHEEL_x, RW_DIR_anticlockwise);
-            }
-            else
-            {
-                /*
-                 * We won't set value because we knows its an invalid command
-                 * and can handle it here (rather than rely on caller)
-                 */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-
-            OBC_IF_printf("{\"dir_rw_x\":\"written\"}");
-        }
-        else
-        {
-            /*
-             * we were missing data from the payload.
-             * eg : { "dir_rw_x" : "write" } <-- notice "value" missing
-             */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_dir_rw_y(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        RW_DIR_t current_dir = reacwheel_get_wheel_pwm(REACTION_WHEEL_y);
-        switch (current_dir)
-        {
-            case RW_DIR_clockwise:
-            {
-                OBC_IF_printf("{\"dir_rw_y\" : \"%s\"}", "clock");
-            }
-            break;
-            case RW_DIR_anticlockwise:
-            {
-                OBC_IF_printf("{\"dir_rw_y\" : \"%s\"}", "antiClock");
-            }
-            break;
-            case RW_DIR_invalid:
-            {
-                OBC_IF_printf("{\"dir_rw_y\" : \"%s\"}", "invalid");
-            }
-            break;
-        }
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            if (jtok_tokcmp("clock", &tkns[*t]))
-            {
-                reacwheel_set_wheel_dir(REACTION_WHEEL_y, RW_DIR_clockwise);
-            }
-            else if (jtok_tokcmp("antiClock", &tkns[*t]))
-            {
-                reacwheel_set_wheel_dir(REACTION_WHEEL_y, RW_DIR_anticlockwise);
-            }
-            else
-            {
-                /*
-                 * We won't set value because we knows its an invalid command
-                 * and can handle it here (rather than rely on caller)
-                 */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-
-            OBC_IF_printf("{\"dir_rw_y\":\"written\"}");
-        }
-        else
-        {
-            /*
-             * we were missing data from the payload.
-             * eg : { "dir_rw_y" : "write" } <-- notice "value" missing
-             */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_dir_rw_z(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        RW_DIR_t current_dir = reacwheel_get_wheel_pwm(REACTION_WHEEL_z);
-        switch (current_dir)
-        {
-            case RW_DIR_clockwise:
-            {
-                OBC_IF_printf("{\"dir_rw_z\" : \"%s\"}", "clock");
-            }
-            break;
-            case RW_DIR_anticlockwise:
-            {
-                OBC_IF_printf("{\"dir_rw_z\" : \"%s\"}", "antiClock");
-            }
-            break;
-            case RW_DIR_invalid:
-            {
-                OBC_IF_printf("{\"dir_rw_z\" : \"%s\"}", "invalid");
-            }
-            break;
-        }
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            if (jtok_tokcmp("clock", &tkns[*t]))
-            {
-                reacwheel_set_wheel_dir(REACTION_WHEEL_z, RW_DIR_clockwise);
-            }
-            else if (jtok_tokcmp("antiClock", &tkns[*t]))
-            {
-                reacwheel_set_wheel_dir(REACTION_WHEEL_z, RW_DIR_anticlockwise);
-            }
-            else
-            {
-                /*
-                 * We won't set value because we knows its an invalid command
-                 * and can handle it here (rather than rely on caller)
-                 */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-
-            OBC_IF_printf("{\"dir_rw_z\":\"written\"}");
-        }
-        else
-        {
-            /*
-             * we were missing data from the payload.
-             * eg : { "dir_rw_z" : "write" } <-- notice "value" missing
-             */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_pwm_mqtr_x(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
+#warning NOT IMPLEMENTED YET.
         /** @todo IMPLEMENT */
     }
-    else if (jtok_tokcmp("write", &tkns[*t]))
+    else if (jtok_tokcmp("mqtr", &tkns[*t]))
     {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
-            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
-            char *endptr    = tmp_chrbuf;
-            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
-            if (*endptr != '\0')
-            {
-                /* error parsing the value - couldn't reach end of token */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-            else
-            {
-                mqtr_set_pwm(MQTR_x, new_value);
-                OBC_IF_printf("{\"mqtr_x\":\"written\"}");
-            }
-            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        }
-        else
-        {
-            /* we were missing data from the payload. */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_pwm_mqtr_y(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
+#warning NOT IMPLEMENTED YET.
         /** @todo IMPLEMENT */
     }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
-            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
-            char *endptr    = tmp_chrbuf;
-            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
-            if (*endptr != '\0')
-            {
-                /* error parsing the value - couldn't reach end of token */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-            else
-            {
-                mqtr_set_pwm(MQTR_y, new_value);
-                OBC_IF_printf("{\"mqtr_y\":\"written\"}");
-            }
-            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        }
-        else
-        {
-            /* we were missing data from the payload. */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
     else
     {
-
         return JSON_HANDLER_RETVAL_ERROR;
     }
     return t;
 }
-
-
-static void *parse_pwm_mqtr_z(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        /** @todo IMPLEMENT */
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            /* getting values from JSON is a little unelegant in C ... */
-            *t += 1;
-            memset(tmp_chrbuf, '\0', sizeof(tmp_chrbuf));
-            jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
-            char *endptr    = tmp_chrbuf;
-            pwm_t new_value = (pwm_t)strtoul(tmp_chrbuf, &endptr, BASE_10);
-            if (*endptr != '\0')
-            {
-                /* error parsing the value - couldn't reach end of token */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-            else
-            {
-                mqtr_set_pwm(MQTR_z, new_value);
-                OBC_IF_printf("{\"mqtr_z\":\"written\"}");
-            }
-            memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        }
-        else
-        {
-            /* we were missing data from the payload. */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_dir_mqtr_x(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        /** @todo IMPLEMENT */
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            *t += 1;
-            if (jtok_tokcmp("clock", &tkns[*t]))
-            {
-                mqtr_set_dir(MQTR_x, RW_DIR_clockwise);
-            }
-            else if (jtok_tokcmp("antiClock", &tkns[*t]))
-            {
-                mqtr_set_dir(MQTR_x, RW_DIR_anticlockwise);
-            }
-            else
-            {
-                /*
-                 * We won't set value because we knows its an invalid command
-                 * and can handle it here (rather than rely on caller)
-                 */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-        }
-        else
-        {
-            /* we were missing data from the payload. */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_dir_mqtr_y(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        /** @todo IMPLEMENT */
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            *t += 1;
-            if (jtok_tokcmp("clock", &tkns[*t]))
-            {
-                mqtr_set_dir(MQTR_y, RW_DIR_clockwise);
-            }
-            else if (jtok_tokcmp("antiClock", &tkns[*t]))
-            {
-                mqtr_set_dir(MQTR_y, RW_DIR_anticlockwise);
-            }
-            else
-            {
-                /*
-                 * We won't set value because we knows its an invalid command
-                 * and can handle it here (rather than rely on caller)
-                 */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-        }
-        else
-        {
-            /* we were missing data from the payload. */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-
-
-static void *parse_dir_mqtr_z(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* don't do ++ because * has higher precedence than ++ */
-    if (jtok_tokcmp("read", &tkns[*t]))
-    {
-        /** @todo IMPLEMENT */
-    }
-    else if (jtok_tokcmp("write", &tkns[*t]))
-    {
-        *t += 1;
-        if (jtok_tokcmp("value", &tkns[*t]))
-        {
-            *t += 1;
-            if (jtok_tokcmp("clock", &tkns[*t]))
-            {
-                mqtr_set_dir(MQTR_z, RW_DIR_clockwise);
-            }
-            else if (jtok_tokcmp("antiClock", &tkns[*t]))
-            {
-                mqtr_set_dir(MQTR_z, RW_DIR_anticlockwise);
-            }
-            else
-            {
-                /*
-                 * We won't set value because we knows its an invalid command
-                 * and can handle it here (rather than rely on caller)
-                 */
-                return JSON_HANDLER_RETVAL_ERROR;
-            }
-        }
-        else
-        {
-            /* we were missing data from the payload. */
-            return JSON_HANDLER_RETVAL_ERROR;
-        }
-    }
-    else
-    {
-
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
-    return t;
-}
-#endif
