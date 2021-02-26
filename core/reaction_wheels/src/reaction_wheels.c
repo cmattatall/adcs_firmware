@@ -54,7 +54,7 @@ static reac_wheel_configs rw_configs =
 
 static pwm_t rw_speed_to_pwm(int speed)
 {
-    pwm_t pwm_val = PWM_DEFAULT;
+    pwm_t pwm_val = 50;
 
 
     return pwm_val;
@@ -89,7 +89,32 @@ reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel)
 
 
 void rw_set_config(REAC_WHEEL_t wheel, int speed)
-{}
+{
+    switch (wheel)
+    {
+        case REAC_WHEEL_x:
+        case REAC_WHEEL_y:
+        case REAC_WHEEL_z:
+        {
+            pwm_t pwm                     = rw_speed_to_pwm(speed);
+            rw_configs.configs[wheel].pwm = pwm;
+            if (speed < 0)
+            {
+                rw_configs.configs[wheel].dir = REAC_WHEEL_DIR_pos;
+            }
+            else
+            {
+                rw_configs.configs[wheel].dir = REAC_WHEEL_DIR_neg;
+            }
+        }
+        break;
+        default:
+        {
+            /* do nothing */
+        }
+        break;
+    }
+}
 
 
 void rw_apply_configs(void)

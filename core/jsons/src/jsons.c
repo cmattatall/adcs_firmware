@@ -294,6 +294,95 @@ static void parse_rw_current(json_handler_args args)
         OBC_IF_printf("{\"rw_current\": [ %d, %d, %d]}", current_ma_x,
                       current_ma_y, current_ma_z);
     }
+    else if (jtok_tokcmp("write", &tkns[*t]))
+    {
+        *t += 1;
+        if (jtok_tokcmp("value", &tkns[*t]))
+        {
+            *t += 1;
+            if (tkns[*t].type == JTOK_ARRAY)
+            {
+                *t += 1; /* Advance token index to the first element of arr */
+                const jtok_tkn_t *tkn;
+                unsigned int      i = 0;
+
+                /* Traverse sibling tree of array elements */
+                do
+                {
+                    tkn = &tkns[*t];
+                    memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+                    jtok_tokcpy(tmp_chrbuf, sizeof(tmp_chrbuf), &tkns[*t]);
+                    char *endptr = tmp_chrbuf;
+                    int   new_speed;
+                    new_speed = (int)strtoul(tmp_chrbuf, &endptr, BASE_10);
+                    if (*endptr == '\0')
+                    {
+                        i++;
+                        switch (i)
+                        {
+                            case 1:
+                            {
+                                rw_set_config(REAC_WHEEL_x, new_speed);
+                            }
+                            break;
+                            case 2:
+                            {
+                                rw_set_config(REAC_WHEEL_y, new_speed);
+                            }
+                            break;
+                            case 3:
+                            {
+                                rw_set_config(REAC_WHEEL_z, new_speed);
+                            }
+                            break;
+                            default:
+                            {
+                                return JSON_HANDLER_RETVAL_ERROR;
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        /*
+                         * error parsing the value
+                         * - couldn't reach end of token
+                         */
+                        return JSON_HANDLER_RETVAL_ERROR;
+                    }
+                    memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+
+                    *t = tkn->sibling;
+                } while (*t != NO_SIBLING_IDX);
+
+
+                if (i != NUM_REACTION_WHEELS)
+                {
+                    /* Array didn't contain speed values for all the params
+                     * eg : [ 12, 34] <-- missing third value for rw_z */
+                    OBC_IF_printf("{\"rw_speed\": \"write error\"}");
+                    return JSON_HANDLER_RETVAL_ERROR;
+                }
+                else
+                {
+                    OBC_IF_printf("{\"rw_speed\": \"set\"}");
+                }
+            }
+            else
+            {
+                return JSON_HANDLER_RETVAL_ERROR;
+            }
+        }
+        else
+        {
+            /*
+             * we were missing data from the payload.
+             * eg : { "rw_speed" : "write" } <-- notice "value" : [ NUMBERS ]
+             * is missing
+             */
+            return JSON_HANDLER_RETVAL_ERROR;
+        }
+    }
     else
     {
         return JSON_HANDLER_RETVAL_ERROR;
@@ -303,15 +392,32 @@ static void parse_rw_current(json_handler_args args)
 
 
 static void parse_mqtr_volts(json_handler_args args)
-{}
+{
+    token_index_t *t = (token_index_t *)args;
+    CONFIG_ASSERT(*t < JSON_TKN_CNT);
+    *t += 1; /* Advance json token index */
+
+    if (jtok_tokcmp("read", &tkns[*t]))
+    {
+    }
+    else
+    {
+        return JSON_HANDLER_RETVAL_ERROR;
+    }
+    return t;
+}
 
 
 static void parse_sunSen(json_handler_args args)
-{}
+{
+
+}
 
 
 static void parse_magSen(json_handler_args args)
-{}
+{
+    
+}
 
 
 static void parse_burnWire(json_handler_args args)

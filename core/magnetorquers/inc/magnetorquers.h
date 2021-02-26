@@ -10,6 +10,8 @@ extern "C"
 
 #include <stdint.h>
 #include "pwm.h"
+#include "rotational_directions.h"
+
 
 typedef enum
 {
@@ -18,30 +20,17 @@ typedef enum
     MQTR_z,
 } MQTR_t;
 
-
 typedef enum
 {
-    MQTR_DIR_clockwise,
-    MQTR_DIR_anticlockwise,
-    MQTR_DIR_invalid, /* <-- USED TO INDICATE API ERROR TO CALLER */
+    MQTR_DIR_pos = ROT_DIR_clock,
+    MQTR_DIR_neg = ROT_DIR_anticlock,
 } MQTR_DIR_t;
 
-
-#define MQTR_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
-
-
-pwm_t      mqtr_set_pwm(MQTR_t wheel, pwm_t value);
-MQTR_DIR_t mqtr_set_dir(MQTR_t wheel, MQTR_DIR_t dir);
-
-
-pwm_t      mqtr_get_pwm(MQTR_t wheel);
-MQTR_DIR_t mqtr_get_dir(MQTR_t wheel);
-
-char *mqtr_dir_str(MQTR_DIR_t dir);
-
-
+void mqtr_config_update(MQTR_t mqtr, unsigned int voltage_mv, MQTR_DIR_t dir);
 
 void mqtr_config_apply(void);
+
+int mqtr_config_to_str(char *buf, unsigned int buflen);
 
 
 #ifdef __cplusplus

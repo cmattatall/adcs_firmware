@@ -13,150 +13,44 @@
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
+#else
+#include <stdio.h>
 #endif /* #if defined(TARGET_MCU) */
 
 #include "magnetorquers.h"
 #include "targets.h"
 
+#define MQTR_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
 
-/** @todo refactor this && reaction wheel table because they're effectively
- * duplicates */
-static const char *mqtr_dir_jsonvalue_string[] = {
-    [MQTR_DIR_clockwise]     = "clock",
-    [MQTR_DIR_anticlockwise] = "antiClock",
-    [MQTR_DIR_invalid]       = "invalid",
-};
-
-
+/* clang-format off */
 static struct
 {
-    pwm_t      pwm;
-    MQTR_DIR_t dir;
-} mqtr_configs[] = {
-    [MQTR_x] = {.pwm = PWM_DEFAULT, .dir = MQTR_DIR_clockwise},
-    [MQTR_y] = {.pwm = PWM_DEFAULT, .dir = MQTR_DIR_clockwise},
-    [MQTR_z] = {.pwm = PWM_DEFAULT, .dir = MQTR_DIR_clockwise},
+    unsigned int voltage_mv;
+    MQTR_DIR_t   dir;
+} mqtr_configs[3] = 
+{
+    [MQTR_x] = {.voltage_mv = 0, .dir = MQTR_DIR_pos},
+    [MQTR_y] = {.voltage_mv = 0, .dir = MQTR_DIR_pos},
+    [MQTR_z] = {.voltage_mv = 0, .dir = MQTR_DIR_pos},
 };
+/* clang-format on */
 
 
-pwm_t mqtr_set_pwm(MQTR_t mqtr, pwm_t value)
+void mqtr_config_update(MQTR_t mqtr, unsigned int voltage_mv, MQTR_DIR_t dir)
 {
-    pwm_t set_value = PWM_INVALID;
     switch (mqtr)
     {
         case MQTR_x:
         case MQTR_y:
         case MQTR_z:
         {
-            mqtr_configs[mqtr].pwm = value;
-
-            set_value = value;
+            mqtr_configs[mqtr].dir        = dir;
+            mqtr_configs[mqtr].voltage_mv = voltage_mv;
         }
         break;
         default:
         {
-        }
-        break;
-    }
-    return set_value;
-}
-
-
-MQTR_DIR_t mqtr_set_dir(MQTR_t mqtr, MQTR_DIR_t dir)
-{
-    MQTR_DIR_t set_value = MQTR_DIR_invalid;
-    switch (mqtr)
-    {
-        case MQTR_x:
-        case MQTR_y:
-        case MQTR_z:
-        {
-            switch (dir)
-            {
-                case MQTR_DIR_clockwise:
-                case MQTR_DIR_anticlockwise:
-                {
-                    mqtr_configs[mqtr].dir = dir;
-                    set_value              = mqtr_configs[mqtr].dir;
-                }
-                break;
-                default:
-                {
-                    /*
-                     * do nothing, this is just here
-                     * so compile doesn't complain
-                     */
-                }
-                break;
-            }
-        }
-        break;
-        default:
-        {
-            /* no way to indicate error to caller */
-        }
-        break;
-    }
-    return set_value;
-}
-
-
-pwm_t mqtr_get_pwm(MQTR_t mqtr)
-{
-    pwm_t value = PWM_INVALID;
-    switch (mqtr)
-    {
-        case MQTR_x:
-        case MQTR_y:
-        case MQTR_z:
-        {
-            value = mqtr_configs[mqtr].pwm;
-        }
-        break;
-        default:
-        {
-            /* no way to indicate error to caller */
-        }
-        break;
-    }
-    return value;
-}
-
-
-MQTR_DIR_t mqtr_get_dir(MQTR_t mqtr)
-{
-    MQTR_DIR_t dir = MQTR_DIR_invalid;
-    switch (mqtr)
-    {
-        case MQTR_x:
-        case MQTR_y:
-        case MQTR_z:
-        {
-            dir = mqtr_configs[mqtr].dir;
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
-    return dir;
-}
-
-
-char *mqtr_dir_str(MQTR_DIR_t dir)
-{
-    switch (dir)
-    {
-        case MQTR_DIR_clockwise:
-        case MQTR_DIR_anticlockwise:
-        {
-            return (char *)mqtr_dir_jsonvalue_string[dir];
-        }
-        break;
-        default:
-        {
-            return (char *)mqtr_dir_jsonvalue_string[MQTR_DIR_invalid];
+            /* do nothing */
         }
         break;
     }
@@ -172,7 +66,18 @@ void mqtr_config_apply(void)
         /** @todo WRITE THE PWM VALUES TO THE CORRECT REGISTERS */
     }
 #else
-
-
+    printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
 }
+
+
+int mqtr_config_to_str(char *buf, unsigned int buflen)
+{
+    int retval = 0;
+
+
+
+
+    return retval;
+}
+
