@@ -22,6 +22,11 @@
 #include "reaction_wheels.h"
 #include "targets.h"
 
+
+#define RW_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
+
+
+
 /* clang-format off */
 static reac_wheel_configs rw_configs = 
 {
@@ -46,6 +51,15 @@ static reac_wheel_configs rw_configs =
     }
 };
 /* clang-format on */
+
+
+static pwm_t rw_speed_to_pwm(int speed)
+{
+    pwm_t pwm_val = PWM_DEFAULT;
+
+
+    return pwm_val;
+}
 
 
 reac_wheel_configs rw_get_configs(void)
@@ -75,29 +89,15 @@ reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel)
 }
 
 
-void rw_set_config(REAC_WHEEL_t wheel, const reac_wheel_config_single *config)
+void rw_set_config(REAC_WHEEL_t wheel, int speed)
 {
-    switch (wheel)
-    {
-        case REAC_WHEEL_x:
-        case REAC_WHEEL_y:
-        case REAC_WHEEL_z:
-        {
-            rw_configs.configs[wheel] = *config;
-        }
-        break;
-        default:
-        {
-#if !defined(TARGET_MCU)
-            printf("API error in %s\n", __func__);
-#endif /* #if defined(TARGET_MCU) */
-        }
-        break;
-    }
+
 }
 
 
-void reac_wheel_apply_configs(void)
+
+
+void rw_apply_configs(void)
 {
 #if defined(TARGET_MCU)
     unsigned int i;
@@ -112,17 +112,16 @@ void reac_wheel_apply_configs(void)
 
 
 /** @todo this could be made much cleaner but it works for now */
-int reac_wheel_config_to_string(char *buf, unsigned int buflen,
-                                const reac_wheel_configs *configs)
+int rw_config_to_string(char *buf, unsigned int buflen)
 {
     CONFIG_ASSERT(NULL != buf);
     int required_len = snprintf(
         buf, buflen, "[ %c%d, %c%d, %c%d ]",
-        configs->configs[REAC_WHEEL_x].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
-        configs->configs[REAC_WHEEL_x].pwm,
-        configs->configs[REAC_WHEEL_y].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
-        configs->configs[REAC_WHEEL_y].pwm,
-        configs->configs[REAC_WHEEL_z].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
-        configs->configs[REAC_WHEEL_z].pwm);
+        rw_configs.configs[REAC_WHEEL_x].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
+        rw_configs.configs[REAC_WHEEL_x].pwm,
+        rw_configs.configs[REAC_WHEEL_y].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
+        rw_configs.configs[REAC_WHEEL_y].pwm,
+        rw_configs.configs[REAC_WHEEL_z].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
+        rw_configs.configs[REAC_WHEEL_z].pwm);
     return required_len < buflen ? 0 : 1;
 }

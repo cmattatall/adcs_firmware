@@ -81,7 +81,9 @@ static void SUNSEN_disable_ADS7841(void)
 {
 #if defined(TARGET_MCU)
 #warning NOT IMPLEMENTED YET
+
     /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR HIGH */
+
 #else
 #endif /* #if defined(TARGET_MCU) */
 }

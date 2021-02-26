@@ -57,6 +57,7 @@ static void  parse_burnWire(json_handler_args args);
 static void  parse_imu(json_handler_args args);
 static void  parse_current(json_handler_args args);
 
+
 /* JSON PARSE TABLE */
 /* clang-format off */
 static const json_parse_table_item json_parse_table[] = {
@@ -69,8 +70,7 @@ static const json_parse_table_item json_parse_table[] = {
     {.key = "magSen",     .handler = parse_magSen},
     {.key = "burnWire",   .handler = parse_burnWire},
     {.key = "imu",        .handler = parse_imu},
-    {.key = "current",    .handler = parse_current}
-
+    {.key = "current",    .handler = parse_current},
 };
 /* clang-format on */
 
@@ -176,36 +176,78 @@ static void parse_rw_speed(json_handler_args args)
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
     *t += 1; /* Advance json token index */
 
-    
+
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        pwm_t current_x_pwm = reacwheel_get_wheel_pwm(REACTION_WHEEL_x);
-        OBC_IF_printf("{\"pwm_rw_x\" : %u}", current_x_pwm);
+        char config_buf[50] = {0};
+        rw_config_to_string(config_buf, sizeof(config_buf));
+        OBC_IF_printf("{\"rw_speed\": %s}", config_buf);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
     {
         *t += 1;
         if (jtok_tokcmp("value", &tkns[*t]))
         {
-            /* getting values from JSON is a little unelegant in C ... */
             *t += 1;
-
-
-            memset(value_holder, 0, sizeof(value_holder));
-            jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
-            char *endptr    = value_holder;
-            pwm_t new_value = (pwm_t)strtoul(value_holder, &endptr, BASE_10);
-            if (*endptr != '\0')
+            if (tkns[*t].type == JTOK_ARRAY)
             {
-                /* error parsing the value - couldn't reach end of token */
-                return JSON_HANDLER_RETVAL_ERROR;
+                *t += 1; /* Advance token index to the first element of arr */
+                const jtok_tkn_t *tkn;
+                unsigned int      i = 0;
+
+                /* Traverse sibling tree of array elements */
+                do
+                {
+                    tkn = &tkns[*t];
+                    memset(value_holder, 0, sizeof(value_holder));
+                    jtok_tokcpy(value_holder, sizeof(value_holder), &tkns[*t]);
+                    char *endptr = value_holder;
+                    int   new_speed;
+                    new_speed = (int)strtoul(value_holder, &endptr, BASE_10);
+                    if (*endptr == '\0')
+                    {
+                        i++;
+                        switch (i)
+                        {
+                            case 1:
+                            {
+                                rw_set_config(REAC_WHEEL_x, new_speed);
+                            }
+                            break;
+                            case 2:
+                            {
+                                rw_set_config(REAC_WHEEL_y, new_speed);
+                            }
+                            break;
+                            case 3:
+                            {
+                                rw_set_config(REAC_WHEEL_z, new_speed);
+                            }
+                            break;
+                            default:
+                            {
+                                return JSON_HANDLER_RETVAL_ERROR;
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        /*
+                         * error parsing the value
+                         * - couldn't reach end of token
+                         */
+                        return JSON_HANDLER_RETVAL_ERROR;
+                    }
+                    memset(value_holder, 0, sizeof(value_holder));
+
+                    *t = tkn->sibling;
+                } while (*t != NO_SIBLING_IDX);
             }
             else
             {
-                reacwheel_set_wheel_pwm(REACTION_WHEEL_x, new_value);
-                OBC_IF_printf("{\"pwm_rw_x\":\"written\"}");
+                return JSON_HANDLER_RETVAL_ERROR;
             }
-            memset(value_holder, 0, sizeof(value_holder));
         }
         else
         {
@@ -225,11 +267,15 @@ static void parse_rw_speed(json_handler_args args)
 
 
 static void parse_rw_current(json_handler_args args)
-{}
+{
+
+}
 
 
 static void parse_mqtr_volts(json_handler_args args)
-{}
+{
+    
+}
 
 
 static void parse_sunSen(json_handler_args args)
