@@ -20,13 +20,9 @@ typedef enum
     MQTR_z,
 } MQTR_t;
 
-typedef enum
-{
-    MQTR_DIR_pos = ROT_DIR_clock,
-    MQTR_DIR_neg = ROT_DIR_anticlock,
-} MQTR_DIR_t;
 
-void mqtr_config_update(MQTR_t mqtr, unsigned int voltage_mv, MQTR_DIR_t dir);
+
+void mqtr_config_update(MQTR_t mqtr, int voltage_mv);
 
 void mqtr_config_apply(void);
 

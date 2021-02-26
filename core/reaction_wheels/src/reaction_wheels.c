@@ -123,6 +123,7 @@ void rw_apply_configs(void)
     unsigned int i;
     for (i = 0; i < NUM_REACTION_WHEELS; i++)
     {
+#warning NOT IMPLEMENTED YET
         /** @todo WRITE THE PWM VALUES TO THE CORRECT REGISTERS */
     }
 #else
