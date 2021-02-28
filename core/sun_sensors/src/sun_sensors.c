@@ -59,7 +59,7 @@ static void SUNSEN_disable_ADS7841_z_plus(void);
 static void SUNSEN_disable_ADS7841_z_minus(void);
 
 
-static void SUNSEN_init_phy(void);
+static void                 SUNSEN_init_phy(void);
 static SUNSEN_measurement_t SUNSEN_get_face_lux(SUNSEN_FACE_t face);
 static int                  SUNSEN_adcs_to_temp_deg_c(uint16_t adc_val);
 
@@ -81,9 +81,6 @@ static void (*SUNSEN_disable_functions[])(void) = {
     [SUNSEN_FACE_z_pos] = SUNSEN_disable_ADS7841_z_plus,
     [SUNSEN_FACE_z_neg] = SUNSEN_disable_ADS7841_z_minus,
 };
-
-
-
 
 
 int SUNSEN_face_lux_to_string(char *buf, int len, SUNSEN_FACE_t face)
@@ -250,10 +247,10 @@ static void SUNSEN_disable_ADS7841_z_minus(void)
 
 
 static SUNSEN_measurement_t SUNSEN_get_face_lux(SUNSEN_FACE_t face)
-{   
+{
     SUNSEN_measurement_t measurement;
     memset(&measurement, 0, sizeof(measurement));
-    
+
     SUNSEN_init_phy();
 #if defined(TARGET_MCU)
     ADS7841_driver_init(SUNSEN_enable_functions[face],
@@ -272,10 +269,11 @@ static SUNSEN_measurement_t SUNSEN_get_face_lux(SUNSEN_FACE_t face)
 
 static int SUNSEN_adcs_to_temp_deg_c(uint16_t adc_val)
 {
+    int deg_c = 50;
 #if defined(TARGET_MCU)
 
+    /** @todo IMPLEMENT THIS FUNCTION */
 #warning NOT IMPLEMENTED YET
-    int deg_c = 50;
 
 #else
     printf("called %s with retval == %d\n", __func__, deg_c);
