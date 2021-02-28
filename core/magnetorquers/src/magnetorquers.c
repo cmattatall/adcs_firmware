@@ -83,7 +83,7 @@ void mqtr_config_apply(void)
 }
 
 
-int mqtr_config_to_str(char *buf, unsigned int buflen)
+int mqtr_config_to_str(char *buf, int buflen)
 {
     CONFIG_ASSERT(NULL != buf);
     int voltage_mv_x = mqtr_pwm_to_voltage(mqtr_configs[MQTR_x].pwm);
@@ -94,7 +94,7 @@ int mqtr_config_to_str(char *buf, unsigned int buflen)
         mqtr_configs[MQTR_x].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_x,
         mqtr_configs[MQTR_y].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_y,
         mqtr_configs[MQTR_z].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_z);
-    return (required_len < (int)buflen) ? 0 : 1;
+    return (required_len < buflen) ? 0 : 1;
 }
 
 

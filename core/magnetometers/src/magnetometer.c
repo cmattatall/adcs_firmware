@@ -7,7 +7,9 @@
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
- * @todo IMPLEMENT THE INTERFACE
+ * 
+ * @note PINOUT:
+ * 
  */
 
 #include <stdlib.h>
@@ -45,7 +47,7 @@ void MAGTOM_reset(void)
 }
 
 
-int MAGTOM_measurement_to_string(char *buf, unsigned int buflen)
+int MAGTOM_measurement_to_string(char *buf, int buflen)
 {
     CONFIG_ASSERT(NULL != buf);
     MAGTOM_measurement_t measurement     = MAGTOM_get_measurement();
@@ -54,7 +56,7 @@ int MAGTOM_measurement_to_string(char *buf, unsigned int buflen)
 /** @todo IMPLEMENT */
 #warning STRING FORMAT FOR MAGNETOMETER MEASUREMENT NOT IMLPEMENTED YET BECAUSE WE DONT KNOW HOW TO FULLY USE THE BNO055 API YET
 
-    return (required_length < (int)buflen) ? 0 : 1;
+    return (required_length < buflen) ? 0 : 1;
 }
 
 

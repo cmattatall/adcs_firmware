@@ -25,7 +25,7 @@ void mqtr_set_config(MQTR_t mqtr, int voltage_mv);
 
 void mqtr_config_apply(void);
 
-int mqtr_config_to_str(char *buf, unsigned int buflen);
+int mqtr_config_to_str(char *buf, int buflen);
 
 
 #ifdef __cplusplus

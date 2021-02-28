@@ -17,10 +17,10 @@ typedef enum
     SUNSEN_FACE_z_neg,
 } SUNSEN_FACE_t;
 
-void SUNSEN_PHY_init(void);
+void SUNSEN_init_phy(void);
 int SUNSEN_get_z_pos_temp(void);
 int SUNSEN_get_z_neg_temp(void);
-int SUNSEN_face_lux_to_string(char *buf, unsigned int len, SUNSEN_FACE_t face);
+int SUNSEN_face_lux_to_string(char *buf, int len, SUNSEN_FACE_t face);
 
 
 #ifdef __cplusplus

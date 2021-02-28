@@ -7,7 +7,8 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-int  MAGTOM_measurement_to_string(char *buf, unsigned int buflen);
+void MAGTOM_init_phy(void);
+int  MAGTOM_measurement_to_string(char *buf, int buflen);
 void MAGTOM_reset(void);
 
 
