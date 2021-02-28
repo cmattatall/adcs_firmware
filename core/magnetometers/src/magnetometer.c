@@ -7,9 +7,11 @@
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
- * 
+ *
  * @note PINOUT:
- * 
+ *  P2.7 == SPI CHIP SELECT
+ *
+ * @todo BARE METAL REGISTER WRITES SHOULD BE ABSTRACTED INTO DRIVER LAYER
  */
 
 #include <stdlib.h>
@@ -22,6 +24,7 @@
 #if defined(TARGET_MCU)
 #include "spi.h"
 #include "ads7841e.h"
+#include <msp430.h>
 #else
 #include <stdio.h>
 #endif /* #if defined(TARGET_MCU) */
@@ -34,6 +37,20 @@ typedef struct
 static void                 MAGTOM_enable_ADS7841(void);
 static void                 MAGTOM_disable_ADS7841(void);
 static MAGTOM_measurement_t MAGTOM_get_measurement(void);
+
+
+void MAGTOM_init_phy(void)
+{
+#if defined(TARGET_MCU)
+
+    /* De-select ADS7841 for the magnetometer */
+    P2DIR |= BIT7;
+    P2OUT |= BIT7;
+
+#else
+    printf("Called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
+}
 
 
 void MAGTOM_reset(void)
@@ -64,11 +81,8 @@ static void MAGTOM_enable_ADS7841(void)
 {
 #if defined(TARGET_MCU)
 
-    /* THIS FUNCTION SHOULD SET GPIO PIN 2.7 HIGH */
+    P2OUT &= ~BIT7;
 
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON magnetometer LOW */
-
-#warning NOT IMPLEMENTED YET
 #else
     printf("Called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -78,11 +92,9 @@ static void MAGTOM_enable_ADS7841(void)
 static void MAGTOM_disable_ADS7841(void)
 {
 #if defined(TARGET_MCU)
-#warning NOT IMPLEMENTED YET
 
-    /* THIS FUNCTION SHOULD SET GPIO PIN 2.7 LOW */
+    P2OUT |= BIT7;
 
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON magnetometer HIGH */
 #else
     printf("Called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */

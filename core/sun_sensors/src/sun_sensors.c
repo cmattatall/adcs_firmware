@@ -16,7 +16,7 @@
  * P8.1 : CS_SUN_Y-
  * P8.2 : CS_SUN_Z-
  *
- * 
+ *
  * @todo DIRECT CALLS TO REGISTER LEVEL SHOULD BE ABSTRACTED INTO DRIVER LAYER
  */
 
@@ -84,6 +84,8 @@ static void (*SUNSEN_disable_functions[])(void) = {
 
 void SUNSEN_init_phy(void)
 {
+#if defined(TARGET_MCU)
+
     /** @note
      * CLOCK SELECT PINOUTS
      * P4.3 : CS_SUN_X+
@@ -93,7 +95,7 @@ void SUNSEN_init_phy(void)
      * P8.0 : CS_SUN_X-
      * P8.1 : CS_SUN_Y-
      * P8.2 : CS_SUN_Z-
-     * 
+     *
      * (Levels initialized to high because CS is active low)
      */
     P4DIR |= BIT3; /* X+ */
@@ -113,6 +115,9 @@ void SUNSEN_init_phy(void)
 
     P8DIR |= BIT2; /* Z- */
     P8OUT |= BIT2;
+#else
+    printf("called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
 }
 
 
