@@ -7,8 +7,17 @@
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
- * @todo IMPLEMENT THE FUNCTIONS TO ENABLE THE CS PINS ON THE VARIOUS ADS7841
- * ICS
+ * PINOUT:
+ * P4.3 : CS_SUN_X+
+ * P4.2 : CS_SUN_Y+
+ * P4.1 : CS_SUN_Z+
+ *
+ * P8.0 : CS_SUN_X-
+ * P8.1 : CS_SUN_Y-
+ * P8.2 : CS_SUN_Z-
+ *
+ * 
+ * @todo DIRECT CALLS TO REGISTER LEVEL SHOULD BE ABSTRACTED INTO DRIVER LAYER
  */
 
 #include <stdlib.h>
@@ -21,10 +30,12 @@
 #include "sun_sensors.h"
 
 #if defined(TARGET_MCU)
+#include <msp430.h>
 #include "spi.h"
 #include "ads7841e.h"
 #else
 #endif /* #if defined(TARGET_MCU) */
+
 
 typedef struct
 {
@@ -69,6 +80,40 @@ static void (*SUNSEN_disable_functions[])(void) = {
     [SUNSEN_FACE_z_pos] = SUNSEN_disable_ADS7841_z_plus,
     [SUNSEN_FACE_z_neg] = SUNSEN_disable_ADS7841_z_minus,
 };
+
+
+void SUNSEN_PHY_init(void)
+{
+    /** @note
+     * CLOCK SELECT PINOUTS
+     * P4.3 : CS_SUN_X+
+     * P4.2 : CS_SUN_Y+
+     * P4.1 : CS_SUN_Z+
+     *
+     * P8.0 : CS_SUN_X-
+     * P8.1 : CS_SUN_Y-
+     * P8.2 : CS_SUN_Z-
+     * 
+     * (Levels initialized to high because CS is active low)
+     */
+    P4DIR |= BIT3; /* X+ */
+    P4OUT |= BIT3;
+
+    P4DIR |= BIT2; /* Y+ */
+    P4OUT |= BIT2;
+
+    P4DIR |= BIT1; /* Z+ */
+    P4OUT |= BIT1;
+
+    P8DIR |= BIT0; /* X- */
+    P8OUT |= BIT0;
+
+    P8DIR |= BIT1; /* Y- */
+    P8OUT |= BIT1;
+
+    P8DIR |= BIT2; /* Z- */
+    P8OUT |= BIT2;
+}
 
 
 int SUNSEN_face_lux_to_string(char *buf, unsigned int len, SUNSEN_FACE_t face)
@@ -117,10 +162,7 @@ int SUNSEN_get_z_neg_temp(void)
 static void SUNSEN_enable_ADS7841_x_plus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P4OUT &= ~BIT3;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -130,10 +172,7 @@ static void SUNSEN_enable_ADS7841_x_plus(void)
 static void SUNSEN_enable_ADS7841_x_minus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P8OUT &= ~BIT0;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -143,10 +182,7 @@ static void SUNSEN_enable_ADS7841_x_minus(void)
 static void SUNSEN_enable_ADS7841_y_plus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P4OUT &= ~BIT2;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -156,10 +192,7 @@ static void SUNSEN_enable_ADS7841_y_plus(void)
 static void SUNSEN_enable_ADS7841_y_minus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P8OUT &= ~BIT1;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -169,10 +202,7 @@ static void SUNSEN_enable_ADS7841_y_minus(void)
 static void SUNSEN_enable_ADS7841_z_plus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P4OUT &= ~BIT1;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -182,10 +212,7 @@ static void SUNSEN_enable_ADS7841_z_plus(void)
 static void SUNSEN_enable_ADS7841_z_minus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P8OUT &= ~BIT2;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -195,10 +222,7 @@ static void SUNSEN_enable_ADS7841_z_minus(void)
 static void SUNSEN_disable_ADS7841_x_plus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P4OUT |= BIT3;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -208,10 +232,7 @@ static void SUNSEN_disable_ADS7841_x_plus(void)
 static void SUNSEN_disable_ADS7841_x_minus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P8OUT |= BIT0;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -221,10 +242,7 @@ static void SUNSEN_disable_ADS7841_x_minus(void)
 static void SUNSEN_disable_ADS7841_y_plus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P4OUT |= BIT2;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -234,10 +252,7 @@ static void SUNSEN_disable_ADS7841_y_plus(void)
 static void SUNSEN_disable_ADS7841_y_minus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P8OUT |= BIT1;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -247,10 +262,7 @@ static void SUNSEN_disable_ADS7841_y_minus(void)
 static void SUNSEN_disable_ADS7841_z_plus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P4OUT |= BIT1;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -260,10 +272,7 @@ static void SUNSEN_disable_ADS7841_z_plus(void)
 static void SUNSEN_disable_ADS7841_z_minus(void)
 {
 #if defined(TARGET_MCU)
-
-    /** @todo SET SPI CS MUX TO DRIVE CS PIN OF ADS7841 ON SUN SENSOR LOW */
-
-#warning NOT IMPLEMENTED YET
+    P8OUT |= BIT2;
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
