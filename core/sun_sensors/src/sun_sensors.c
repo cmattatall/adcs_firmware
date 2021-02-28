@@ -59,6 +59,7 @@ static void SUNSEN_disable_ADS7841_z_plus(void);
 static void SUNSEN_disable_ADS7841_z_minus(void);
 
 
+static void SUNSEN_init_phy(void);
 static SUNSEN_measurement_t SUNSEN_get_face_lux(SUNSEN_FACE_t face);
 static int                  SUNSEN_adcs_to_temp_deg_c(uint16_t adc_val);
 
@@ -82,43 +83,7 @@ static void (*SUNSEN_disable_functions[])(void) = {
 };
 
 
-void SUNSEN_init_phy(void)
-{
-#if defined(TARGET_MCU)
 
-    /** @note
-     * CLOCK SELECT PINOUTS
-     * P4.3 : CS_SUN_X+
-     * P4.2 : CS_SUN_Y+
-     * P4.1 : CS_SUN_Z+
-     *
-     * P8.0 : CS_SUN_X-
-     * P8.1 : CS_SUN_Y-
-     * P8.2 : CS_SUN_Z-
-     *
-     * (Levels initialized to high because CS is active low)
-     */
-    P4DIR |= BIT3; /* X+ */
-    P4OUT |= BIT3;
-
-    P4DIR |= BIT2; /* Y+ */
-    P4OUT |= BIT2;
-
-    P4DIR |= BIT1; /* Z+ */
-    P4OUT |= BIT1;
-
-    P8DIR |= BIT0; /* X- */
-    P8OUT |= BIT0;
-
-    P8DIR |= BIT1; /* Y- */
-    P8OUT |= BIT1;
-
-    P8DIR |= BIT2; /* Z- */
-    P8OUT |= BIT2;
-#else
-    printf("called %s\n", __func__);
-#endif /* #if defined(TARGET_MCU) */
-}
 
 
 int SUNSEN_face_lux_to_string(char *buf, int len, SUNSEN_FACE_t face)
@@ -285,9 +250,11 @@ static void SUNSEN_disable_ADS7841_z_minus(void)
 
 
 static SUNSEN_measurement_t SUNSEN_get_face_lux(SUNSEN_FACE_t face)
-{
+{   
     SUNSEN_measurement_t measurement;
     memset(&measurement, 0, sizeof(measurement));
+    
+    SUNSEN_init_phy();
 #if defined(TARGET_MCU)
     ADS7841_driver_init(SUNSEN_enable_functions[face],
                         SUNSEN_disable_functions[face], ADS7841_PWRMODE_stayOn,
@@ -305,14 +272,52 @@ static SUNSEN_measurement_t SUNSEN_get_face_lux(SUNSEN_FACE_t face)
 
 static int SUNSEN_adcs_to_temp_deg_c(uint16_t adc_val)
 {
-#warning NOT IMPLEMENTED YET
-    int deg_c = 50;
-
 #if defined(TARGET_MCU)
 
+#warning NOT IMPLEMENTED YET
+    int deg_c = 50;
 
 #else
     printf("called %s with retval == %d\n", __func__, deg_c);
 #endif /* #if defined(TARGET_MCU) */
     return deg_c;
+}
+
+
+static void SUNSEN_init_phy(void)
+{
+#if defined(TARGET_MCU)
+
+    /** @note
+     * CLOCK SELECT PINOUTS
+     * P4.3 : CS_SUN_X+
+     * P4.2 : CS_SUN_Y+
+     * P4.1 : CS_SUN_Z+
+     *
+     * P8.0 : CS_SUN_X-
+     * P8.1 : CS_SUN_Y-
+     * P8.2 : CS_SUN_Z-
+     *
+     * (Levels initialized to high because CS is active low)
+     */
+    P4DIR |= BIT3; /* X+ */
+    P4OUT |= BIT3;
+
+    P4DIR |= BIT2; /* Y+ */
+    P4OUT |= BIT2;
+
+    P4DIR |= BIT1; /* Z+ */
+    P4OUT |= BIT1;
+
+    P8DIR |= BIT0; /* X- */
+    P8OUT |= BIT0;
+
+    P8DIR |= BIT1; /* Y- */
+    P8OUT |= BIT1;
+
+    P8DIR |= BIT2; /* Z- */
+    P8OUT |= BIT2;
+#else
+    printf("called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
 }

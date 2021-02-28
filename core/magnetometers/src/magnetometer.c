@@ -34,23 +34,13 @@ typedef struct
     int structure_fields_to_change_as_needed;
 } MAGTOM_measurement_t;
 
-static void                 MAGTOM_enable_ADS7841(void);
-static void                 MAGTOM_disable_ADS7841(void);
+static void MAGTOM_enable_ADS7841(void);
+static void MAGTOM_disable_ADS7841(void);
+static void MAGTOM_init_phy(void);
+
 static MAGTOM_measurement_t MAGTOM_get_measurement(void);
 
 
-void MAGTOM_init_phy(void)
-{
-#if defined(TARGET_MCU)
-
-    /* De-select ADS7841 for the magnetometer */
-    P2DIR |= BIT7;
-    P2OUT |= BIT7;
-
-#else
-    printf("Called %s\n", __func__);
-#endif /* #if defined(TARGET_MCU) */
-}
 
 
 void MAGTOM_reset(void)
@@ -104,6 +94,7 @@ static void MAGTOM_disable_ADS7841(void)
 static MAGTOM_measurement_t MAGTOM_get_measurement(void)
 {
     MAGTOM_measurement_t data = {0};
+    MAGTOM_init_phy();
 #if defined(TARGET_MCU)
     ADS7841_driver_init(MAGTOM_enable_ADS7841, MAGTOM_disable_ADS7841,
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
@@ -120,4 +111,18 @@ static MAGTOM_measurement_t MAGTOM_get_measurement(void)
     printf("Called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
     return data;
+}
+
+
+static void MAGTOM_init_phy(void)
+{
+#if defined(TARGET_MCU)
+
+    /* De-select ADS7841 for the magnetometer */
+    P2DIR |= BIT7;
+    P2OUT |= BIT7;
+
+#else
+    printf("Called %s\n", __func__);
+#endif /* #if defined(TARGET_MCU) */
 }

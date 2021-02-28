@@ -8,6 +8,7 @@
 #include "bsp.h"
 #include "timer_a0.h"
 #else
+#include <errno.h>
 #endif /* #if defined(TARGET_MCU) */
 
 #include "obc_interface.h"
