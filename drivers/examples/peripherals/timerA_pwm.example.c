@@ -7,6 +7,8 @@
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
+ *
+ * PWM SIGNAL GENERATED ON PIN1.2 (which is output pin for TA0CCR1 COMPARE EVT)
  */
 #include <stdlib.h>
 #include <msp430.h>
@@ -33,8 +35,15 @@
 /* clang-format on */
 
 
-int main(void)
+static uint16_t duty_cycle(unsigned int percent)
 {   
+    // this function is broken. needs to be fixed - carl
+    float pct = percent / 100;
+    return (uint16_t)(UINT16_MAX * pct);
+}
+
+int main(void)
+{
 #if 0
     /*** Watchdog timer and clock Set-Up ***/
     WDTCTL  = WDTPW + WDTHOLD; // Stop watchdog timer
@@ -70,6 +79,27 @@ int main(void)
     P1DIR ^= BIT2; /* P1.2 in output direction */
     P1SEL |= BIT2; /* P1.2 will be used for its peripheral function */
 
+    TA0CTL &= ~(MC0 | MC1); /* Stop timer */
+
+    //TA0CCR1 = duty_cycle(50); // this doesnt work
+    TA0CCR1 = 32767; // but this works
+
+
+    TA0CCTL1 |= OUTMOD_TOG_RST;
+
+    /* Set Timer A0 clock source to smclk */
+    TA0CTL &= ~(TASSEL1 | TASSEL1);
+    TA0CTL |= TASSEL_2;
+
+    /* Set count mode */
+    TA0CTL &= ~(MC0 | MC1);
+    TA0CTL |= MC__CONTINOUS;
+
+
+    _BIS_SR(LPM0_bits);
+
+
+#if 0
     /* Stop timer A0 */
     TA0CTL &= ~(MC0 | MC1);
 
@@ -99,8 +129,9 @@ int main(void)
     /* Start timer in up mode */
     TA0CTL |= MC__CONTINOUS;
 
-    /* Enter LPM0 with interrupts */
     _BIS_SR(GIE);
+
+#endif
 
 
     while (1)
