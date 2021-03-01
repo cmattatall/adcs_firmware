@@ -16,12 +16,6 @@ int main(void)
     /*** Watchdog timer and clock Set-Up ***/
     WDTCTL  = WDTPW + WDTHOLD; // Stop watchdog timer
 
-    #if 0
-    DCOCTL  = 0;               // Select lowest DCOx and MODx
-    BCSCTL1 = CALBC1_8MHZ;     // Set range
-    DCOCTL  = CALDCO_8MHZ;     // Set DCO step + modulation
-    #endif
-
     /*** GPIO Set-Up ***/
     P1DIR |= BIT2; // P1.2 set as output
     P1SEL |= BIT2; // P1.2 selected Timer0_A Out1
