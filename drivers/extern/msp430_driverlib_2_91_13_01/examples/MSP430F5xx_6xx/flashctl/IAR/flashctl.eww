@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\flashctl_ex2_eraseCopyWrite.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\flashctl_ex1_writeToInfoB.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\flashctl_ex4_writeToInfoA.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\flashctl_ex3_longWordWrite.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

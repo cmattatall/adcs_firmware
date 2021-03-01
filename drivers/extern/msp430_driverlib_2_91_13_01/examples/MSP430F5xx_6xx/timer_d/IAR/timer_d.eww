@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\timer_d_ex2_overflowISR.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex10_dutyCycleMeasurementDual.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex4_pwmUpDownMode.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex3_upDownMode.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex6_hiResRegulatedPWM.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex1_contCRR0.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex8_dutyCycleMeasurementSingle.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex7_combineRegsPWM.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex5_hiResFreeRunningPWM.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_d_ex9_periodMeasurement.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\tlv_ex2_readTLVDescriptors.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\tlv_ex3_calibrateTempSensor.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\tlv_ex1_getDeviceType.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

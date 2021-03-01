@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\gpio_ex1_outputHi.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\gpio_ex4_writeToPort1.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\gpio_ex3_softwarePoll.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\gpio_ex2_inputCapture.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

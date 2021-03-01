@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\mpy32_ex8_8bitSignedMultiplyAccum.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex9_32bitUnsignedMultiply.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex1_16bitUnsignedMultiply.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex3_16bitSignedMultiply.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex12_32bitUnsignedMultiplyAccum.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex15_fractionMode.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex4_8bitSignedMultiply.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex14_saturationOverflow.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex13_saturationUnderflow.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex2_8bitUnsignedMultiply.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex6_8bitUnsignedMultiplyAccum.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex5_16bitUnsignedMultiplyAccum.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex10_32bitSignedMultiply.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex7_16bitSignedMultiplyAccum.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpy32_ex11_32bitSignedMultiplyAccum.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

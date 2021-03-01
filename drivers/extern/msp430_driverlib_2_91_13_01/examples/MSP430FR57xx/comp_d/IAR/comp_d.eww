@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\comp_d_ex5_outputToggleHysteresis.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\comp_d_ex3_interruptVcompVs15V.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\comp_d_ex2_outputToggleVcompVsVref25v.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\comp_d_ex1_outputToggleVcompVsVref2V.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\comp_d_ex4_outputToggleVcompVsHalfVcc.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

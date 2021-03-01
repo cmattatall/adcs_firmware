@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\timer_a_ex4_periodCapture.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex3_upModeInterrupt.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex1_continuousOverflowInterrupt.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex2_singlePWM.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

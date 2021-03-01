@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\usci_a_uart_ex3_autoBaudrateDetectionTX.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_a_uart_ex2_addressBitMultiprocessorTX.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_a_uart_ex4_idlelineMultiprocessorTX.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_a_uart_ex3_autoBaudrateDetectionRX.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_a_uart_ex2_addressBitMultiprocessorRX.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_a_uart_ex1_loopbackAdvance.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_a_uart_ex4_idleLineMultiprocessorRX.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

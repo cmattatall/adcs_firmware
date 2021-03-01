@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\adc12_a_ex8_tempSensor.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc12_a_ex6_extendedInputs.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc12_a_ex2_intRef.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc12_a_ex7_sequence.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc12_a_ex4_repeatedSeq.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc12_a_ex5_repeatedSingle.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc12_a_ex1_avccRef.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc12_a_ex3_extRef.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

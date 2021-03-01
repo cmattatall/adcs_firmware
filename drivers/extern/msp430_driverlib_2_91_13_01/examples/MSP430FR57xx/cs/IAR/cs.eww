@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\cs_ex1_DCOSetup.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\cs_ex3_XT1Fault.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\cs_ex2_DCO24MHz.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

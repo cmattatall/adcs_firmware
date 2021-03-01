@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\adc10_a_ex8_sequenceDMA.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex5_battMonitor.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex6_refToggle.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex7_repeatSingleDMA.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex3_windowComp.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex2_intRef.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex4_signedData.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex1_avccRef.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\adc10_a_ex9_repeatSeq.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

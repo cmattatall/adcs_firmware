@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\gpio_ex2_inputInterrupt.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\gpio_ex1_toggleOutput.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

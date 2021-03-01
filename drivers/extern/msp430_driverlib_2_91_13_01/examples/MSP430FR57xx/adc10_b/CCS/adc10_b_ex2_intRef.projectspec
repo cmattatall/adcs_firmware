@@ -1,0 +1,52 @@
+<projectSpec>
+  <project compilerBuildOptions="-DDEPRECATED -I${PROJECT_ROOT}/driverlib/MSP430FR57xx --advice:power=&quot;none&quot;" device="MSP430FR5739" name="adc10_b_ex2_intRef">
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_b_i2c.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/cs.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/comp_d.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/sysctl.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_a_spi.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/gpio.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/adc10_b.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/pmm.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/timer_b.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/framctl.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_a_spi.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_a_uart.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_b_spi.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/tlv.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/timer_a.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/pmm.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_b_i2c.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/sysctl.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/mpy32.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/tlv.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/sfr.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/comp_d.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/timer_b.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/mpy32.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/wdt_a.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/rtc_b.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/crc.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/dma.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/mpu.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_a_uart.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/cs.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/adc10_b.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/mpu.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/ref.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/gpio.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/rtc_b.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/dma.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/driverlib.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/ref.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/eusci_b_spi.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/framctl.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/sfr.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/crc.h" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/timer_a.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/wdt_a.c" targetDirectory="driverlib/MSP430FR57xx" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/inc/hw_memmap.h" targetDirectory="driverlib/MSP430FR57xx/inc" />
+    <file action="copy" path="../../../../driverlib/MSP430FR57xx/inc/version.h" targetDirectory="driverlib/MSP430FR57xx/inc" />
+    <file action="copy" path="../adc10_b_ex2_intRef.c" />
+  </project>
+</projectSpec>

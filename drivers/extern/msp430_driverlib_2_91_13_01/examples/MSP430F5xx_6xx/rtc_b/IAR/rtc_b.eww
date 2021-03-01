@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\rtc_b_ex1_calendermodeLPM0.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\rtc_b_ex2_calendermodeLPM3.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

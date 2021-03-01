@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\ucs_ex3_XT1SourcesACLK.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ucs_ex1_DCO12MHz.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ucs_ex2_VLOSourcesACLK.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ucs_ex4_XTSourcesDCOInternal.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

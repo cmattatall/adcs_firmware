@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\eusci_b_i2c_ex1_masterTXMultiple.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\eusci_b_i2c_ex2_slaveTXMultiple.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\eusci_b_i2c_ex1_slaveRXMultiple.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\eusci_b_i2c_ex2_masterRXMultiple.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+
