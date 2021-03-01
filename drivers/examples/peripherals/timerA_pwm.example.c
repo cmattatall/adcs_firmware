@@ -21,20 +21,49 @@
 #define TA0IV_OVF (0X0E)
 
 /* clang-format off */
-#define OUTMOD_MSK     ((OUTMOD0) | (OUTMOD1) | (OUTMOD2))
-#define OUTMOD_OUTBIT  ((OUTMOD_0) & (OUTMOD_MSK))
-#define OUTMOD_SET     ((OUTMOD_1) & (OUTMOD_MSK))
-#define OUTMOD_TOG_RST ((OUTMOD_2) & (OUTMOD_MSK))
-#define OUTMOD_SET_RST ((OUTMOD_3) & (OUTMOD_MSK))
-#define OUTMOD_TOGGLE  ((OUTMOD_4) & (OUTMOD_MSK))
-#define OUTMOD_RESET   ((OUTMOD_5) & (OUTMOD_MSK))
-#define OUTMOD_TOG_SET ((OUTMOD_6) & (OUTMOD_MSK))
-#define OUTMOD_RST_SET ((OUTMOD_7) & (OUTMOD_MSK))
+#define OUTMOD_MSK (OUTMOD0 | OUTMOD1 | OUTMOD2)
+#define OUTMOD_OUTBIT  (OUTMOD_0)
+#define OUTMOD_SET     (OUTMOD_1)
+#define OUTMOD_TOG_RST (OUTMOD_2)
+#define OUTMOD_SET_RST (OUTMOD_3)
+#define OUTMOD_TOGGLE  (OUTMOD_4)
+#define OUTMOD_RESET   (OUTMOD_5)
+#define OUTMOD_TOG_SET (OUTMOD_6)
+#define OUTMOD_RST_SET (OUTMOD_7)
 /* clang-format on */
 
 
 int main(void)
-{
+{   
+#if 0
+    /*** Watchdog timer and clock Set-Up ***/
+    WDTCTL  = WDTPW + WDTHOLD; // Stop watchdog timer
+
+    /*** GPIO Set-Up ***/
+    P1DIR |= BIT2; // P1.2 set as output
+    P1SEL |= BIT2; // P1.2 selected Timer0_A Out1
+    P2DIR |= BIT1; // P2.1 set as output
+    P2SEL |= BIT1; // P2.1 selected Timer1_A Out1
+    P2DIR |= BIT4; // P2.4 set as output
+    P2SEL |= BIT4; // P2.4 selected Timer1_A Out2
+
+    /*** Timer0_A Set-Up ***/
+    TA0CCR0 |= 200 - 1;        // PWM Period
+    TA0CCTL1 |= OUTMOD_7;      // TA0CCR1 output mode = reset/set
+    TA0CCR1 |= 100;            // TA0CCR1 PWM duty cycle
+    TA0CTL |= TASSEL_2 + MC_1; // SMCLK, Up Mode (Counts to TA0CCR0)
+
+    /*** Timer1_A Set-Up ***/
+    TA1CCR0 |= 1000 - 1;       // PWM Period
+    TA1CCTL1 |= OUTMOD_7;      // TA1CCR1 output mode = reset/set
+    TA1CCR1 |= 500;            // TA1CCR1 PWM duty cycle
+    TA1CTL |= TASSEL_2 + MC_1; // SMCLK, Up Mode (Counts to TA1CCR0)
+
+    _BIS_SR(LPM0_bits); // Enter Low power mode 0
+
+#endif
+
+
     /* Stop WDT */
     WDTCTL = WDTPW + WDTHOLD;
 
@@ -59,7 +88,7 @@ int main(void)
     TA0CCR0 = 25000;
 
     TA0CCTL0 &= ~(OUTMOD_MSK);
-    TA0CCTL0 |= OUTMOD_TOGGLE;
+    TA0CCTL0 |= OUTMOD_SET_RST;
 
     TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
 
