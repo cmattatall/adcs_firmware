@@ -35,44 +35,13 @@
 /* clang-format on */
 
 
-static uint16_t duty_cycle(unsigned int percent)
-{   
-    // this function is broken. needs to be fixed - carl
-    float pct = percent / 100;
-    return (uint16_t)(UINT16_MAX * pct);
+static uint16_t TIMERA0_duty_cycle(unsigned int percent)
+{
+    return (uint16_t)(UINT16_MAX * ((float)((percent % 100u) / 100.0f)));
 }
 
 int main(void)
 {
-#if 0
-    /*** Watchdog timer and clock Set-Up ***/
-    WDTCTL  = WDTPW + WDTHOLD; // Stop watchdog timer
-
-    /*** GPIO Set-Up ***/
-    P1DIR |= BIT2; // P1.2 set as output
-    P1SEL |= BIT2; // P1.2 selected Timer0_A Out1
-    P2DIR |= BIT1; // P2.1 set as output
-    P2SEL |= BIT1; // P2.1 selected Timer1_A Out1
-    P2DIR |= BIT4; // P2.4 set as output
-    P2SEL |= BIT4; // P2.4 selected Timer1_A Out2
-
-    /*** Timer0_A Set-Up ***/
-    TA0CCR0 |= 200 - 1;        // PWM Period
-    TA0CCTL1 |= OUTMOD_7;      // TA0CCR1 output mode = reset/set
-    TA0CCR1 |= 100;            // TA0CCR1 PWM duty cycle
-    TA0CTL |= TASSEL_2 + MC_1; // SMCLK, Up Mode (Counts to TA0CCR0)
-
-    /*** Timer1_A Set-Up ***/
-    TA1CCR0 |= 1000 - 1;       // PWM Period
-    TA1CCTL1 |= OUTMOD_7;      // TA1CCR1 output mode = reset/set
-    TA1CCR1 |= 500;            // TA1CCR1 PWM duty cycle
-    TA1CTL |= TASSEL_2 + MC_1; // SMCLK, Up Mode (Counts to TA1CCR0)
-
-    _BIS_SR(LPM0_bits); // Enter Low power mode 0
-
-#endif
-
-
     /* Stop WDT */
     WDTCTL = WDTPW + WDTHOLD;
 
@@ -81,10 +50,7 @@ int main(void)
 
     TA0CTL &= ~(MC0 | MC1); /* Stop timer */
 
-    //TA0CCR1 = duty_cycle(50); // this doesnt work
-    TA0CCR1 = 32767; // but this works
-
-
+    TA0CCR1 = TIMERA0_duty_cycle(25);
     TA0CCTL1 |= OUTMOD_TOG_RST;
 
     /* Set Timer A0 clock source to smclk */
@@ -95,44 +61,8 @@ int main(void)
     TA0CTL &= ~(MC0 | MC1);
     TA0CTL |= MC__CONTINOUS;
 
-
+    /** @note VERY IMPORTANT. IF YOU DO _BIS_SR(GIE) it will not work! */
     _BIS_SR(LPM0_bits);
-
-
-#if 0
-    /* Stop timer A0 */
-    TA0CTL &= ~(MC0 | MC1);
-
-    /* Set Timer A0 clock source to smclk */
-    TA0CTL &= ~(TASSEL1 | TASSEL1);
-    TA0CTL |= TASSEL__SMCLK;
-
-    /* Prescale by 8 */
-    TA0CTL &= ~(ID0 | ID1);
-    TA0CTL |= ID__8;
-
-    /* Set to compare mode (disable capture mode) */
-    TA0CCTL0 &= ~CAP;
-
-    /* Compare IRQ will be generated when TA0R == TA0CCR0 */
-    TA0CCR0 = 25000;
-
-    TA0CCTL0 &= ~(OUTMOD_MSK);
-    TA0CCTL0 |= OUTMOD_SET_RST;
-
-    TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
-
-    /* Enable interrupts */
-    TA0CCTL0 |= CCIE;
-    TA0CTL |= TAIE;
-
-    /* Start timer in up mode */
-    TA0CTL |= MC__CONTINOUS;
-
-    _BIS_SR(GIE);
-
-#endif
-
 
     while (1)
     {
