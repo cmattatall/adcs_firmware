@@ -1,12 +1,13 @@
-/*
- * MSP430 Timer Tutorial Example Code 2
- * Anthony Scranney
- * www.Coder-Tronics.com
- * August 2014
- *
- * PWM example using both TimerA_0 and TimerA_1
+/**
+ * @file timerA_pwm_copied.example.c
+ * @author Carl Mattatall (cmattatall2@gmail.com)
+ * @brief  This example demonstrates the use of two timers, which are used to
+ * output PWM signals on GPIO pins P1.2 and P2. Base on example for msp430g2553 
+*  from https://coder-tronics.com/msp430-timer-pwm-tutorial/ 
+ * @version 0.1
+ * @date 2021-03-01
  * 
- * Taken from https://coder-tronics.com/msp430-timer-pwm-tutorial/ 
+ * @copyright Copyright (c) 2021 Carl Mattatall
  */
 
 #include <msp430.h>
