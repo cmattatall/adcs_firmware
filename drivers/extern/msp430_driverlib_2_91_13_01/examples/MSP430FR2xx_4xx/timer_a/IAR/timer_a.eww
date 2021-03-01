@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\timer_a_ex1_pwmSingle.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex5_pwmMultipleUp.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex6_upDownModeOperation.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex4_pwmMultipleUpDown.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex2_continousModeOperationWithCCR0Interrupt.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_a_ex3_continousModeOperationWithTAIEInterrupt.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

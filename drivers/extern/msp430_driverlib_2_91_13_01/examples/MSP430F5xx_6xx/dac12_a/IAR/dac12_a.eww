@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\dac12_a_ex4_grouped.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\dac12_a_ex3_positiveRampInt.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\dac12_a_ex1_1V5Out.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\dac12_a_ex2_0V75Out.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

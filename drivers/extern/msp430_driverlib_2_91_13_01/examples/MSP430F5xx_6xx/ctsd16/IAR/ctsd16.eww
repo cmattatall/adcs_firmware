@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\ctsd16_ex2_singleChSingleConvPolling.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ctsd16_ex1_singleChContConv.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ctsd16_ex3_singleChSingleConvInterrupt.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ctsd16_ex5_threeChSingleConv.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ctsd16_ex4_internalTempSensor.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

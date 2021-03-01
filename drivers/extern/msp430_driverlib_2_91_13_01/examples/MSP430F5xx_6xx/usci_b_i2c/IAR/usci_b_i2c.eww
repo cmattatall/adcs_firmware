@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\usci_b_i2c_ex3_slaveRxSingle.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_b_i2c_ex1_masterRxSingle.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_b_i2c_ex2_slaveRxMultiple.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_b_i2c_ex4_slaveTxMultiple.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_b_i2c_ex2_masterTxMultiple.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_b_i2c_ex1_slaveTxSingle.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_b_i2c_ex4_masterRxMultiple.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\usci_b_i2c_ex3_masterTxSingle.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

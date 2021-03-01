@@ -1,0 +1,36 @@
+<projectSpec>
+  <project compilerBuildOptions="-DDEPRECATED -I${PROJECT_ROOT}/driverlib/MSP430i2xx --advice:power=&quot;none&quot;" device="MSP430i2041" name="eusci_a_spi_ex1_3WireMaster">
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_b_i2c.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/cs.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/sd24.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_a_spi.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/mpy.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/gpio.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/pmm.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_a_spi.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_a_uart.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_b_spi.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/tlv.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/timer_a.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/pmm.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_b_i2c.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/wdt.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/tlv.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/sfr.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/wdt.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/flashctl.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/sd24.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_a_uart.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/cs.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/gpio.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/mpy.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/driverlib.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/eusci_b_spi.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/sfr.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/flashctl.h" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/timer_a.c" targetDirectory="driverlib/MSP430i2xx" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/inc/hw_memmap.h" targetDirectory="driverlib/MSP430i2xx/inc" />
+    <file action="copy" path="../../../../driverlib/MSP430i2xx/inc/version.h" targetDirectory="driverlib/MSP430i2xx/inc" />
+    <file action="copy" path="../eusci_a_spi_ex1_3WireMaster.c" />
+  </project>
+</projectSpec>

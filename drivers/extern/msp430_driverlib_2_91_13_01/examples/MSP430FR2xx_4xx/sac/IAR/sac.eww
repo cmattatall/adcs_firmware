@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\sac_ex4_ecomp.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\sac_ex3_twoStageAmplifier.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\sac_ex2_unityGainBufferMode.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\sac_ex1_oaGPMode.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

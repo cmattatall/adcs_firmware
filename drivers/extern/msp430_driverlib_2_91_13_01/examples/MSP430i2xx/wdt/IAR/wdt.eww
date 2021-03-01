@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\wdt_ex1_intervalMode.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\wdt_ex2_watchdogMode.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

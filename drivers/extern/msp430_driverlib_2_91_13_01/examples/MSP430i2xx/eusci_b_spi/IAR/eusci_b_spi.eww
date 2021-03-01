@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\eusci_b_spi_ex1_3WireSlave.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\eusci_b_spi_ex1_3WireMaster.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

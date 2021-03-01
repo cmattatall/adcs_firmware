@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\ecomp_ex2_interruptVcompVs1.5V.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ecomp_ex1_outputToggleVcompVsVref1.5V.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

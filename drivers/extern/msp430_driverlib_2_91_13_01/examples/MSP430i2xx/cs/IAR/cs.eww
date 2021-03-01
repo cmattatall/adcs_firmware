@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\cs_ex1_outputClockSignals.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\cs_ex2_calculateClockSignals.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

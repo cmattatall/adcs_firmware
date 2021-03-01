@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\pmm_ex1_lpm4-5.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\pmm_ex2_vmon1160mV.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

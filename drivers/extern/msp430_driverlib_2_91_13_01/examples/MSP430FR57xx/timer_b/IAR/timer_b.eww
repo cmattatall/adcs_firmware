@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\timer_b_ex2_overflowISR.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_b_ex4_upModeOperation.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_b_ex1_continuousModeCCR0.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_b_ex3_pwm.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\timer_b_ex5_singlePWM.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

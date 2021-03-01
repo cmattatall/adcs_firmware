@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\mpu_ex1_threeSeg.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpu_ex3_systemPreInit.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\mpu_ex2_twoSeg.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

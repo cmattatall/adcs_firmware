@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\ldopwr_ex2_softwarePoll.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ldopwr_ex3_internalLDOEnabled.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\ldopwr_ex1_internalLDOPower.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+<project>
+    <path>$WS_DIR$\sd24_b_ex2_singleConvChannelGroup.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\sd24_b_ex1_singleConvSingleChannel.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\sd24_b_ex3_contConvSingleChannel.ewp</path>
+  </project>
+  
+  <batchBuild/>
+</workspace>
+
+
