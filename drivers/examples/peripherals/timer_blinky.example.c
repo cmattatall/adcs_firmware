@@ -61,9 +61,10 @@ static void TIMERA0_init(void)
     TA0CTL &= ~(ID0 | ID1);
     TA0CTL |= ID_3; /* input prescaler to 8 */
     TA0EX0 &= ~(TAIDEX0 | TAIDEX1 | TAIDEX2);
-    TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
-    TA0CCTL0 = CCIE;              /* CCR0 interrupt enabled */
-    TA0CTL   = TASSEL_2 + MC__UP; /* source from SMCLK, count up to TA0CCR0 */
+    TA0EX0 |= TAIDEX_7; /* set expansion prescaler to 8 */
+    TA0CCTL0 = CCIE;    /* CCR0 interrupt enabled */
+    TA0CTL |= TASSEL__SMCLK;
+    TA0CTL |= MC__UP; /* source from SMCLK, count up to TA0CCR0 */
 
     /* 1000000 * (1/8) * (1/8) == 15625 */
     /* If we want to blink once per second, we need to interrupt twice per sec*/

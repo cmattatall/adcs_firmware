@@ -32,14 +32,14 @@
 #define OUTMOD_RST_SET ((OUTMOD_7) & (OUTMOD_MSK))
 /* clang-format on */
 
-static void init_phy(void)
-{}
-
 
 int main(void)
 {
     /* Stop WDT */
     WDTCTL = WDTPW + WDTHOLD;
+
+    P1DIR ^= BIT2; /* P1.2 in output direction */
+    P1SEL |= BIT2; /* P1.2 will be used for its peripheral function */
 
     /* Stop timer A0 */
     TA0CTL &= ~(MC0 | MC1);
@@ -55,20 +55,20 @@ int main(void)
     /* Set to compare mode (disable capture mode) */
     TA0CCTL0 &= ~CAP;
 
-    /* Enable capture/compare interrupt for TA0CCR0 */
-    TA0CCTL0 |= CCIE;
-
     /* Compare IRQ will be generated when TA0R == TA0CCR0 */
-    TA0CCR0 = 3000;
+    TA0CCR0 = 25000;
 
+    TA0CCTL0 &= ~(OUTMOD_MSK);
+    TA0CCTL0 |= OUTMOD_TOGGLE;
+
+    TA0EX0 |= TAIDEX_7;           /* set expansion prescaler to 8 */
 
     /* Enable interrupts */
+    TA0CCTL0 |= CCIE;
     TA0CTL |= TAIE;
 
     /* Start timer in up mode */
-    TA0CTL |= MC__UPDOWN;
-
-    TA0CCTL0 |= OUTMOD_SET_RST;
+    TA0CTL |= MC__CONTINOUS;
 
     /* Enter LPM0 with interrupts */
     _BIS_SR(GIE);
@@ -80,6 +80,7 @@ int main(void)
 }
 
 
+#if 0
 __interrupt_vec(TIMER0_A0_VECTOR) void Timer_A(void)
 {
     /* Check cause of interrupt */
@@ -120,3 +121,5 @@ __interrupt_vec(TIMER0_A0_VECTOR) void Timer_A(void)
         break;
     }
 }
+
+#endif
