@@ -51,7 +51,7 @@ int main(void)
     TA0CTL &= ~(MC0 | MC1); /* Stop timer */
 
     TA0CCR1 = TIMERA0_duty_cycle(25);
-    TA0CCTL1 |= OUTMOD_TOG_RST;
+    TA0CCTL1 |= OUTMOD_TOG_SET;
 
     /* Set Timer A0 clock source to smclk */
     TA0CTL &= ~(TASSEL1 | TASSEL1);
@@ -62,7 +62,7 @@ int main(void)
     TA0CTL |= MC__CONTINOUS;
 
     /** @note VERY IMPORTANT. IF YOU DO _BIS_SR(GIE) it will not work! */
-    _BIS_SR(LPM0_bits);
+    _BIS_SR(GIE + LPM0_bits);
 
     while (1)
     {
