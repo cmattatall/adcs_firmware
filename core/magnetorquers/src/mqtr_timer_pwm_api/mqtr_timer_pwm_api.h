@@ -9,8 +9,7 @@ extern "C"
 
 #include "magnetorquers.h"
 
-void mqtr_timer_pwm_init_phy(void);
-
+void mqtr_pwm_timer_init(void);
 
 void mqtr_pwm_set_duty_cycle(MQTR_t mqtr);
 

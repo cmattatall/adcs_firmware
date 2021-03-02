@@ -5,7 +5,7 @@
 #if defined(TARGET_MCU)
 #include "watchdog.h"
 #include "mcu.h"
-#include "timer_a0.h"
+#include "timer_a.h"
 #else
 #include <errno.h>
 #endif /* #if defined(TARGET_MCU) */

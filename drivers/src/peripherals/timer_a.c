@@ -15,7 +15,7 @@
 #include <limits.h>
 
 #include "clocks.h"
-#include "timer_a0.h"
+#include "timer_a.h"
 
 
 /* clang-format on */

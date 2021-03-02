@@ -59,7 +59,7 @@ int main(void)
     TA1CCR1 = TIMERA1_duty_cycle(25);
     TA1CCTL1 |= OUTMOD_TOG_SET;
 
-    /* Set Timer A0 clock source to smclk */
+    /* Set Timer A1 clock source to smclk */
     TA1CTL &= ~(TASSEL0 | TASSEL1);
     TA1CTL |= TASSEL__SMCLK;
 
