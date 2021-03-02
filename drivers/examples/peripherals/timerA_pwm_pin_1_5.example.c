@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
  *
- * PWM SIGNAL GENERATED ON PIN1.2 (which is output pin for TA0CCR1 COMPARE EVT)
+ * PWM SIGNAL GENERATED ON PIN1.5 (which is output pin for TA0CCR4 COMPARE EVT)
  */
 #include <stdlib.h>
 #include <msp430.h>
@@ -23,7 +23,7 @@
 #define TA0IV_OVF (0X0E)
 
 /* clang-format off */
-#define OUTMOD_MSK (OUTMOD0 | OUTMOD1 | OUTMOD2)
+#define OUTMOD_MSK     (OUTMOD0 | OUTMOD1 | OUTMOD2)
 #define OUTMOD_OUTBIT  (OUTMOD_0)
 #define OUTMOD_SET     (OUTMOD_1)
 #define OUTMOD_TOG_RST (OUTMOD_2)
@@ -40,29 +40,35 @@ static uint16_t TIMERA0_duty_cycle(unsigned int percent)
     return (uint16_t)(UINT16_MAX * ((float)((percent % 100u) / 100.0f)));
 }
 
+
+static void TIMERA0_pin_1_5_pwm_phy_init(void)
+{
+    P1DIR ^= BIT5; /* P1.5 in output direction */
+    P1SEL |= BIT5; /* P1.5 will be used for its peripheral function */
+}
+
 int main(void)
 {
     /* Stop WDT */
     WDTCTL = WDTPW + WDTHOLD;
 
-    P1DIR ^= BIT2; /* P1.2 in output direction */
-    P1SEL |= BIT2; /* P1.2 will be used for its peripheral function */
+    TIMERA0_pin_1_5_pwm_phy_init();
 
     TA0CTL &= ~(MC0 | MC1); /* Stop timer */
 
-    TA0CCR1 = TIMERA0_duty_cycle(25);
-    TA0CCTL1 |= OUTMOD_TOG_RST;
+    TA0CCR4 = TIMERA0_duty_cycle(25);
+    TA0CCTL4 |= OUTMOD_TOG_SET;
 
     /* Set Timer A0 clock source to smclk */
-    TA0CTL &= ~(TASSEL1 | TASSEL1);
-    TA0CTL |= TASSEL_2;
+    TA0CTL &= ~(TASSEL0 | TASSEL1);
+    TA0CTL |= TASSEL__SMCLK;
 
     /* Set count mode */
     TA0CTL &= ~(MC0 | MC1);
     TA0CTL |= MC__CONTINOUS;
 
     /** @note VERY IMPORTANT. IF YOU DO _BIS_SR(GIE) it will not work! */
-    _BIS_SR(LPM0_bits);
+    _BIS_SR(GIE + LPM0_bits);
 
     while (1)
     {
