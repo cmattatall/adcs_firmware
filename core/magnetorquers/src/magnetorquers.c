@@ -19,6 +19,7 @@
 #endif /* #if defined(TARGET_MCU) */
 
 #include "magnetorquers.h"
+#include "mqtr_timer_pwm_api.h"
 #include "targets.h"
 
 #define MQTR_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
@@ -45,6 +46,12 @@ static struct
 
 static pwm_t mqtr_voltage_to_pwm(int voltage_mv);
 static int   mqtr_pwm_to_voltage(pwm_t pwm);
+
+
+void mqtr_init(void)
+{
+    mqtr_pwm_init();
+}
 
 
 void mqtr_set_config(MQTR_t mqtr, int volts_mv)

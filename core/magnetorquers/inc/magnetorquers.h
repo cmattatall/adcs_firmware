@@ -20,6 +20,7 @@ typedef enum
     MQTR_z,
 } MQTR_t;
 
+void mqtr_init(void);
 
 void mqtr_set_config(MQTR_t mqtr, int voltage_mv);
 

@@ -28,14 +28,14 @@
 
 
 static void mqtr_timer_pwm_init_phy(void);
-static void  mqtr_x_init_phy(void);
-static void  mqtr_y_init_phy(void);
-static void  mqtr_z_init_phy(void);
+static void mqtr_x_init_phy(void);
+static void mqtr_y_init_phy(void);
+static void mqtr_z_init_phy(void);
 
 static void mqtr_timer_init(void);
 
 
-void mqtr_pwm_timer_init(void)
+void mqtr_pwm_init(void)
 {
     mqtr_timer_pwm_init_phy();
     mqtr_timer_init();
@@ -95,7 +95,7 @@ static void mqtr_y_init_phy(void)
 }
 
 
-static void  mqtr_z_init_phy(void)
+static void mqtr_z_init_phy(void)
 {
     /* Configure F pwm pin */
     P1DIR ^= BIT4; /* P1.4 in output direction */

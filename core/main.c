@@ -6,6 +6,8 @@
 #include "watchdog.h"
 #include "mcu.h"
 #include "timer_a.h"
+#include "magnetorquers.h"
+#include "magnetometer.h"
 #else
 #include <errno.h>
 #endif /* #if defined(TARGET_MCU) */
@@ -28,6 +30,8 @@ int main(void)
 #endif /* #if defined(DEBUG) */
 
     OBC_IF_config(OBC_IF_PHY_CFG_UART);
+
+    mqtr_init();
 
     /* This should be the very last thing that occurs */
     enable_interrupts();
