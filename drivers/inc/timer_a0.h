@@ -11,6 +11,20 @@ extern "C"
 
 #include "injection_api.h"
 
+
+typedef enum
+{
+    TIMERA0_PWM_PIN_1,
+    TIMERA0_PWM_PIN_2,
+    TIMERA0_PWM_PIN_3,
+    TIMERA0_PWM_PIN_4,
+    TIMERA0_PWM_PIN_5,
+    TIMERA0_PWM_PIN_6,
+} TIMERA0_PWM_PIN_t;
+
+void TIMERA0_pwm_init_phy(TIMERA0_PWM_PIN_t pwm_pin);
+
+
 /**
  * @brief initialize timer A0 for the 1s heartbeat blink
  *
