@@ -50,6 +50,9 @@ add_executable(${EXE})
 target_sources(${EXE} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/main.c")
 target_link_libraries(${EXE} PRIVATE ADCS_JSONS)
 target_link_libraries(${EXE} PRIVATE ADCS_OBC_INTERFACE)
+target_link_libraries(${EXE} PRIVATE ADCS_MAGNETORQUERS)
+target_link_libraries(${EXE} PRIVATE ADCS_MAGNETOMETERS)
+
 
 
 if(NOT CMAKE_CROSSCOMPILING)
