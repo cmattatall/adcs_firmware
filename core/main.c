@@ -33,7 +33,6 @@ int main(void)
 
     mqtr_init();
 
-    /* This should be the very last thing that occurs */
     enable_interrupts();
 #else
     OBC_IF_config(OBC_IF_PHY_CFG_EMULATED);
@@ -55,7 +54,6 @@ int main(void)
             }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
-
 #if defined(TARGET_MCU) && !defined(DEBUG)
         watchdog_kick();
 #endif /* #if defined(TARGET_MCU) && !defined(DEBUG)*/

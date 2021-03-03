@@ -16,7 +16,6 @@
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
-#include "mqtr_timer_pwm_api.h"
 #include "timer_a.h"
 #else
 #endif /* #if defined(TARGET_MCU) */
@@ -38,32 +37,6 @@ void mqtr_pwm_init(void)
 {
     mqtr_timer_pwm_init_phy();
     mqtr_timer_init();
-    TA0CCR1 = 20000;
-    TA0CCR2 = 20000;
-    TA0CCR3 = 20000;
-    TA0CCR4 = 20000;
-    TA1CCR1 = 20000;
-    TA1CCR2 = 20000;
-}
-
-
-void mqtr_pwm_set_duty_cycle(MQTR_t mqtr)
-{
-    switch (mqtr)
-    {
-        case MQTR_x:
-        {
-        }
-        break;
-        case MQTR_y:
-        {
-        }
-        break;
-        case MQTR_z:
-        {
-        }
-        break;
-    }
 }
 
 
@@ -162,4 +135,22 @@ static void mqtr_timer_init(void)
 
     /* Set Timer A1 count mode */
     TA1CTL = (TA1CTL & ~(MC0 | MC1)) | API_TIMER_MC_INIT_MODE;
+}
+
+
+int main(void)
+{
+    WDTCTL = WDTPW + WDTHOLD;
+    mqtr_pwm_init();
+    TA0CCR1 = 20000;
+    TA0CCR2 = 20000;
+    TA0CCR3 = 20000;
+    TA0CCR4 = 20000;
+    TA1CCR1 = 20000;
+    TA1CCR2 = 20000;
+
+    _BIS_SR(GIE + LPM0_bits);
+    while (1)
+    {
+    }
 }
