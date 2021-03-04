@@ -7,8 +7,8 @@ extern "C"
 /* clang-format on */
 #endif /* Start C linkage */
 
-#define HW_VERSION "0.1"
-#define FW_VERSION "0.2"
+#define HW_VERSION "00.01"
+#define FW_VERSION "00.02"
 #define DEV_NAME "ADCS Sensor Board"
 
 #ifdef __cplusplus
@@ -17,3 +17,5 @@ extern "C"
 /* clang-format on */
 #endif /* End C linkage */
 #endif /* __VERSION_H__ */
+
+INT16_MIN
