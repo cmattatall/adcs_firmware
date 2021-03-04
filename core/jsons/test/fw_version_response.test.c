@@ -27,7 +27,6 @@
 
 
 static jtok_tkn_t tokens1[TKN_POOL_SIZE];
-
 static jtok_tkn_t tokens2[TKN_POOL_SIZE];
 
 
@@ -77,6 +76,5 @@ int main(void)
             }
         }
     }
-
     return 0;
 }
