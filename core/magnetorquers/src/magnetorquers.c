@@ -32,9 +32,9 @@ static int mqtr_voltage_mv[] = {
 void mqtr_init(void)
 {
     MQTR_PWM_API_init();
-    MQTR_PWM_API_set_coil_voltage_mv(MQTR_x, -500);
-    MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, 1500);
-    MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, 2500);
+    MQTR_PWM_API_set_coil_voltage_mv(MQTR_x, 0);
+    MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, 0);
+    MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, 0);
 }
 
 
