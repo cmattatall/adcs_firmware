@@ -30,27 +30,20 @@ typedef enum
     MQTR_DIR_neg = ROT_DIR_anticlock,
 } MQTR_DIR_t;
 
-/* clang-format off */
-static struct
-{   
-    pwm_t pwm;
-    MQTR_DIR_t   dir;
-} mqtr_configs[3] = 
-{
-    [MQTR_x] = {.pwm = MQTR_PWM_DEFAULT, .dir = MQTR_DIR_pos},
-    [MQTR_y] = {.pwm = MQTR_PWM_DEFAULT, .dir = MQTR_DIR_pos},
-    [MQTR_z] = {.pwm = MQTR_PWM_DEFAULT, .dir = MQTR_DIR_pos},
+
+static int mqtr_voltage_mv[] = {
+    [MQTR_x] = 0,
+    [MQTR_y] = 0,
+    [MQTR_z] = 0,
 };
-/* clang-format on */
-
-
-static pwm_t mqtr_voltage_to_pwm(int voltage_mv);
-static int   mqtr_pwm_to_voltage(pwm_t pwm);
 
 
 void mqtr_init(void)
 {
     mqtr_pwm_init();
+    mqtr_pwm_set_coil_voltage_mv(MQTR_x, 500);
+    mqtr_pwm_set_coil_voltage_mv(MQTR_y, 1500);
+    mqtr_pwm_set_coil_voltage_mv(MQTR_y, 2500);
 }
 
 
@@ -62,8 +55,7 @@ void mqtr_set_config(MQTR_t mqtr, int volts_mv)
         case MQTR_y:
         case MQTR_z:
         {
-            mqtr_configs[mqtr].pwm = mqtr_voltage_to_pwm(volts_mv);
-            mqtr_configs[mqtr].dir = volts_mv < 0 ? MQTR_DIR_neg : MQTR_DIR_pos;
+            mqtr_voltage_mv[mqtr] = volts_mv;
         }
         break;
         default:
@@ -78,12 +70,9 @@ void mqtr_set_config(MQTR_t mqtr, int volts_mv)
 void mqtr_config_apply(void)
 {
 #if defined(TARGET_MCU)
-    unsigned int i;
-    for (i = 0; i < sizeof(mqtr_configs) / sizeof(*mqtr_configs); i++)
-    {
-#warning NOT IMPLEMENTED YET
-        /** @todo WRITE THE PWM VALUES TO THE CORRECT REGISTERS */
-    }
+    mqtr_pwm_set_coil_voltage_mv(MQTR_x, mqtr_voltage_mv[MQTR_x]);
+    mqtr_pwm_set_coil_voltage_mv(MQTR_y, mqtr_voltage_mv[MQTR_y]);
+    mqtr_pwm_set_coil_voltage_mv(MQTR_z, mqtr_voltage_mv[MQTR_z]);
 #else
     printf("called %s\n", __func__);
 #endif /* #if defined(TARGET_MCU) */
@@ -93,39 +82,8 @@ void mqtr_config_apply(void)
 int mqtr_config_to_str(char *buf, int buflen)
 {
     CONFIG_ASSERT(NULL != buf);
-    int voltage_mv_x = mqtr_pwm_to_voltage(mqtr_configs[MQTR_x].pwm);
-    int voltage_mv_y = mqtr_pwm_to_voltage(mqtr_configs[MQTR_y].pwm);
-    int voltage_mv_z = mqtr_pwm_to_voltage(mqtr_configs[MQTR_z].pwm);
-    int required_len = snprintf(
-        buf, buflen, "[ %c%d, %c%d, %c%d ]",
-        mqtr_configs[MQTR_x].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_x,
-        mqtr_configs[MQTR_y].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_y,
-        mqtr_configs[MQTR_z].dir == MQTR_DIR_neg ? '-' : '+', voltage_mv_z);
+    int required_len =
+        snprintf(buf, buflen, "[ %d, %d, %d ]", mqtr_voltage_mv[MQTR_x],
+                 mqtr_voltage_mv[MQTR_y], mqtr_voltage_mv[MQTR_z]);
     return (required_len < buflen) ? 0 : 1;
-}
-
-
-static pwm_t mqtr_voltage_to_pwm(int voltage_mv)
-{
-    pwm_t pwm = MQTR_PWM_DEFAULT;
-    if (voltage_mv < 0)
-    {
-        voltage_mv *= -1;
-    }
-
-/** @todo IMPLEMENT CONVERSION */
-#warning NOT IMPLEMENTED YET
-
-    return pwm;
-}
-
-
-static int mqtr_pwm_to_voltage(pwm_t pwm)
-{
-    int voltage_mv = 50 * pwm;
-
-/** @todo IMPLEMENT CONVERSION */
-#warning NOT IMPLEMENTED YET
-
-    return voltage_mv;
 }

@@ -32,7 +32,6 @@
 static void mqtr_timer_pwm_init_phy(void);
 static void mqtr_timer_init(void);
 
-
 static void mqtr_set_x_duty_cycle(float ds_percent);
 static void mqtr_set_y_duty_cycle(float ds_percent);
 static void mqtr_set_z_duty_cycle(float ds_percent);
@@ -42,17 +41,11 @@ void mqtr_pwm_init(void)
 {
     mqtr_timer_pwm_init_phy();
     mqtr_timer_init();
-    mqtr_set_x_duty_cycle(50);
-    mqtr_set_y_duty_cycle(50);
-    mqtr_set_z_duty_cycle(50);
 }
 
 
-void mqtr_pwm_set_duty_cycle(MQTR_t mqtr, int16_t voltage_mv)
+void mqtr_pwm_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
 {
-    int16_t mv        = 0;
-    bool    clockwise = false;
-
     if (voltage_mv < -PWM_VMAX_MV_float)
     {
         voltage_mv = -PWM_VMAX_MV_float;
@@ -79,6 +72,11 @@ void mqtr_pwm_set_duty_cycle(MQTR_t mqtr, int16_t voltage_mv)
         case MQTR_z:
         {
             mqtr_set_z_duty_cycle(duty_cycle);
+        }
+        break;
+        default:
+        {
+            /* do nothing */
         }
         break;
     }
