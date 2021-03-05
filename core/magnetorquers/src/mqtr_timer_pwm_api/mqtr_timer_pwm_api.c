@@ -2,7 +2,8 @@
  * @file mqtr_timer_pwm_api.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module to separate mqtr timer register level stuff from
- * logic API for magnetorquers
+ * logic API for magnetorquers. If this file gets large it can be moved 
+ * or refactored into a pwm API in the driver module.
  * @version 0.1
  * @date 2021-03-02
  *

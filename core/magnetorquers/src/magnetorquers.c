@@ -22,15 +22,6 @@
 #include "mqtr_timer_pwm_api.h"
 #include "targets.h"
 
-#define MQTR_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
-
-typedef enum
-{
-    MQTR_DIR_pos = ROT_DIR_clock,
-    MQTR_DIR_neg = ROT_DIR_anticlock,
-} MQTR_DIR_t;
-
-
 static int mqtr_voltage_mv[] = {
     [MQTR_x] = 0,
     [MQTR_y] = 0,
