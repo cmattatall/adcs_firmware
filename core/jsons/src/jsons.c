@@ -55,7 +55,6 @@ static json_handler_retval parse_rw_current(json_handler_args args);
 static json_handler_retval parse_mqtr_volts(json_handler_args args);
 static json_handler_retval parse_sunSen(json_handler_args args);
 static json_handler_retval parse_magSen(json_handler_args args);
-static json_handler_retval parse_burnWire(json_handler_args args);
 static json_handler_retval parse_imu(json_handler_args args);
 static json_handler_retval parse_current(json_handler_args args);
 
@@ -70,7 +69,6 @@ static const json_parse_table_item json_parse_table[] = {
     {.key = "mqtr_volts", .handler = parse_mqtr_volts},
     {.key = "sunSen",     .handler = parse_sunSen},
     {.key = "magSen",     .handler = parse_magSen},
-    {.key = "burnWire",   .handler = parse_burnWire},
     {.key = "imu",        .handler = parse_imu},
     {.key = "current",    .handler = parse_current},
 };
@@ -349,9 +347,9 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                     {
                         i++;
                         switch (i)
-                        {   
+                        {
                             /* whoever maintains this in the future,
-                             * I'm really sorry about magic numbers, 
+                             * I'm really sorry about magic numbers,
                              * I had to build this entire codebase by myself
                              * in ~3 months and theres almost a million LOC
                              */
@@ -531,24 +529,6 @@ static json_handler_retval parse_magSen(json_handler_args args)
         return JSON_HANDLER_RETVAL_ERROR;
     }
 
-    return t;
-}
-
-
-static json_handler_retval parse_burnWire(json_handler_args args)
-{
-    token_index_t *t = (token_index_t *)args;
-    CONFIG_ASSERT(*t < JSON_TKN_CNT);
-    *t += 1; /* Advance to first key of json */
-    if (jtok_tokcmp("set", &tkns[*t]))
-    {
-#warning NOT IMPLEMENTED YET.
-        /** @todo API call to set the GPIO pin high so the burnwire deploys */
-    }
-    else
-    {
-        return JSON_HANDLER_RETVAL_ERROR;
-    }
     return t;
 }
 
