@@ -175,12 +175,12 @@ static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
     }
     else if (pct_ds < 0)
     {
-        if (pct_ds < -PWM_MAX_DUTY_CYCLE_float)
+        if (pct_ds < -1*PWM_MAX_DUTY_CYCLE_float)
         {
-            pct_ds = -PWM_MAX_DUTY_CYCLE_float;
+            pct_ds = -1*PWM_MAX_DUTY_CYCLE_float;
         }
         TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR2 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+        TA0CCR2 = (uint16_t)((pct_ds / (-1*PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
     }
     else
     {
@@ -189,7 +189,7 @@ static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
             pct_ds = PWM_MAX_DUTY_CYCLE_float;
         }
         TA0CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR1 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+        TA0CCR1 = (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
     }
 }
 
@@ -203,12 +203,12 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
     }
     if (pct_ds < 0.0f)
     {
-        if (pct_ds < -PWM_MAX_DUTY_CYCLE_float)
+        if (pct_ds < -1*PWM_MAX_DUTY_CYCLE_float)
         {
-            pct_ds = -PWM_MAX_DUTY_CYCLE_float;
+            pct_ds = -1*PWM_MAX_DUTY_CYCLE_float;
         }
         TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA1CCR2 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+        TA1CCR2 = (uint16_t)((pct_ds / (-1*PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
     }
     else
     {
@@ -231,12 +231,12 @@ static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
     }
     if (pct_ds < 0.0f)
     {
-        if (pct_ds < -PWM_MAX_DUTY_CYCLE_float)
+        if (pct_ds < -1*PWM_MAX_DUTY_CYCLE_float)
         {
-            pct_ds = -PWM_MAX_DUTY_CYCLE_float;
+            pct_ds = -1*PWM_MAX_DUTY_CYCLE_float;
         }
         TA0CCR3 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR4 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+        TA0CCR4 = (uint16_t)((pct_ds / (-1*PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
     }
     else
     {

@@ -352,17 +352,17 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                         {
                             case 1:
                             {
-                                mqtr_set_config(MQTR_x, new_voltage);
+                                mqtr_set_coil_voltage_mv(MQTR_x, new_voltage);
                             }
                             break;
                             case 2:
                             {
-                                mqtr_set_config(MQTR_y, new_voltage);
+                                mqtr_set_coil_voltage_mv(MQTR_y, new_voltage);
                             }
                             break;
                             case 3:
                             {
-                                mqtr_set_config(MQTR_z, new_voltage);
+                                mqtr_set_coil_voltage_mv(MQTR_z, new_voltage);
                             }
                             break;
                             default:
