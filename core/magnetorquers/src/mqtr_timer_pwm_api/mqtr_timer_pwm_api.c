@@ -2,7 +2,8 @@
  * @file mqtr_timer_pwm_api.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module to separate mqtr timer register level stuff from
- * logic API for magnetorquers
+ * logic API for magnetorquers. If this file gets large it can be moved
+ * or refactored into a pwm API in the driver module.
  * @version 0.1
  * @date 2021-03-02
  *
@@ -13,107 +14,117 @@
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
-#include "mqtr_timer_pwm_api.h"
 #include "timer_a.h"
 #else
 #endif /* #if defined(TARGET_MCU) */
 
+#include "pwm.h"
+#include "mqtr_timer_pwm_api.h"
+#include "config_assert.h"
 
 #define API_TIMER_OUTMOD_INIT_MODE (OUTMOD_TOG_SET)
 #define API_TIMER_MC_INIT_MODE (MC__CONTINUOUS)
 #define API_TIMER_TASSEL_INIT_MODE (TASSEL__SMCLK)
 
 
-static void mqtr_timer_pwm_init_phy(void);
-static void mqtr_x_init_phy(void);
-static void mqtr_y_init_phy(void);
-static void mqtr_z_init_phy(void);
-static void mqtr_timer_init(void);
+static void MQTR_PWM_API_init_phy(void);
+static void MQTR_PWM_API_timer_init(void);
+
+static void MQTR_PWM_API_set_x_duty_cycle(float ds_percent);
+static void MQTR_PWM_API_set_y_duty_cycle(float ds_percent);
+static void MQTR_PWM_API_set_z_duty_cycle(float ds_percent);
 
 
-void mqtr_pwm_init(void)
+void MQTR_PWM_API_init(void)
 {
-    mqtr_timer_pwm_init_phy();
-    mqtr_timer_init();
-    TA0CCR1 = 20000;
-    TA0CCR2 = 20000;
-    TA0CCR3 = 20000;
-    TA0CCR4 = 20000;
-    TA1CCR1 = 20000;
-    TA1CCR2 = 20000;
+    MQTR_PWM_API_init_phy();
+    MQTR_PWM_API_timer_init();
 }
 
 
-void mqtr_pwm_set_duty_cycle(MQTR_t mqtr)
+void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
 {
+    if (voltage_mv < -PWM_VMAX_MV_float)
+    {
+        voltage_mv = -PWM_VMAX_MV_float;
+    }
+    else if (voltage_mv > PWM_VMAX_MV_float)
+    {
+        voltage_mv = PWM_VMAX_MV_float;
+    }
+
+    float duty_cycle;
+    duty_cycle = (voltage_mv * PWM_MAX_DUTY_CYCLE_float) / PWM_VMAX_MV_float;
     switch (mqtr)
     {
         case MQTR_x:
         {
+            MQTR_PWM_API_set_x_duty_cycle(duty_cycle);
         }
         break;
         case MQTR_y:
         {
+            MQTR_PWM_API_set_y_duty_cycle(duty_cycle);
         }
         break;
         case MQTR_z:
         {
+            MQTR_PWM_API_set_z_duty_cycle(duty_cycle);
+        }
+        break;
+        default:
+        {
+            CONFIG_ASSERT(0);
         }
         break;
     }
 }
 
 
-static void mqtr_timer_pwm_init_phy(void)
+static void MQTR_PWM_API_init_phy(void)
 {
-    mqtr_x_init_phy();
-    mqtr_y_init_phy();
-    mqtr_z_init_phy();
-}
+#if defined(TARGET_MCU)
 
-
-static void mqtr_x_init_phy(void)
-{
-    /* Configure F pwm pin */
+    /* Configure X coil F pwm pin */
     P1DIR ^= BIT2; /* P1.2 in output direction */
     P1SEL |= BIT2; /* P1.2 will be used for its peripheral function */
 
-
-    /* Configure R pwm pin */
+    /* Configure X coil R pwm pin */
     P1DIR ^= BIT3; /* P1.3 in output direction */
     P1SEL |= BIT3; /* P1.3 will be used for its peripheral function */
-}
 
-
-static void mqtr_y_init_phy(void)
-{
-    /* Configure F pwm pin */
+    /* Configure Y coil R pwm pin */
     P2DIR ^= BIT0; /* P2.0 in output direction */
     P2SEL |= BIT0; /* P2.0 will be used for its peripheral function */
 
-    /* Configure R pwm pin */
+    /* Configure Y coil R pwm pin */
     P2DIR ^= BIT1; /* P2.1 in output direction */
     P2SEL |= BIT1; /* P2.1 will be used for its peripheral function */
-}
 
-
-static void mqtr_z_init_phy(void)
-{
-    /* Configure F pwm pin */
+    /* Configure Z coil F pwm pin */
     P1DIR ^= BIT4; /* P1.4 in output direction */
     P1SEL |= BIT4; /* P1.4 will be used for its peripheral function */
 
-    /* Configure R pwm pin */
+    /* Configure Z coil R pwm pin */
     P1DIR ^= BIT5; /* P1.5 in output direction */
     P1SEL |= BIT5; /* P1.5 will be used for its peripheral function */
+
+#else
+
+    printf("Called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
 }
 
 
-static void mqtr_timer_init(void)
+static void MQTR_PWM_API_timer_init(void)
 {
+#if defined(TARGET_MCU)
+
     TA0CTL &= ~(MC0 | MC1); /* Stop timer A0 */
 
     /* Set Timer A0 clock source to smclk */
@@ -162,4 +173,121 @@ static void mqtr_timer_init(void)
 
     /* Set Timer A1 count mode */
     TA1CTL = (TA1CTL & ~(MC0 | MC1)) | API_TIMER_MC_INIT_MODE;
+
+#else
+
+    printf("Called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
+{
+#if defined(TARGET_MCU)
+
+    if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
+    {
+        TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+    }
+    else if (pct_ds < 0)
+    {
+        if (pct_ds < -1 * PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = -1 * PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR2 =
+            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+    }
+    else
+    {
+        if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR1 =
+            (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+    }
+
+#else
+
+    printf("called %s with argument %f\n", __func__, pct_ds);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
+{
+#if defined(TARGET_MCU)
+
+    if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
+    {
+        TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA1CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+    }
+    if (pct_ds < 0.0f)
+    {
+        if (pct_ds < -1 * PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = -1 * PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA1CCR2 =
+            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+    }
+    else
+    {
+        if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA1CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA1CCR1 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+    }
+
+#else
+
+    printf("called %s with argument %f\n", __func__, pct_ds);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
+{
+#if defined(TARGET_MCU)
+
+    if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
+    {
+        TA0CCR3 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR4 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+    }
+    if (pct_ds < 0.0f)
+    {
+        if (pct_ds < -1 * PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = -1 * PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR3 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR4 =
+            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+    }
+    else
+    {
+        if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR4 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR3 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+    }
+
+#else
+
+    printf("called %s with argument %f\n", __func__, pct_ds);
+#endif /* #if defined(TARGET_MCU) */
 }

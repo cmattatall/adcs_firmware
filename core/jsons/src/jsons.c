@@ -349,20 +349,25 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                     {
                         i++;
                         switch (i)
-                        {
+                        {   
+                            /* whoever maintains this in the future,
+                             * I'm really sorry about magic numbers, 
+                             * I had to build this entire codebase by myself
+                             * in ~3 months and theres almost a million LOC
+                             */
                             case 1:
                             {
-                                mqtr_set_config(MQTR_x, new_voltage);
+                                mqtr_set_coil_voltage_mv(MQTR_x, new_voltage);
                             }
                             break;
                             case 2:
                             {
-                                mqtr_set_config(MQTR_y, new_voltage);
+                                mqtr_set_coil_voltage_mv(MQTR_y, new_voltage);
                             }
                             break;
                             case 3:
                             {
-                                mqtr_set_config(MQTR_z, new_voltage);
+                                mqtr_set_coil_voltage_mv(MQTR_z, new_voltage);
                             }
                             break;
                             default:

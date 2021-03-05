@@ -22,9 +22,7 @@ typedef enum
 
 void mqtr_init(void);
 
-void mqtr_set_config(MQTR_t mqtr, int voltage_mv);
-
-void mqtr_config_apply(void);
+void mqtr_set_coil_voltage_mv(MQTR_t mqtr, int voltage_mv);
 
 int mqtr_config_to_str(char *buf, int buflen);
 

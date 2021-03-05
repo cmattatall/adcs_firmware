@@ -17,5 +17,3 @@ extern "C"
 /* clang-format on */
 #endif /* End C linkage */
 #endif /* __VERSION_H__ */
-
-INT16_MIN
