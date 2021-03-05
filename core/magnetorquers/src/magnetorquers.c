@@ -40,11 +40,13 @@ static int mqtr_voltage_mv[] = {
 
 void mqtr_init(void)
 {
-    mqtr_pwm_init();
-    mqtr_pwm_set_coil_voltage_mv(MQTR_x, 500);
-    mqtr_pwm_set_coil_voltage_mv(MQTR_y, 1500);
-    mqtr_pwm_set_coil_voltage_mv(MQTR_y, 2500);
+    MQTR_PWM_API_init();
+    MQTR_PWM_API_set_coil_voltage_mv(MQTR_x, 500);
+    MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, 1500);
+    MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, 2500);
 }
+
+void mqtr_set_coil_voltage_mv(MQTR_t mqtr, int voltage_mv);
 
 
 void mqtr_set_config(MQTR_t mqtr, int volts_mv)
@@ -64,18 +66,6 @@ void mqtr_set_config(MQTR_t mqtr, int volts_mv)
         }
         break;
     }
-}
-
-
-void mqtr_config_apply(void)
-{
-#if defined(TARGET_MCU)
-    mqtr_pwm_set_coil_voltage_mv(MQTR_x, mqtr_voltage_mv[MQTR_x]);
-    mqtr_pwm_set_coil_voltage_mv(MQTR_y, mqtr_voltage_mv[MQTR_y]);
-    mqtr_pwm_set_coil_voltage_mv(MQTR_z, mqtr_voltage_mv[MQTR_z]);
-#else
-    printf("called %s\n", __func__);
-#endif /* #if defined(TARGET_MCU) */
 }
 
 

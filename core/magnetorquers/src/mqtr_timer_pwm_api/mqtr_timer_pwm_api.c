@@ -23,28 +23,29 @@
 #else
 #endif /* #if defined(TARGET_MCU) */
 
+#include "config_assert.h"
 
 #define API_TIMER_OUTMOD_INIT_MODE (OUTMOD_TOG_SET)
 #define API_TIMER_MC_INIT_MODE (MC__CONTINUOUS)
 #define API_TIMER_TASSEL_INIT_MODE (TASSEL__SMCLK)
 
 
-static void mqtr_timer_pwm_init_phy(void);
-static void mqtr_timer_init(void);
+static void MQTR_PWM_API_init_phy(void);
+static void MQTR_PWM_API_timer_init(void);
 
-static void mqtr_set_x_duty_cycle(float ds_percent);
-static void mqtr_set_y_duty_cycle(float ds_percent);
-static void mqtr_set_z_duty_cycle(float ds_percent);
+static void MQTR_PWM_API_set_x_duty_cycle(float ds_percent);
+static void MQTR_PWM_API_set_y_duty_cycle(float ds_percent);
+static void MQTR_PWM_API_set_z_duty_cycle(float ds_percent);
 
 
-void mqtr_pwm_init(void)
+void MQTR_PWM_API_init(void)
 {
-    mqtr_timer_pwm_init_phy();
-    mqtr_timer_init();
+    MQTR_PWM_API_init_phy();
+    MQTR_PWM_API_timer_init();
 }
 
 
-void mqtr_pwm_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
+void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
 {
     if (voltage_mv < -PWM_VMAX_MV_float)
     {
@@ -61,57 +62,57 @@ void mqtr_pwm_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
     {
         case MQTR_x:
         {
-            mqtr_set_x_duty_cycle(duty_cycle);
+            MQTR_PWM_API_set_x_duty_cycle(duty_cycle);
         }
         break;
         case MQTR_y:
         {
-            mqtr_set_y_duty_cycle(duty_cycle);
+            MQTR_PWM_API_set_y_duty_cycle(duty_cycle);
         }
         break;
         case MQTR_z:
         {
-            mqtr_set_z_duty_cycle(duty_cycle);
+            MQTR_PWM_API_set_z_duty_cycle(duty_cycle);
         }
         break;
         default:
         {
-            /* do nothing */
+            CONFIG_ASSERT(0);
         }
         break;
     }
 }
 
 
-static void mqtr_timer_pwm_init_phy(void)
+static void MQTR_PWM_API_init_phy(void)
 {
-    /* Configure F pwm pin */
+    /* Configure X coil F pwm pin */
     P1DIR ^= BIT2; /* P1.2 in output direction */
     P1SEL |= BIT2; /* P1.2 will be used for its peripheral function */
 
-    /* Configure F pwm pin */
-    P2DIR ^= BIT0; /* P2.0 in output direction */
-    P2SEL |= BIT0; /* P2.0 will be used for its peripheral function */
-
-    /* Configure R pwm pin */
-    P2DIR ^= BIT1; /* P2.1 in output direction */
-    P2SEL |= BIT1; /* P2.1 will be used for its peripheral function */
-
-    /* Configure R pwm pin */
+    /* Configure X coil R pwm pin */
     P1DIR ^= BIT3; /* P1.3 in output direction */
     P1SEL |= BIT3; /* P1.3 will be used for its peripheral function */
 
-    /* Configure F pwm pin */
+    /* Configure Y coil R pwm pin */
+    P2DIR ^= BIT0; /* P2.0 in output direction */
+    P2SEL |= BIT0; /* P2.0 will be used for its peripheral function */
+
+    /* Configure Y coil R pwm pin */
+    P2DIR ^= BIT1; /* P2.1 in output direction */
+    P2SEL |= BIT1; /* P2.1 will be used for its peripheral function */
+
+    /* Configure Z coil F pwm pin */
     P1DIR ^= BIT4; /* P1.4 in output direction */
     P1SEL |= BIT4; /* P1.4 will be used for its peripheral function */
 
-    /* Configure R pwm pin */
+    /* Configure Z coil R pwm pin */
     P1DIR ^= BIT5; /* P1.5 in output direction */
     P1SEL |= BIT5; /* P1.5 will be used for its peripheral function */
 }
 
 
-static void mqtr_timer_init(void)
+static void MQTR_PWM_API_timer_init(void)
 {
     TA0CTL &= ~(MC0 | MC1); /* Stop timer A0 */
 
@@ -164,7 +165,7 @@ static void mqtr_timer_init(void)
 }
 
 
-static void mqtr_set_x_duty_cycle(float pct_ds)
+static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
 {
     if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
     {
@@ -178,7 +179,7 @@ static void mqtr_set_x_duty_cycle(float pct_ds)
             pct_ds = -PWM_MAX_DUTY_CYCLE_float;
         }
         TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR2 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+        TA0CCR2 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
     }
     else
     {
@@ -187,12 +188,12 @@ static void mqtr_set_x_duty_cycle(float pct_ds)
             pct_ds = PWM_MAX_DUTY_CYCLE_float;
         }
         TA0CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR1 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+        TA0CCR1 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
     }
 }
 
 
-static void mqtr_set_y_duty_cycle(float pct_ds)
+static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
 {
     if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
     {
@@ -206,7 +207,7 @@ static void mqtr_set_y_duty_cycle(float pct_ds)
             pct_ds = -PWM_MAX_DUTY_CYCLE_float;
         }
         TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA1CCR2 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+        TA1CCR2 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
     }
     else
     {
@@ -215,12 +216,12 @@ static void mqtr_set_y_duty_cycle(float pct_ds)
             pct_ds = PWM_MAX_DUTY_CYCLE_float;
         }
         TA1CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA1CCR1 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+        TA1CCR1 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
     }
 }
 
 
-static void mqtr_set_z_duty_cycle(float pct_ds)
+static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
 {
     if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
     {
@@ -234,7 +235,7 @@ static void mqtr_set_z_duty_cycle(float pct_ds)
             pct_ds = -PWM_MAX_DUTY_CYCLE_float;
         }
         TA0CCR3 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR4 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+        TA0CCR4 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
     }
     else
     {
@@ -243,6 +244,6 @@ static void mqtr_set_z_duty_cycle(float pct_ds)
             pct_ds = PWM_MAX_DUTY_CYCLE_float;
         }
         TA0CCR4 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR3 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+        TA0CCR3 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
     }
 }
