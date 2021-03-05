@@ -46,10 +46,8 @@ void mqtr_init(void)
     MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, 2500);
 }
 
-void mqtr_set_coil_voltage_mv(MQTR_t mqtr, int voltage_mv);
 
-
-void mqtr_set_config(MQTR_t mqtr, int volts_mv)
+void mqtr_set_coil_voltage_mv(MQTR_t mqtr, int volts_mv)
 {
     switch (mqtr)
     {
@@ -58,11 +56,12 @@ void mqtr_set_config(MQTR_t mqtr, int volts_mv)
         case MQTR_z:
         {
             mqtr_voltage_mv[mqtr] = volts_mv;
+            MQTR_PWM_API_set_coil_voltage_mv(mqtr, mqtr_voltage_mv[mqtr]);
         }
         break;
         default:
         {
-            /* do nothing */
+            CONFIG_ASSERT(0);
         }
         break;
     }
