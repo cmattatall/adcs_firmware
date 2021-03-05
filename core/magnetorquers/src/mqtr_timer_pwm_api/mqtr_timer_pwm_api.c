@@ -13,11 +13,13 @@
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
 #include "mqtr_timer_pwm_api.h"
 #include "timer_a.h"
+#include "pwm.h"
 #else
 #endif /* #if defined(TARGET_MCU) */
 
@@ -31,33 +33,52 @@ static void mqtr_timer_pwm_init_phy(void);
 static void mqtr_timer_init(void);
 
 
+static void mqtr_set_x_duty_cycle(float ds_percent);
+static void mqtr_set_y_duty_cycle(float ds_percent);
+static void mqtr_set_z_duty_cycle(float ds_percent);
+
+
 void mqtr_pwm_init(void)
 {
     mqtr_timer_pwm_init_phy();
     mqtr_timer_init();
-    TA0CCR1 = 20000;
-    TA0CCR2 = 20000;
-    TA0CCR3 = 20000;
-    TA0CCR4 = 20000;
-    TA1CCR1 = 20000;
-    TA1CCR2 = 20000;
+    mqtr_set_x_duty_cycle(50);
+    mqtr_set_y_duty_cycle(50);
+    mqtr_set_z_duty_cycle(50);
 }
 
 
-void mqtr_pwm_set_duty_cycle(MQTR_t mqtr)
+void mqtr_pwm_set_duty_cycle(MQTR_t mqtr, int16_t voltage_mv)
 {
+    int16_t mv        = 0;
+    bool    clockwise = false;
+
+    if (voltage_mv < -PWM_VMAX_MV_float)
+    {
+        voltage_mv = -PWM_VMAX_MV_float;
+    }
+    else if (voltage_mv > PWM_VMAX_MV_float)
+    {
+        voltage_mv = PWM_VMAX_MV_float;
+    }
+
+    float duty_cycle;
+    duty_cycle = (voltage_mv * PWM_MAX_DUTY_CYCLE_float) / PWM_VMAX_MV_float;
     switch (mqtr)
     {
         case MQTR_x:
         {
+            mqtr_set_x_duty_cycle(duty_cycle);
         }
         break;
         case MQTR_y:
         {
+            mqtr_set_y_duty_cycle(duty_cycle);
         }
         break;
         case MQTR_z:
         {
+            mqtr_set_z_duty_cycle(duty_cycle);
         }
         break;
     }
@@ -142,4 +163,88 @@ static void mqtr_timer_init(void)
 
     /* Set Timer A1 count mode */
     TA1CTL = (TA1CTL & ~(MC0 | MC1)) | API_TIMER_MC_INIT_MODE;
+}
+
+
+static void mqtr_set_x_duty_cycle(float pct_ds)
+{
+    if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
+    {
+        TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+    }
+    else if (pct_ds < 0)
+    {
+        if (pct_ds < -PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = -PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR2 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+    }
+    else
+    {
+        if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR1 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+    }
+}
+
+
+static void mqtr_set_y_duty_cycle(float pct_ds)
+{
+    if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
+    {
+        TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA1CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+    }
+    if (pct_ds < 0.0f)
+    {
+        if (pct_ds < -PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = -PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA1CCR2 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+    }
+    else
+    {
+        if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA1CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA1CCR1 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+    }
+}
+
+
+static void mqtr_set_z_duty_cycle(float pct_ds)
+{
+    if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
+    {
+        TA0CCR3 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR4 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+    }
+    if (pct_ds < 0.0f)
+    {
+        if (pct_ds < -PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = -PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR3 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR4 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+    }
+    else
+    {
+        if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+        {
+            pct_ds = PWM_MAX_DUTY_CYCLE_float;
+        }
+        TA0CCR4 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
+        TA0CCR3 = (uint16_t)(pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX;
+    }
 }

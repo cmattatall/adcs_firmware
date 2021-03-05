@@ -10,6 +10,10 @@ extern "C"
 #include <stdint.h>
 #include <limits.h>
 
+#define PWM_VMAX_MV_float (3300.0f)
+
+#define PWM_MAX_DUTY_CYCLE_float (100.0f)
+#define PWM_MIN_DUTY_CYCLE_float (0.0f)
 
 typedef uint16_t pwm_t;
 

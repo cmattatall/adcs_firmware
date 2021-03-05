@@ -11,7 +11,8 @@ extern "C"
 
 void mqtr_pwm_init(void);
 
-void mqtr_pwm_set_duty_cycle(MQTR_t mqtr);
+void mqtr_pwm_set_duty_cycle(MQTR_t mqtr, int16_t voltage_mv);
+
 
 
 
