@@ -33,9 +33,6 @@ int main(void)
 
     mqtr_init();
     enable_interrupts();
-
-    /** @todo IF WE SET THE PWM STUFF BEFORE CHANGING THE INTERRUPT STATE,
-     * IT WORKS (THIS IS WHY EXAMPLES WORKED AT TOMS ON WEEKEND) */
     MQTR_PWM_API_set_coil_voltage_mv(MQTR_x, -1500);
     MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, -1500);
     MQTR_PWM_API_set_coil_voltage_mv(MQTR_z, 2500);
