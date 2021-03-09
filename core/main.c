@@ -56,10 +56,6 @@ int main(void)
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
 
-        mqtr_set_coil_voltage_mv(MQTR_x, -1500);
-        mqtr_set_coil_voltage_mv(MQTR_y, -1500);
-        mqtr_set_coil_voltage_mv(MQTR_z, 2500);
-
 #if defined(TARGET_MCU) && !defined(DEBUG)
         watchdog_kick();
 #endif /* #if defined(TARGET_MCU) && !defined(DEBUG)*/
