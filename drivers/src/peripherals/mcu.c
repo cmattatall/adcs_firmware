@@ -17,7 +17,7 @@
 
 void enable_interrupts(void)
 {
-    __bis_SR_register(GIE + LPM0_bits);
+    __bis_SR_register(GIE);
 }
 
 #else
