@@ -33,9 +33,7 @@ int main(void)
 
     mqtr_init();
     enable_interrupts();
-    MQTR_PWM_API_set_coil_voltage_mv(MQTR_x, -1500);
-    MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, -1500);
-    MQTR_PWM_API_set_coil_voltage_mv(MQTR_z, 2500);
+
 
 #else
     OBC_IF_config(OBC_IF_PHY_CFG_EMULATED);
@@ -57,6 +55,10 @@ int main(void)
             }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
+
+        MQTR_PWM_API_set_coil_voltage_mv(MQTR_x, -1500);
+        MQTR_PWM_API_set_coil_voltage_mv(MQTR_y, -1500);
+        MQTR_PWM_API_set_coil_voltage_mv(MQTR_z, 2500);
 
 #if defined(TARGET_MCU) && !defined(DEBUG)
         watchdog_kick();
