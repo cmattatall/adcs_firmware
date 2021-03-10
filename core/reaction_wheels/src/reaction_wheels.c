@@ -35,26 +35,28 @@ static int rw_speed_rph[] = {
     [REAC_WHEEL_z] = 0,
 };
 
+static void RW_PWM_API_init(void);
 static void RW_PWM_API_init_phy(void);
 static void RW_PWM_API_timer_init(void);
 static int  RW_rph_to_mv(int rph);
 static int  RW_mv_to_rph(int mv);
-
+static void RW_PWM_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds);
 static void RW_PWM_API_set_x_duty_cycle(float pct_ds);
 static void RW_PWM_API_set_y_duty_cycle(float pct_ds);
 static void RW_PWM_API_set_z_duty_cycle(float pct_ds);
-static void RW_PWM_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds);
-
-static int RW_CURRENT_API_measure_x_current_ma(void);
-static int RW_CURRENT_API_measure_y_current_ma(void);
-static int RW_CURRENT_API_measure_z_current_ma(void);
+static int  RW_CURRENT_API_measure_x_current_ma(void);
+static int  RW_CURRENT_API_measure_y_current_ma(void);
+static int  RW_CURRENT_API_measure_z_current_ma(void);
 
 
 void RW_init(void)
 {
-    RW_PWM_API_init_phy();
-    RW_PWM_API_timer_init();
+    RW_PWM_API_init();
+    RW_PWM_API_set_duty_cycle(REAC_WHEEL_x, 0.0f);
+    RW_PWM_API_set_duty_cycle(REAC_WHEEL_y, 0.0f);
+    RW_PWM_API_set_duty_cycle(REAC_WHEEL_z, 0.0f);
 }
+
 
 void RW_set_speed_rph(REAC_WHEEL_t rw, int rph)
 {
@@ -148,10 +150,28 @@ static int RW_mv_to_rph(int mv)
 /******************************************************************************/
 
 
+static void RW_PWM_API_init(void)
+{
+    RW_PWM_API_init_phy();
+    RW_PWM_API_timer_init();
+}
+
+
 static void RW_PWM_API_init_phy(void)
 {
 #if defined(TARGET_MCU)
 
+    /* PIN 2.3 (RW_X_SPEED_CTRL) */
+    P2DIR |= BIT3;
+    P2SEL |= BIT3;
+
+    /* PIN 2.4 (RW_Y_SPEED_CTRL) */
+    P2DIR |= BIT4;
+    P2SEL |= BIT4;
+
+    /* PIN 2.5 (RW_Z_SPEED_CTRL) */
+    P2DIR |= BIT5;
+    P2SEL |= BIT5;
 
 #else
 
@@ -165,7 +185,31 @@ static void RW_PWM_API_timer_init(void)
 {
 #if defined(TARGET_MCU)
 
+    TA2CTL &= ~(MC0 | MC1); /* Stop timer A2 */
 
+    /* Confgigure pwm on pin 2.3 (TA.2.0) */
+    TA2CCR0 = 0;
+    TA2CCTL0 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
+    TA2CCTL0 |= OUTMOD_TOG_SET;
+
+    /* Confgigure pwm on pin 2.4 (TA.2.1) */
+    TA2CCR1 = 0;
+    TA2CCTL1 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
+    TA2CCTL1 |= OUTMOD_TOG_SET;
+
+    /* Confgigure pwm on pin 2.5 (TA.2.2) */
+    TA2CCR2 = 0;
+    TA2CCTL2 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
+    TA2CCTL2 |= OUTMOD_TOG_SET;
+
+
+    /* Set Timer A2 clock source to smclk */
+    TA2CTL &= ~(TASSEL0 | TASSEL1);
+    TA2CTL |= TASSEL__SMCLK;
+
+    /* Set count mode */
+    TA2CTL &= ~(MC0 | MC1);
+    TA2CTL |= MC__CONTINOUS;
 #else
 
     printf("Called %s\n", __func__);

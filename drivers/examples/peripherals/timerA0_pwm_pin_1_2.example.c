@@ -57,13 +57,11 @@ int main(void)
     TA0CTL &= ~(TASSEL0 | TASSEL1);
     TA0CTL |= TASSEL__SMCLK;
 
-
     /* Set count mode */
     TA0CTL &= ~(MC0 | MC1);
     TA0CTL |= MC__CONTINOUS;
 
-    /** @note VERY IMPORTANT. IF YOU DO _BIS_SR(GIE) it will not work! */
-    _BIS_SR(GIE);
+    _BIS_SR(GIE + LPM0_bits);
 
     while (1)
     {
