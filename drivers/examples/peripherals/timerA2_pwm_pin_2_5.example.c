@@ -41,18 +41,13 @@ static uint16_t TIMERA0_duty_cycle(unsigned int percent)
 }
 
 
-static void TIMERA0_pin_2_5_pwm_phy_init(void)
-{
-    P2DIR ^= BIT5; /* P2.5 in output direction */
-    P2SEL |= BIT5; /* P2.5 will be used for its peripheral function */
-}
-
 int main(void)
 {
     /* Stop WDT */
     WDTCTL = WDTPW + WDTHOLD;
 
-    TIMERA0_pin_2_5_pwm_phy_init();
+    P2DIR ^= BIT5; /* P2.5 in output direction */
+    P2SEL |= BIT5; /* P2.5 will be used for its peripheral function */
 
     TA2CTL &= ~(MC0 | MC1); /* Stop timer */
 

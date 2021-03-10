@@ -16,160 +16,298 @@
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
+#include "timer_a.h"
+#include "pwm.h"
 #else
 #endif /* #if defined(TARGET_MCU) */
 
 #include "reaction_wheels.h"
 #include "targets.h"
 
+#warning RW_RPH_PER_PWM_MV NEEDS TO BE UPDATED TO CORRECT CONVERSION FACTOR
+/** @todo THIS NEEDS TO BE UPDATED TO THE CORRECT CONVERSION FACTOR */
+#define RW_RPH_PER_PWM_MV (1.0f)
 
-#define RW_PWM_DEFAULT ((pwm_t)(PWM_DEFAULT))
 
-
-/* clang-format off */
-static reac_wheel_configs rw_configs = 
-{
-    .configs = 
-    {
-        [REAC_WHEEL_x] = 
-        {
-            .pwm = PWM_DEFAULT,
-            .dir = REAC_WHEEL_DIR_pos,
-        },
-        [REAC_WHEEL_y] = 
-        {
-            .pwm = PWM_DEFAULT,
-            .dir = REAC_WHEEL_DIR_pos,
-
-        },
-        [REAC_WHEEL_z] = 
-        {
-            .pwm = PWM_DEFAULT,
-            .dir = REAC_WHEEL_DIR_pos,
-        },
-    }
+static int rw_speed_rph[] = {
+    [REAC_WHEEL_x] = 0,
+    [REAC_WHEEL_y] = 0,
+    [REAC_WHEEL_z] = 0,
 };
-/* clang-format on */
+
+static void RW_PWM_API_init_phy(void);
+static void RW_PWM_API_timer_init(void);
+static int  RW_rph_to_mv(int rph);
+static int  RW_mv_to_rph(int mv);
+
+static void RW_PWM_API_set_x_duty_cycle(float pct_ds);
+static void RW_PWM_API_set_y_duty_cycle(float pct_ds);
+static void RW_PWM_API_set_z_duty_cycle(float pct_ds);
+static void RW_PWM_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds);
+
+static int RW_CURRENT_API_measure_x_current_ma(void);
+static int RW_CURRENT_API_measure_y_current_ma(void);
+static int RW_CURRENT_API_measure_z_current_ma(void);
 
 
-static pwm_t rw_speed_to_pwm(int speed)
+void RW_init(void)
 {
-    pwm_t pwm_val = speed / 50;
-
-/* The 50 thing is a placeholder value */
-
-/** @todo */
-#warning NOT IMPLEMENTED YET
-
-    return pwm_val;
+    RW_PWM_API_init_phy();
+    RW_PWM_API_timer_init();
 }
 
-
-reac_wheel_configs rw_get_configs(void)
+void RW_set_speed_rph(REAC_WHEEL_t rw, int rph)
 {
-    return rw_configs;
-}
-
-
-reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel)
-{
-    switch (wheel)
+    switch (rw)
     {
         case REAC_WHEEL_x:
         case REAC_WHEEL_y:
         case REAC_WHEEL_z:
         {
-            return rw_configs.configs[wheel];
+            rw_speed_rph[rw] = rph;
+            int   voltage_mv = RW_rph_to_mv(rw_speed_rph[rw]);
+            float duty_cycle = voltage_mv / (float)PWM_VMAX_MV_float;
+            RW_PWM_API_set_duty_cycle(rw, duty_cycle);
         }
         break;
         default:
         {
-            reac_wheel_config_single error_value = {0};
-            return error_value;
+            CONFIG_ASSERT(0);
         }
         break;
     }
 }
 
 
-void rw_set_config(REAC_WHEEL_t wheel, int speed)
+int RW_config_to_string(char *buf, int buflen)
 {
-    switch (wheel)
-    {
-        case REAC_WHEEL_x:
-        case REAC_WHEEL_y:
-        case REAC_WHEEL_z:
-        {
-            pwm_t pwm                     = rw_speed_to_pwm(speed);
-            rw_configs.configs[wheel].pwm = pwm;
-            if (speed < 0)
-            {
-                rw_configs.configs[wheel].dir = REAC_WHEEL_DIR_pos;
-            }
-            else
-            {
-                rw_configs.configs[wheel].dir = REAC_WHEEL_DIR_neg;
-            }
-        }
-        break;
-        default:
-        {
-            /* do nothing */
-        }
-        break;
-    }
+    CONFIG_ASSERT(NULL != buf);
+    int x_mv    = RW_rph_to_mv(rw_speed_rph[REAC_WHEEL_x]);
+    int y_mv    = RW_rph_to_mv(rw_speed_rph[REAC_WHEEL_y]);
+    int z_mv    = RW_rph_to_mv(rw_speed_rph[REAC_WHEEL_z]);
+    int req_len = snprintf(buf, buflen, "[ %d, %d, %d ]", x_mv, y_mv, z_mv);
+    return (req_len < buflen) ? 0 : 1;
 }
 
 
-void rw_apply_configs(void)
+int RW_measure_current_ma(REAC_WHEEL_t wheel)
 {
 #if defined(TARGET_MCU)
-    unsigned int i;
-    for (i = 0; i < NUM_REACTION_WHEELS; i++)
+    switch (wheel)
     {
-#warning NOT IMPLEMENTED YET
-        /** @todo WRITE THE PWM VALUES TO THE CORRECT REGISTERS */
+        case REAC_WHEEL_x:
+        {
+            return RW_CURRENT_API_measure_x_current_ma();
+        }
+        break;
+        case REAC_WHEEL_y:
+        {
+            return RW_CURRENT_API_measure_y_current_ma();
+        }
+        break;
+        case REAC_WHEEL_z:
+        {
+            return RW_CURRENT_API_measure_z_current_ma();
+        }
+        break;
+        default:
+        {
+            CONFIG_ASSERT(0);
+        }
+        break;
     }
+
 #else
-    printf("called %s\n", __func__);
+
+    printf("Called %s with arg %d\n", __func__, wheel);
+
 #endif /* #if defined(TARGET_MCU) */
 }
 
 
-/** @todo this could be made much cleaner but it works for now */
-int rw_config_to_string(char *buf, unsigned int buflen)
+static int RW_rph_to_mv(int rph)
 {
-    CONFIG_ASSERT(NULL != buf);
-    int required_len = snprintf(
-        buf, buflen, "[ %c%d, %c%d, %c%d ]",
-        rw_configs.configs[REAC_WHEEL_x].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
-        rw_configs.configs[REAC_WHEEL_x].pwm,
-        rw_configs.configs[REAC_WHEEL_y].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
-        rw_configs.configs[REAC_WHEEL_y].pwm,
-        rw_configs.configs[REAC_WHEEL_z].dir == REAC_WHEEL_DIR_neg ? '-' : '+',
-        rw_configs.configs[REAC_WHEEL_z].pwm);
-    return (required_len < (int)buflen) ? 0 : 1;
+    return (int)(rph / ((float)RW_RPH_PER_PWM_MV));
 }
 
 
-int rw_measure_current_ma(REAC_WHEEL_t wheel)
+static int RW_mv_to_rph(int mv)
 {
-    int current_ma;
-    switch (wheel)
+    return (int)(RW_RPH_PER_PWM_MV * mv);
+}
+
+/******************************************************************************/
+/******************************************************************************
+ *
+ *
+ *       START OF THE TARGET-SPECIFIC REGISTER LEVEL STUFF. IF THIS
+ *       SECTION GETS TOO BIG IT SHOULD BE MOVED INTO THE DRIVER LAYER
+ *
+ *
+ ******************************************************************************/
+/******************************************************************************/
+
+
+static void RW_PWM_API_init_phy(void)
+{
+#if defined(TARGET_MCU)
+
+
+#else
+
+    printf("Called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static void RW_PWM_API_timer_init(void)
+{
+#if defined(TARGET_MCU)
+
+
+#else
+
+    printf("Called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static void RW_PWM_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds)
+{
+    switch (rw)
     {
         case REAC_WHEEL_x:
+        {
+            RW_PWM_API_set_x_duty_cycle(pct_ds);
+        }
+        break;
         case REAC_WHEEL_y:
+        {
+            RW_PWM_API_set_y_duty_cycle(pct_ds);
+        }
+        break;
         case REAC_WHEEL_z:
         {
-#warning NOT IMPLEMENTED YET
-            /** @todo implement API call to driver */
+            RW_PWM_API_set_z_duty_cycle(pct_ds);
         }
         break;
         default:
         {
-            current_ma = -1;
+            CONFIG_ASSERT(0);
         }
         break;
     }
+}
+
+
+static void RW_PWM_API_set_x_duty_cycle(float pct_ds)
+{
+
+#if defined(TARGET_MCU)
+
+    if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+    {
+        pct_ds = PWM_MAX_DUTY_CYCLE_float;
+    }
+
+    TA0CCR0 = (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+
+#else
+
+    printf("called %s with arg %f\n", __func__, pct_ds);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static void RW_PWM_API_set_y_duty_cycle(float pct_ds)
+{
+#if defined(TARGET_MCU)
+
+    if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+    {
+        pct_ds = PWM_MAX_DUTY_CYCLE_float;
+    }
+
+    TA0CCR1 = (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+
+#else
+
+    printf("called %s with arg %f\n", __func__, pct_ds);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+static void RW_PWM_API_set_z_duty_cycle(float pct_ds)
+{
+#if defined(TARGET_MCU)
+
+    if (pct_ds > PWM_MAX_DUTY_CYCLE_float)
+    {
+        pct_ds = PWM_MAX_DUTY_CYCLE_float;
+    }
+
+    TA0CCR2 = (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+
+#else
+
+    printf("called %s with arg %f\n", __func__, pct_ds);
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static int RW_CURRENT_API_measure_x_current_ma(void)
+{
+    int current_ma = 50; /* for now, just a stubbed magic number */
+#if defined(TARGET_MCU)
+
+#warning NOT IMPLEMENTED YET
+
+
+#else
+
+    printf("called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
+    return current_ma;
+}
+
+
+static int RW_CURRENT_API_measure_y_current_ma(void)
+{
+    int current_ma = 50; /* for now, just a stubbed magic number */
+
+#if defined(TARGET_MCU)
+
+#warning NOT IMPLEMENTED YET
+
+
+#else
+
+    printf("called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
+
+    return current_ma;
+}
+
+
+static int RW_CURRENT_API_measure_z_current_ma(void)
+{
+    int current_ma = 50; /* for now, just a stubbed magic number */
+
+#if defined(TARGET_MCU)
+
+#warning NOT IMPLEMENTED YET
+
+#else
+
+    printf("called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
+
     return current_ma;
 }

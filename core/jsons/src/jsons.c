@@ -179,7 +179,8 @@ static json_handler_retval parse_rw_speed(json_handler_args args)
     if (jtok_tokcmp("read", &tkns[*t]))
     {
         memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        rw_config_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
+
+        RW_config_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
         OBC_IF_printf("{\"rw_speed\": %s}", tmp_chrbuf);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
@@ -211,17 +212,17 @@ static json_handler_retval parse_rw_speed(json_handler_args args)
                         {
                             case 1:
                             {
-                                rw_set_config(REAC_WHEEL_x, new_speed);
+                                RW_set_speed_rph(REAC_WHEEL_x, new_speed);
                             }
                             break;
                             case 2:
                             {
-                                rw_set_config(REAC_WHEEL_y, new_speed);
+                                RW_set_speed_rph(REAC_WHEEL_y, new_speed);
                             }
                             break;
                             case 3:
                             {
-                                rw_set_config(REAC_WHEEL_z, new_speed);
+                                RW_set_speed_rph(REAC_WHEEL_z, new_speed);
                             }
                             break;
                             default:
@@ -295,9 +296,9 @@ static json_handler_retval parse_rw_current(json_handler_args args)
 
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-        int current_ma_x = rw_measure_current_ma(REAC_WHEEL_x);
-        int current_ma_y = rw_measure_current_ma(REAC_WHEEL_y);
-        int current_ma_z = rw_measure_current_ma(REAC_WHEEL_z);
+        int current_ma_x = RW_measure_current_ma(REAC_WHEEL_x);
+        int current_ma_y = RW_measure_current_ma(REAC_WHEEL_y);
+        int current_ma_z = RW_measure_current_ma(REAC_WHEEL_z);
         OBC_IF_printf("{\"rw_current\": [ %d, %d, %d]}", current_ma_x,
                       current_ma_y, current_ma_z);
     }
@@ -318,7 +319,7 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
     if (jtok_tokcmp("read", &tkns[*t]))
     {
         memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        mqtr_config_to_str(tmp_chrbuf, sizeof(tmp_chrbuf));
+        MQTR_config_to_str(tmp_chrbuf, sizeof(tmp_chrbuf));
         OBC_IF_printf("{\"mqtr_volts\": %s}", tmp_chrbuf);
     }
     else if (jtok_tokcmp("write", &tkns[*t]))
@@ -355,17 +356,17 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                              */
                             case 1:
                             {
-                                mqtr_set_coil_voltage_mv(MQTR_x, new_voltage);
+                                MQTR_set_coil_voltage_mv(MQTR_x, new_voltage);
                             }
                             break;
                             case 2:
                             {
-                                mqtr_set_coil_voltage_mv(MQTR_y, new_voltage);
+                                MQTR_set_coil_voltage_mv(MQTR_y, new_voltage);
                             }
                             break;
                             case 3:
                             {
-                                mqtr_set_coil_voltage_mv(MQTR_z, new_voltage);
+                                MQTR_set_coil_voltage_mv(MQTR_z, new_voltage);
                             }
                             break;
                             default:

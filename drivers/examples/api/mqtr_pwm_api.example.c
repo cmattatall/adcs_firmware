@@ -51,12 +51,12 @@ static void mqtr_timer_pwm_init_phy(void)
 static void mqtr_x_init_phy(void)
 {
     /* Configure F pwm pin */
-    P1DIR ^= BIT2; /* P1.2 in output direction */
+    P1DIR |= BIT2; /* P1.2 in output direction */
     P1SEL |= BIT2; /* P1.2 will be used for its peripheral function */
 
 
     /* Configure R pwm pin */
-    P1DIR ^= BIT3; /* P1.3 in output direction */
+    P1DIR |= BIT3; /* P1.3 in output direction */
     P1SEL |= BIT3; /* P1.3 will be used for its peripheral function */
 }
 
@@ -64,11 +64,11 @@ static void mqtr_x_init_phy(void)
 static void mqtr_y_init_phy(void)
 {
     /* Configure F pwm pin */
-    P2DIR ^= BIT0; /* P2.0 in output direction */
+    P2DIR |= BIT0; /* P2.0 in output direction */
     P2SEL |= BIT0; /* P2.0 will be used for its peripheral function */
 
     /* Configure R pwm pin */
-    P2DIR ^= BIT1; /* P2.1 in output direction */
+    P2DIR |= BIT1; /* P2.1 in output direction */
     P2SEL |= BIT1; /* P2.1 will be used for its peripheral function */
 }
 
@@ -76,11 +76,11 @@ static void mqtr_y_init_phy(void)
 static void mqtr_z_init_phy(void)
 {
     /* Configure F pwm pin */
-    P1DIR ^= BIT4; /* P1.4 in output direction */
+    P1DIR |= BIT4; /* P1.4 in output direction */
     P1SEL |= BIT4; /* P1.4 will be used for its peripheral function */
 
     /* Configure R pwm pin */
-    P1DIR ^= BIT5; /* P1.5 in output direction */
+    P1DIR |= BIT5; /* P1.5 in output direction */
     P1SEL |= BIT5; /* P1.5 will be used for its peripheral function */
 }
 
@@ -149,7 +149,7 @@ int main(void)
     TA1CCR1 = 20000;
     TA1CCR2 = 20000;
 
-    _BIS_SR(GIE + LPM0_bits);
+    _BIS_SR(GIE);
     while (1)
     {
     }

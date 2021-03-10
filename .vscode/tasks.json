@@ -6,7 +6,7 @@
             "detail": "Flash the msp430 microcontroller using mspdebug.",
             "type": "shell",
             "group": "test",
-            "command" : "mspdebug tilib 'prog ${workspaceFolder}/build/${input:elf_file}'",
+            "command" : "mspdebug tilib 'prog ${workspaceFolder}/build/${input:executable}'",
             "dependsOn" : ["Build target"],
             "dependsOrder": "sequence",
             "presentation": {
@@ -74,20 +74,9 @@
         },
 
         {   
-            "id": "elf_file",
-            "description": "Path to the ELF file to debug (relative to workspace folder)",
-            "type": "pickString",
-            "options": [
-                "adcs_executable.elf",
-                "drivers/examples/ADCS_DRIVERS_ads7841.example.elf",
-                "drivers/examples/ADCS_DRIVERS_spi.example.elf",
-                "drivers/examples/ADCS_DRIVERS_blinky.example.elf",
-                "drivers/examples/ADCS_DRIVERS_sun_sensor.example.elf",
-                "drivers/examples/ADCS_DRIVERS_timer_blinky.example.elf",
-                "drivers/examples/ADCS_DRIVERS_uart.example.elf",
-            ]
-        }
-
-
+            "description": "Workspace relative path to the executable file",
+            "id": "executable",
+            "type": "promptString",
+        },
     ]
 }
