@@ -22,7 +22,7 @@ int main(void)
     P2DIR |= BIT3; /* output direction */
     P2SEL |= BIT3; /* put  P2.3 into (TA2.0 mode) */
 
-    TA2CTL &= ~(MC0 | MC1); /* Stop timer A0 */
+    TA2CTL &= ~(MC0 | MC1); /* Stop timer A2 */
 
     TA2CCR0 = 0; /* Initialize compare register value to 0 */
 
