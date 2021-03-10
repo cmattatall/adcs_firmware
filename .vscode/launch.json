@@ -8,12 +8,12 @@
             "program": "${workspaceFolder}/build/adcs",
 
             "windows": {
-                "program": "${workspaceFolder}/build/${input:native_executable}.exe",
+                "program": "${workspaceFolder}/build/${input:executable}.exe",
                 "miDebuggerPath": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gdb.exe",
                 "externalConsole": false,
             },
             "linux": {
-                "program": "${workspaceFolder}/build/${input:native_executable}",
+                "program": "${workspaceFolder}/build/${input:executable}",
                 "miDebuggerPath": "gdb",
             },
             "osx": {
@@ -40,7 +40,7 @@
             "name": "(msp430-elf-gdb) msp430 remote debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/${input:elf_file}",
+            "program": "${workspaceRoot}/build/${input:executable}",
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
             "miDebuggerArgs": "",
@@ -84,26 +84,9 @@
 
     "inputs": [
         {   
-            "description": "Path to the ELF file to debug (relative to workspace folder)",
-            "id": "elf_file",
-            "type": "pickString",
-            "options": [
-                "adcs_executable.elf",
-                "drivers/examples/ADCS_DRIVERS_ads7841.example.elf",
-                "drivers/examples/ADCS_DRIVERS_spi.example.elf",
-                "drivers/examples/ADCS_DRIVERS_blinky.example.elf",
-                "drivers/examples/ADCS_DRIVERS_sun_sensor.example.elf",
-                "drivers/examples/ADCS_DRIVERS_timer_blinky.example.elf",
-                "drivers/examples/ADCS_DRIVERS_uart.example.elf",
-            ]
+            "description": "Workspace relative path to the executable file",
+            "id": "executable",
+            "type": "promptString",
         },
-
-        {
-            "id": "native_executable",
-            "default": "adcs_executable",
-            //"default": "JTOK/test/JTOK_object_sibling_test",
-            "description": "Path to the native executable",
-            "type": "promptString"
-        }
     ]
 }
