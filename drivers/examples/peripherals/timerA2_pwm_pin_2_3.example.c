@@ -22,7 +22,7 @@ int main(void)
     P2DIR |= BIT3; /* output direction */
     P2SEL |= BIT3; /* put  P2.3 into (TA2.0 mode) */
 
-    TA2CTL &= ~(MC0 | MC1); /* Stop timer A0 */
+    TA2CTL &= ~(MC0 | MC1); /* Stop timer A2 */
 
     TA2CCR0 = 0; /* Initialize compare register value to 0 */
 
@@ -37,9 +37,10 @@ int main(void)
     TA2CTL &= ~(MC0 | MC1);
     TA2CTL |= MC__CONTINUOUS;
 
-    _BIS_SR(GIE + LPM0_bits);
-
+#warning THIS DOESN'T WORK BECAUSE TI HATES ME.
     TA2CCR0 = 20000; /* Initialize compare register value to 0 */
+
+    _BIS_SR(GIE + LPM0_bits);
 
     while (1)
     {
