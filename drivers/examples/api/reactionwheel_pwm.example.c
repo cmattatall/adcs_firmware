@@ -50,17 +50,17 @@ static void RW_PWM_timer_init(void)
 
     /* Confgigure pwm on pin 2.3 (TA.2.0) */
     TA2CCR0  = 0;
-    TA2CCTL0 = (TA0CCTL0 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
+    TA2CCTL0 = (TA2CCTL0 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
                API_TIMER_OUTMOD_INIT_MODE;
 
     /* Confgigure pwm on pin 2.4 (TA.2.1) */
     TA2CCR1  = 0;
-    TA2CCTL1 = (TA0CCTL1 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
+    TA2CCTL1 = (TA2CCTL1 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
                API_TIMER_OUTMOD_INIT_MODE;
 
     /* Confgigure pwm on pin 2.5 (TA.2.2) */
     TA2CCR2  = 0;
-    TA2CCTL2 = (TA0CCTL2 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
+    TA2CCTL2 = (TA2CCTL2 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
                API_TIMER_OUTMOD_INIT_MODE;
 
     /* Set timer A2 count mode */
@@ -73,11 +73,12 @@ int main()
     WDTCTL = WDTPW + WDTHOLD;
     RW_PWM_gpio_init();
     RW_PWM_timer_init();
-    _BIS_SR(GIE);
 
     TA2CCR0 = 20000;
     TA2CCR1 = 20000;
     TA2CCR2 = 20000;
+
+    _BIS_SR(GIE);
 
     while (1)
     {

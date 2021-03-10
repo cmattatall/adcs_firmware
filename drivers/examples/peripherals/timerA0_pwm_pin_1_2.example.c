@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
  *
- * PWM SIGNAL GENERATED ON PIN1.4 (which is output pin for TA0CCR3 COMPARE EVT)
+ * PWM SIGNAL GENERATED ON PIN1.2 (which is output pin for TA0CCR1 COMPARE EVT)
  */
 #include <stdlib.h>
 #include <msp430.h>
@@ -40,35 +40,30 @@ static uint16_t TIMERA0_duty_cycle(unsigned int percent)
     return (uint16_t)(UINT16_MAX * ((float)((percent % 100u) / 100.0f)));
 }
 
-
-static void TIMERA0_pin_1_4_pwm_phy_init(void)
-{
-    P1DIR ^= BIT4; /* P1.4 in output direction */
-    P1SEL |= BIT4; /* P1.4 will be used for its peripheral function */
-}
-
 int main(void)
 {
     /* Stop WDT */
     WDTCTL = WDTPW + WDTHOLD;
 
-    TIMERA0_pin_1_4_pwm_phy_init();
+    P1DIR ^= BIT2; /* P1.2 in output direction */
+    P1SEL |= BIT2; /* P1.2 will be used for its peripheral function */
 
     TA0CTL &= ~(MC0 | MC1); /* Stop timer */
 
-    TA0CCR3 = TIMERA0_duty_cycle(25);
-    TA0CCTL3 |= OUTMOD_TOG_SET;
+    TA0CCR1 = TIMERA0_duty_cycle(25);
+    TA0CCTL1 |= OUTMOD_TOG_SET;
 
     /* Set Timer A0 clock source to smclk */
     TA0CTL &= ~(TASSEL0 | TASSEL1);
     TA0CTL |= TASSEL__SMCLK;
+
 
     /* Set count mode */
     TA0CTL &= ~(MC0 | MC1);
     TA0CTL |= MC__CONTINOUS;
 
     /** @note VERY IMPORTANT. IF YOU DO _BIS_SR(GIE) it will not work! */
-    _BIS_SR(GIE + LPM0_bits);
+    _BIS_SR(GIE);
 
     while (1)
     {
