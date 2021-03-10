@@ -31,7 +31,7 @@ int main(void)
 
     OBC_IF_config(OBC_IF_PHY_CFG_UART);
 
-    mqtr_init();
+    MQTR_init();
     enable_interrupts();
 
 

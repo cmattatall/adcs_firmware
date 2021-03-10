@@ -9,8 +9,6 @@ extern "C"
 
 
 #include <stdint.h>
-#include "pwm.h"
-#include "rotational_directions.h"
 
 
 typedef enum
@@ -20,11 +18,11 @@ typedef enum
     MQTR_z,
 } MQTR_t;
 
-void mqtr_init(void);
+void MQTR_init(void);
 
-void mqtr_set_coil_voltage_mv(MQTR_t mqtr, int voltage_mv);
+void MQTR_set_coil_voltage_mv(MQTR_t mqtr, int voltage_mv);
 
-int mqtr_config_to_str(char *buf, int buflen);
+int MQTR_config_to_str(char *buf, int buflen);
 
 
 #ifdef __cplusplus

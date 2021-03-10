@@ -20,30 +20,14 @@ typedef enum
     REAC_WHEEL_z,
 } REAC_WHEEL_t;
 
-typedef enum
-{
-    REAC_WHEEL_DIR_pos = ROT_DIR_clock,
-    REAC_WHEEL_DIR_neg = ROT_DIR_anticlock,
-} REAC_WHEEL_DIR_t;
+void RW_init(void);
 
-typedef struct
-{
-    pwm_t            pwm;
-    REAC_WHEEL_DIR_t dir;
-} reac_wheel_config_single;
+void RW_set_speed_rph(REAC_WHEEL_t rw, int rph); /* rph == radians per hour */
 
-typedef struct
-{
-    reac_wheel_config_single configs[NUM_REACTION_WHEELS];
-} reac_wheel_configs;
+int RW_config_to_string(char *buf, int buflen);
 
+int RW_measure_current_ma(REAC_WHEEL_t wheel);
 
-reac_wheel_configs       rw_get_configs(void);
-reac_wheel_config_single rw_get_config(REAC_WHEEL_t wheel);
-void                     rw_set_config(REAC_WHEEL_t wheel, int speed);
-void                     rw_apply_configs(void);
-int                      rw_config_to_string(char *buf, unsigned int buflen);
-int                      rw_measure_current_ma(REAC_WHEEL_t wheel);
 
 #ifdef __cplusplus
 /* clang-format off */

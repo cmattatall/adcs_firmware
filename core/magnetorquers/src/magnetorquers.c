@@ -16,6 +16,7 @@
 #if defined(TARGET_MCU)
 #include <msp430.h>
 #include "timer_a.h"
+#include "pwm.h"
 #define API_TIMER_OUTMOD_INIT_MODE (OUTMOD_TOG_SET)
 #define API_TIMER_MC_INIT_MODE (MC__CONTINUOUS)
 #define API_TIMER_TASSEL_INIT_MODE (TASSEL__SMCLK)
@@ -41,7 +42,7 @@ static void MQTR_PWM_API_init(void);
 static void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv);
 
 
-void mqtr_init(void)
+void MQTR_init(void)
 {
     MQTR_PWM_API_init();
     MQTR_PWM_API_set_coil_voltage_mv(MQTR_x, 0);
@@ -50,7 +51,7 @@ void mqtr_init(void)
 }
 
 
-void mqtr_set_coil_voltage_mv(MQTR_t mqtr, int volts_mv)
+void MQTR_set_coil_voltage_mv(MQTR_t mqtr, int volts_mv)
 {
     switch (mqtr)
     {
@@ -71,7 +72,7 @@ void mqtr_set_coil_voltage_mv(MQTR_t mqtr, int volts_mv)
 }
 
 
-int mqtr_config_to_str(char *buf, int buflen)
+int MQTR_config_to_str(char *buf, int buflen)
 {
     CONFIG_ASSERT(NULL != buf);
     int required_len =
@@ -79,6 +80,22 @@ int mqtr_config_to_str(char *buf, int buflen)
                  mqtr_voltage_mv[MQTR_y], mqtr_voltage_mv[MQTR_z]);
     return (required_len < buflen) ? 0 : 1;
 }
+
+
+
+
+
+
+/******************************************************************************/
+/******************************************************************************
+ *
+ *
+ *       START OF THE TARGET-SPECIFIC REGISTER LEVEL STUFF. IF THIS
+ *       SECTION GETS TOO BIG IT SHOULD BE MOVED INTO THE DRIVER LAYER  
+ *
+ *
+ ******************************************************************************/
+/******************************************************************************/
 
 
 static void MQTR_PWM_API_init(void)
