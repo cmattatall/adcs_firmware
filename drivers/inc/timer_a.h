@@ -31,6 +31,7 @@ extern "C"
 #define OUTMOD_RST_SET (OUTMOD_7)
 /* clang-format on */
 
+
 #ifdef __cplusplus
 /* clang-format off */
 }
