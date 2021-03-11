@@ -65,7 +65,6 @@ int main()
     /* start timerA2 count from 0 to ffff forever */
     TA2CTL |= MC__CONTINOUS;
 
-
     TB0CTL &= ~(MC0 | MC1); /* Stop timer B0 */
     TB0CTL &= ~(TBSSEL0 | TBSSEL1);
     TB0CTL |= TBSSEL__SMCLK;

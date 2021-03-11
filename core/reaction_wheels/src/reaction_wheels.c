@@ -161,9 +161,9 @@ static void RW_PWM_API_init_phy(void)
 {
 #if defined(TARGET_MCU)
 
-    /* PIN 2.3 (RW_X_SPEED_CTRL) */
-    P2DIR |= BIT3;
-    P2SEL |= BIT3;
+    /* P3.5 (RW_X_SPEED_CTRL) */
+    P3DIR |= BIT5;
+    P3SEL |= BIT5;
 
     /* PIN 2.4 (RW_Y_SPEED_CTRL) */
     P2DIR |= BIT4;
@@ -187,11 +187,6 @@ static void RW_PWM_API_timer_init(void)
 
     TA2CTL &= ~(MC0 | MC1); /* Stop timer A2 */
 
-    /* Confgigure pwm on pin 2.3 (TA.2.0) */
-    TA2CCR0 = 0;
-    TA2CCTL0 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
-    TA2CCTL0 |= OUTMOD_TOG_SET;
-
     /* Confgigure pwm on pin 2.4 (TA.2.1) */
     TA2CCR1 = 0;
     TA2CCTL1 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
@@ -207,9 +202,23 @@ static void RW_PWM_API_timer_init(void)
     TA2CTL &= ~(TASSEL0 | TASSEL1);
     TA2CTL |= TASSEL__SMCLK;
 
-    /* Set count mode */
+    /* Set timer A2 count mode */
     TA2CTL &= ~(MC0 | MC1);
     TA2CTL |= MC__CONTINOUS;
+
+    /* Configure timer B0 */
+    TB0CTL &= ~(MC0 | MC1); /* Stop timer B0 */
+    TB0CTL &= ~(TBSSEL0 | TBSSEL1);
+    TB0CTL |= TBSSEL__SMCLK;
+
+    /* CONFIGURE TIMER B0 COMPARE 5 FOR X PWM (pin 3.5) */
+    TB0CCR5 = 0;
+    TB0CCTL5 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
+    TB0CCTL5 |= OUTMOD_TOG_SET;
+
+    /* Set Timer B0 count mode */
+    TB0CTL |= MC__CONTINOUS;
+
 #else
 
     printf("Called %s\n", __func__);
@@ -256,7 +265,7 @@ static void RW_PWM_API_set_x_duty_cycle(float pct_ds)
         pct_ds = PWM_MAX_DUTY_CYCLE_float;
     }
 
-    TA0CCR0 = (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+    TB0CCR5 = (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
 
 #else
 
