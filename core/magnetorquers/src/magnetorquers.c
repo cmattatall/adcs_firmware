@@ -17,6 +17,10 @@
 #include <msp430.h>
 #include "timer_a.h"
 #include "pwm.h"
+
+#define MQTR_PWM_TIMER_COUNT_MODE MC__UP
+
+#define SMCLK_FREQ (1000000u)
 #else
 #endif /* #if defined(TARGET_MCU) */
 
@@ -29,9 +33,9 @@ static int mqtr_voltage_mv[] = {
     [MQTR_z] = 0,
 };
 
-
+static uint16_t MQTR_PWM_API_timer_period_reg_val(uint16_t freq);
 static void MQTR_PWM_API_init_phy(void);
-static void MQTR_PWM_API_timer_init(void);
+static void MQTR_PWM_API_timer_init(uint16_t freq);
 static void MQTR_PWM_API_set_x_duty_cycle(float ds_percent);
 static void MQTR_PWM_API_set_y_duty_cycle(float ds_percent);
 static void MQTR_PWM_API_set_z_duty_cycle(float ds_percent);
@@ -98,7 +102,7 @@ int MQTR_config_to_str(char *buf, int buflen)
 static void MQTR_PWM_API_init(void)
 {
     MQTR_PWM_API_init_phy();
-    MQTR_PWM_API_timer_init();
+    MQTR_PWM_API_timer_init(20000);
 }
 
 
@@ -177,7 +181,7 @@ static void MQTR_PWM_API_init_phy(void)
 }
 
 
-static void MQTR_PWM_API_timer_init(void)
+static void MQTR_PWM_API_timer_init(uint16_t pwm_freq)
 {
 #if defined(TARGET_MCU)
 
@@ -186,6 +190,8 @@ static void MQTR_PWM_API_timer_init(void)
     /* Set Timer A0 clock source to smclk */
     TA0CTL &= ~(TASSEL0 | TASSEL1);
     TA0CTL |= TASSEL__SMCLK;
+
+    TA0CCR0 = MQTR_PWM_API_timer_period_reg_val(pwm_freq);
 
     /* Config for mqtr X face F pin (pin 1.2) */
     #warning THIS SEEMS NOT WORK ON THIS SPECIFIC PIN
@@ -214,10 +220,12 @@ static void MQTR_PWM_API_timer_init(void)
 
     /* Set timer A0 count mode */
     TA0CTL &= ~(MC0 | MC1);
-    TA0CTL |= MC__CONTINOUS;
+    TA0CTL |= MQTR_PWM_TIMER_COUNT_MODE;
 
     /* Stop timer A1 */
     TA1CTL &= ~(MC0 | MC1);
+
+    TA1CCR0 = MQTR_PWM_API_timer_period_reg_val(pwm_freq);
 
     /* Set Timer A1 clock source to smclk */
     TA1CTL &= ~(TASSEL0 | TASSEL1);
@@ -234,7 +242,8 @@ static void MQTR_PWM_API_timer_init(void)
     TA1CCTL2 |= OUTMOD_TOG_SET;
 
     /* Set Timer A1 count mode */
-    TA1CTL = (TA1CTL & ~(MC0 | MC1)) | MC__CONTINUOUS;
+    TA1CTL &= ~(MC0 | MC1);
+    TA1CTL |= MQTR_PWM_TIMER_COUNT_MODE;
 
 #else
 
@@ -247,6 +256,36 @@ static void MQTR_PWM_API_timer_init(void)
 static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
 {
 #if defined(TARGET_MCU)
+
+    uint16_t max_count; 
+    switch(TA0CTL & (MC0 | MC1))
+    {
+        case MC__CONTINOUS:
+        {
+            max_count = UINT16_MAX;
+        }
+        break;
+        case MC__UP:
+        {
+            max_count = TA0CCR0;
+        }
+        break;
+        case MC__UPDOWN:
+        {
+            max_count = 2*TA0CCR0;
+        }
+        break;
+        case MC__STOP:
+        {
+            max_count = 0;
+        }
+        break;
+        default:
+        {
+            CONFIG_ASSERT(0);
+        }
+        break;
+    }
 
     if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
     {
@@ -261,7 +300,7 @@ static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
         }
         TA0CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
         TA0CCR1 =
-            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * max_count);
     }
     else
     {
@@ -271,7 +310,7 @@ static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
         }
         
         TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR2 =  (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+        TA0CCR2 =  (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * max_count);
             
     }
 
@@ -287,6 +326,36 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
 {
 #if defined(TARGET_MCU)
 
+    uint16_t max_count; 
+    switch(TA1CTL & (MC0 | MC1))
+    {
+        case MC__CONTINOUS:
+        {
+            max_count = UINT16_MAX;
+        }
+        break;
+        case MC__UP:
+        {
+            max_count = TA0CCR0;
+        }
+        break;
+        case MC__UPDOWN:
+        {
+            max_count = 2*TA0CCR0;
+        }
+        break;
+        case MC__STOP:
+        {
+            max_count = 0;
+        }
+        break;
+        default:
+        {
+            CONFIG_ASSERT(0);
+        }
+        break;
+    }
+
     if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
     {
         TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
@@ -300,7 +369,7 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
         }
         TA1CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
         TA1CCR2 =
-            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * max_count);
     }
     else
     {
@@ -309,7 +378,7 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
             pct_ds = PWM_MAX_DUTY_CYCLE_float;
         }
         TA1CCR2 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA1CCR1 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+        TA1CCR1 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * max_count);
     }
 
 #else
@@ -323,6 +392,35 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
 static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
 {
 #if defined(TARGET_MCU)
+    uint16_t max_count; 
+    switch(TA0CTL & (MC0 | MC1))
+    {
+        case MC__CONTINOUS:
+        {
+            max_count = UINT16_MAX;
+        }
+        break;
+        case MC__UP:
+        {
+            max_count = TA0CCR0;
+        }
+        break;
+        case MC__UPDOWN:
+        {
+            max_count = 2*TA0CCR0;
+        }
+        break;
+        case MC__STOP:
+        {
+            max_count = 0;
+        }
+        break;
+        default:
+        {
+            CONFIG_ASSERT(0);
+        }
+        break;
+    }
 
     if (pct_ds == PWM_MIN_DUTY_CYCLE_float)
     {
@@ -337,7 +435,7 @@ static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
         }
         TA0CCR3 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
         TA0CCR4 =
-            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * UINT16_MAX);
+            (uint16_t)((pct_ds / (-1 * PWM_MAX_DUTY_CYCLE_float)) * max_count);
     }
     else
     {
@@ -347,7 +445,7 @@ static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
         }
         
         TA0CCR4 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR3 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * UINT16_MAX);
+        TA0CCR3 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * max_count);
 
     }
 
@@ -356,3 +454,13 @@ static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
     printf("called %s with argument %f\n", __func__, pct_ds);
 #endif /* #if defined(TARGET_MCU) */
 }
+
+
+
+static uint16_t MQTR_PWM_API_timer_period_reg_val(uint16_t freq)
+{
+    uint16_t period_reg_val = 0;
+    period_reg_val = SMCLK_FREQ / freq;
+    return period_reg_val;
+}
+

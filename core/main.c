@@ -34,10 +34,9 @@ int main(void)
     MQTR_init();
     enable_interrupts();
 
-    MQTR_set_coil_voltage_mv(MQTR_x, 500);
-    MQTR_set_coil_voltage_mv(MQTR_y, -1500);
-    MQTR_set_coil_voltage_mv(MQTR_z, -1500);
-
+    MQTR_set_coil_voltage_mv(MQTR_x, 1650);
+    MQTR_set_coil_voltage_mv(MQTR_y, -1650);
+    MQTR_set_coil_voltage_mv(MQTR_z, 1650);
 
 #else
     OBC_IF_config(OBC_IF_PHY_CFG_EMULATED);
