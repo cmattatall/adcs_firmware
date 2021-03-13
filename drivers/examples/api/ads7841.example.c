@@ -46,7 +46,7 @@ static void red_led_init(void)
 
 static void enable_interrupts(void)
 {
-    _BIS_SR(GIE + LPM0_bits);    // Enter LPM0 w/ interrupt
+    _BIS_SR(GIE);    
     _no_operation(); /* Fixes bug due to silicon erratta */
 }
 
