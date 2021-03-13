@@ -87,54 +87,58 @@ static void mqtr_z_init_phy(void)
 
 static void mqtr_timer_init(void)
 {
+
     TA0CTL &= ~(MC0 | MC1); /* Stop timer A0 */
 
     /* Set Timer A0 clock source to smclk */
-    TA0CTL = (TA0CTL & ~(TASSEL0 | TASSEL1)) | API_TIMER_TASSEL_INIT_MODE;
+    TA0CTL &= ~(TASSEL0 | TASSEL1);
+    TA0CTL |= TASSEL__SMCLK;
 
     /* Config for mqtr X face F pin (pin 1.2) */
     TA0CCR1  = 0;
-    TA0CCTL1 = (TA0CCTL1 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
-               API_TIMER_OUTMOD_INIT_MODE;
+    TA0CCTL0 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
+    TA0CCTL0 |= OUTMOD_TOG_SET;
+    TA0CCTL0 &= ~(CAP);
 
     /* Config for mqtr X face R pin (pin 1.3) */
     TA0CCR2  = 0;
-    TA0CCTL2 = (TA0CCTL2 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
-               API_TIMER_OUTMOD_INIT_MODE;
+    TA0CCTL2 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
+    TA0CCTL2 |= OUTMOD_TOG_SET;
+    TA0CCTL2 &= ~(CAP);
 
 
     /* Config for mqtr Z face F pin (pin 1.4) */
     TA0CCR3  = 0;
     TA0CCTL3 = (TA0CCTL3 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
-               API_TIMER_OUTMOD_INIT_MODE;
+               OUTMOD_TOG_SET;
 
     /* Config for mqtr Z face R pin (pin 1.5) */
     TA0CCR4  = 0;
     TA0CCTL4 = (TA0CCTL4 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
-               API_TIMER_OUTMOD_INIT_MODE;
+               OUTMOD_TOG_SET;
 
     /* Set timer A0 count mode */
-    TA0CTL = (TA0CTL & ~(MC0 | MC1)) | API_TIMER_MC_INIT_MODE;
+    TA0CTL = (TA0CTL & ~(MC0 | MC1)) | MC__CONTINUOUS;
 
 
     /* Stop timer A1 */
     TA1CTL &= ~(MC0 | MC1);
 
     /* Set Timer A1 clock source to smclk */
-    TA1CTL = (TA1CTL & ~(TASSEL0 | TASSEL1)) | API_TIMER_TASSEL_INIT_MODE;
+    TA1CTL = (TA1CTL & ~(TASSEL0 | TASSEL1)) | TASSEL__SMCLK;
 
     /* Config for mqtr Y face F pin (pin 2.0) */
     TA1CCR1  = 0;
     TA1CCTL1 = (TA1CCTL1 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
-               API_TIMER_OUTMOD_INIT_MODE;
+               OUTMOD_TOG_SET;
 
     /* Config for mqtr Y face R pin (pin 2.1)*/
     TA1CCR2  = 0;
     TA1CCTL2 = (TA1CCTL2 & ~(OUTMOD0 | OUTMOD1 | OUTMOD2)) |
-               API_TIMER_OUTMOD_INIT_MODE;
+               OUTMOD_TOG_SET;
 
     /* Set Timer A1 count mode */
-    TA1CTL = (TA1CTL & ~(MC0 | MC1)) | API_TIMER_MC_INIT_MODE;
+    TA1CTL = (TA1CTL & ~(MC0 | MC1)) | MC__CONTINUOUS;
 }
 
 
@@ -142,6 +146,7 @@ int main(void)
 {
     WDTCTL = WDTPW + WDTHOLD;
     mqtr_pwm_init();
+    TA0CCR0 = 0;
     TA0CCR1 = 20000;
     TA0CCR2 = 20000;
     TA0CCR3 = 20000;
@@ -149,7 +154,7 @@ int main(void)
     TA1CCR1 = 20000;
     TA1CCR2 = 20000;
 
-    _BIS_SR(GIE);
+    _BIS_SR(GIE + LPM0_bits);
     while (1)
     {
     }
