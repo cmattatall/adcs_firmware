@@ -81,7 +81,8 @@ int json_parse(uint8_t *json)
 
     int json_parse_status = 0;
 
-    int jtok_retval = jtok_parse((char *)json, tkns, JSON_TKN_CNT);
+    int jtok_retval;
+    jtok_retval = jtok_parse((char *)json, tkns, JSON_TKN_CNT);
 
     if (jtok_retval != JTOK_PARSE_STATUS_OK)
     {

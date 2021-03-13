@@ -34,16 +34,22 @@ int main(void)
     MQTR_init();
     enable_interrupts();
 
-    MQTR_set_coil_voltage_mv(MQTR_x, 1650);
-    MQTR_set_coil_voltage_mv(MQTR_y, -1650);
-    MQTR_set_coil_voltage_mv(MQTR_z, 1650);
-
 #else
     OBC_IF_config(OBC_IF_PHY_CFG_EMULATED);
 #endif /* #if defined(TARGET_MCU) */
     
+
+    volatile int i = 0;
     while (1)
-    {
+    {   
+
+        i = 0;
+        while(++i < 10000);
+
+
+        OBC_IF_printf("Hello World");
+        
+        #if 0
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
             /* get command json string from OBC interface */
@@ -53,11 +59,13 @@ int main(void)
             if (0 != json_parse(msg))
             {
                 OBC_IF_printf(
-                    "{\"error\" : \"json format\", \"received\":\"%s\"}\n",
+                    "{\"error\" : \"json format\", \"received\":\"%s\"}\r\n",
                     msg);
             }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
+
+        #endif
 
 #if defined(TARGET_MCU) && !defined(DEBUG)
         watchdog_kick();

@@ -102,7 +102,7 @@ int MQTR_config_to_str(char *buf, int buflen)
 static void MQTR_PWM_API_init(void)
 {
     MQTR_PWM_API_init_phy();
-    MQTR_PWM_API_timer_init(20000);
+    MQTR_PWM_API_timer_init(1000);
 }
 
 
