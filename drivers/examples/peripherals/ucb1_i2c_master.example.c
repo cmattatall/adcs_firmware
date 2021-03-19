@@ -2,17 +2,31 @@
  * @file ucb1_i2c.example.c
  * @author Carl Mattatall (cmattatall2@gmail.com)
  * @brief Source module demonstrating transmission of bytes to
- * device address 0x0F using I2C as a master device from UCB1
+ * device address 0x48 using I2C as a master device from UCB1
  * @version 0.1
  * @date 2021-03-19
  *
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
+ *
+ * PINOUT:
+ *              3.3V
+ *                |
+ *             10Kohm
+ *                |
+ * P4.1 (SDA) ----+---------- SDA OF SLAVE DEVICE
+ *
+ *              3.3V
+ *                |
+ *             10Kohm
+ *                |
+ * P4.2 (SCL)-----+---------  SCL OF SLAVE DEVICE
  */
 
 #include <msp430.h>
 #include <stdint.h>
 
+#define UCMODE_I2C (UCMODE_3)
 #define SLAVE_DEVICE_ADDR (0x48u);
 
 static unsigned char *PTxData; // Pointer to TX data
@@ -29,16 +43,15 @@ int main(void)
     P4SEL |= BIT2;
     P4SEL |= BIT1;
 
-    UCB1CTL1 |= UCSWRST;                   // Enable SW reset
-    UCB1CTL0  = UCMST + UCMODE_3 + UCSYNC; // I2C Master, synchronous mode
-    UCB1CTL1  = UCSSEL_2 + UCSWRST;        // Use SMCLK, keep SW reset
-    UCB1BR0   = 12;                        // fSCL = SMCLK/12 = ~100kHz
+    UCB1CTL1 |= UCSWRST;                     // Enable SW reset
+    UCB1CTL0  = UCMST + UCMODE_I2C + UCSYNC; // I2C Master, synchronous mode
+    UCB1CTL1  = UCSSEL_2 + UCSWRST;          // Use SMCLK, keep SW reset
+    UCB1BR0   = 12;                          // fSCL = SMCLK/12 = ~100kHz
     UCB1BR1   = 0;
     UCB1I2CSA = SLAVE_DEVICE_ADDR; // Slave Address is 048h
     UCB1CTL1 &= ~UCSWRST;          // Clear SW reset, resume operation
 
     UCB1IE |= UCTXIE; // Enable TX interrupt
-
 
     __bis_SR_register(GIE); // Enter LPM0, enable interrupts
     __no_operation();       /* more fixes for silicon errata, see user guide */
