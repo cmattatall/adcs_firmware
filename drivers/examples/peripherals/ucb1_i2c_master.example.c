@@ -11,12 +11,15 @@
  */
 
 #include <msp430.h>
+#include <stdint.h>
+
+#define SLAVE_DEVICE_ADDR (0x48u);
 
 static unsigned char *PTxData; // Pointer to TX data
 static unsigned char  TXByteCtr;
 
-const unsigned char TxData[] = // Table of data to transmit
-    {0x11, 0x22, 0x33, 0x44, 0x55};
+// data to transmit (values that are easy to see on scope)
+const unsigned char TxData[] = {0x11, 0x22, 0x33, 0x44, 0x55};
 
 int main(void)
 {
@@ -31,33 +34,34 @@ int main(void)
     UCB1CTL1  = UCSSEL_2 + UCSWRST;        // Use SMCLK, keep SW reset
     UCB1BR0   = 12;                        // fSCL = SMCLK/12 = ~100kHz
     UCB1BR1   = 0;
-    UCB1I2CSA = 0x48;     // Slave Address is 048h
-    UCB1CTL1 &= ~UCSWRST; // Clear SW reset, resume operation
+    UCB1I2CSA = SLAVE_DEVICE_ADDR; // Slave Address is 048h
+    UCB1CTL1 &= ~UCSWRST;          // Clear SW reset, resume operation
 
     UCB1IE |= UCTXIE; // Enable TX interrupt
 
 
+    __bis_SR_register(GIE); // Enter LPM0, enable interrupts
+    __no_operation();       /* more fixes for silicon errata, see user guide */
     while (1)
     {
         while (1)
         {
-            int i;
-            for (i = 0; i < 10; ++i)
+            volatile int i;
+            for (i = 0; i < 100; ++i)
                 ; // Delay required between bus transactions
 
+            // TX array start address
+            // Place breakpoint here to see
+            // each transmit operation.
+            PTxData = TxData;
 
-            PTxData = (unsigned char *)TxData; // TX array start address
-                                               // Place breakpoint here to see
-                                               // each transmit operation.
-            TXByteCtr = sizeof TxData;         // Load TX byte counter
+            TXByteCtr = sizeof(TxData); // Load TX byte counter
 
-            UCB1CTL1 |= UCTR + UCTXSTT; // I2C TX, start condition
+            // I2C TX, start condition
+            UCB1CTL1 |= (UCTR | UCTXSTT);
 
-            __bis_SR_register(LPM0_bits + GIE); // Enter LPM0, enable interrupts
-            __no_operation();                   // Remain in LPM0 until all data
-                                                // is TX'd
             while (UCB1CTL1 & UCTXSTP)
-                ; // Ensure stop condition got sent
+                ; // Ensure stop condition got sent to slave
         }
     }
 }
