@@ -97,12 +97,6 @@ if __name__ == "__main__":
     command_json  = {
         "a" : 1
     }
-    #uart_transmit_string(ser, "blah1")
-    #uart_transmit_string(ser, "blah2")
-    uart_transmit_string(ser, json.dumps(command_json))
-    uart_transmit_string(ser, json.dumps(command_json))
-    uart_transmit_string(ser, json.dumps(command_json))
-    uart_transmit_string(ser, json.dumps(command_json))
     uart_transmit_string(ser, json.dumps(command_json))
     
 
