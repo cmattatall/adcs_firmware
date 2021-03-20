@@ -8,6 +8,18 @@
 
 import serial
 import time
+import signal
+import sys
+
+def signal_handler_SIGINT(sig, frame):
+    print("You pressed CTRL + C, freeing ports and exiting the script...")
+
+    if(ser.isOpen()):
+        ser.close()
+    print("cleanup success!")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler_SIGINT)
 
 BUSPIRATE_PORT = '/dev/ttyUSB0' #customize this! Find it in device manager.
 
@@ -26,15 +38,17 @@ def read_from_pirate(port):
     #print(string)
 
 def pirate_exchange(port, msg):
-    read_from_pirate(port)
-    time.sleep(0.1)
     write_to_pirate(port, msg)
-    time.sleep(0.1)
+    time.sleep(0.05)
+    read_from_pirate(port)
+    time.sleep(0.05)
+    print("\n")
 
 def pirate_transmit_string(port, msg):
     string = "\"" + str(msg) + "\""
     pirate_exchange(port, string)
 
+ser = None
 
 if __name__ == "__main__":
     ser = serial.Serial(BUSPIRATE_PORT, 115200, timeout = 1)
@@ -49,9 +63,11 @@ if __name__ == "__main__":
     pirate_exchange(ser, '2') # output mode level == normal
     pirate_exchange(ser, '{')
 
-    while True:
-        time.sleep(0.1)
-        for line in ser.readlines():
-            #byte = line.decode('utf-8').rstrip().replace("READ:", '')
-            #print(byte)
-            print(line.decode('utf-8').rstrip())
+    print("Closing the port")
+
+    if(ser.isOpen()):
+        ser.close()
+
+
+
+
