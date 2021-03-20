@@ -17,12 +17,8 @@ ser = None
 
 def signal_handler_SIGINT(sig, frame):
     print("You pressed CTRL + C, freeing ports and exiting the script...")
-
-    if(ser.isOpen()):
-        pirate_exchange(ser, '#') #Reset pirate
-        ser.close()
-
-    print("cleanup success!")
+    ser.close()
+    assert(ser.isOpen() == False)
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler_SIGINT)
@@ -72,7 +68,7 @@ def pirate_transmit_string(port, msg):
 
 def uart_transmit_string(port, msg):
     adcs_uart_message_delim = '!'
-    string = "\"" + str(msg) + adcs_uart_message_delim + "\""
+    string = "\"" + str(msg) + adcs_uart_message_delim + adcs_uart_message_delim + "\""
     uart_exchange(port, string)
 
 
@@ -94,10 +90,20 @@ if __name__ == "__main__":
     pirate_exchange(ser, '4') # outmode as ascii interpretation of bytes
     pirate_exchange(ser, '{') # enable live display
 
-    command_json  = {
-        "a" : 1
+    command_json1 = {
+        "a" : 2
     }
-    uart_transmit_string(ser, json.dumps(command_json))
+
+    command_json2  = {
+        "ab" : 1
+    }
+
+    uart_transmit_string(ser, json.dumps(command_json1))
+    uart_transmit_string(ser, json.dumps(command_json1))
+
+    uart_transmit_string(ser, json.dumps(command_json2))
+    uart_transmit_string(ser, json.dumps(command_json2))
+
     
 
 
