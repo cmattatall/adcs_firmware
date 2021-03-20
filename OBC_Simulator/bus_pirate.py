@@ -10,14 +10,17 @@ import serial
 import time
 import signal
 import sys
+import json
+
+
+ser = None
 
 def signal_handler_SIGINT(sig, frame):
     print("You pressed CTRL + C, freeing ports and exiting the script...")
 
     if(ser.isOpen()):
+        pirate_exchange(ser, '#') #Reset pirate
         ser.close()
-    else:
-        pirate_exchange(ser, '}') # stop live display
 
     print("cleanup success!")
     sys.exit(0)
@@ -44,30 +47,23 @@ def read_from_uart(port):
         uart_receive_prefix = "READ: "
 
         if uart_receive_prefix in message:
-            byte = message.replace(uart_receive_prefix, ' ').replace("\n", '').lstrip().rstrip().replace("\n", '')
+            byte = message.replace(uart_receive_prefix, ' ').lstrip().rstrip().replace("\n", '')
             string = string + byte
-            #print("ADDED " + byte + " TO STRING \"" + string + "\"")
-        
-        #if -1 != message.find(uart_receive_prefix, 0, message.len()):
-        #    byte = message.replace(uart_receive_prefix, ' ').replace("\n", '')
-        #    string = string + byte
-        #    print("ADDED " + byte + " TO STRING \"" + string + "\"")
     return string
 
-def uart_exchange(port, msg, tx_prefix = "OBC: ", rx_prefix = "ADCS: "):
-    print(tx_prefix + msg)
+
+def uart_exchange(port, msg):
+    print("TX: " + msg)
     write_to_pirate(port, msg)
-    time.sleep(0.05)
-    print(rx_prefix + read_from_uart(port))
-    time.sleep(0.05)
+    print("RX: " + read_from_uart(port))
     print("\n")
+
 
 def pirate_exchange(port, msg):
     write_to_pirate(port, msg)
-    time.sleep(0.05)
     read_from_pirate(port)
-    time.sleep(0.05)
     print("\n")
+
 
 def pirate_transmit_string(port, msg):
     string = "\"" + str(msg) + "\""
@@ -75,10 +71,10 @@ def pirate_transmit_string(port, msg):
 
 
 def uart_transmit_string(port, msg):
-    string = "\"" + str(msg) + "\""
+    adcs_uart_message_delim = '!'
+    string = "\"" + str(msg) + adcs_uart_message_delim + "\""
     uart_exchange(port, string)
 
-ser = None
 
 if __name__ == "__main__":
     ser = serial.Serial(BUSPIRATE_PORT, 115200, timeout = 1)
@@ -98,9 +94,18 @@ if __name__ == "__main__":
     pirate_exchange(ser, '4') # outmode as ascii interpretation of bytes
     pirate_exchange(ser, '{') # enable live display
 
-    while True:
-        time.sleep(1)
-        uart_transmit_string(ser, "test!")
+    command_json  = {
+        "a" : 1
+    }
+    #uart_transmit_string(ser, "blah1")
+    #uart_transmit_string(ser, "blah2")
+    uart_transmit_string(ser, json.dumps(command_json))
+    uart_transmit_string(ser, json.dumps(command_json))
+    uart_transmit_string(ser, json.dumps(command_json))
+    uart_transmit_string(ser, json.dumps(command_json))
+    uart_transmit_string(ser, json.dumps(command_json))
+    
+
 
 
 

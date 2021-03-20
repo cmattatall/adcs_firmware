@@ -134,6 +134,7 @@ int json_parse(uint8_t *json)
             json_parse_status = 1;
         }
     }
+
     return json_parse_status;
 }
 
@@ -211,23 +212,19 @@ static json_handler_retval parse_rw_speed(json_handler_args args)
                         i++;
                         switch (i)
                         {
-                            case 1:
-                            {
+                            case 1: {
                                 RW_set_speed_rph(REAC_WHEEL_x, new_speed);
                             }
                             break;
-                            case 2:
-                            {
+                            case 2: {
                                 RW_set_speed_rph(REAC_WHEEL_y, new_speed);
                             }
                             break;
-                            case 3:
-                            {
+                            case 3: {
                                 RW_set_speed_rph(REAC_WHEEL_z, new_speed);
                             }
                             break;
-                            default:
-                            {
+                            default: {
                                 return JSON_HANDLER_RETVAL_ERROR;
                             }
                             break;
@@ -355,23 +352,19 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                              * I had to build this entire codebase by myself
                              * in ~3 months and theres almost a million LOC
                              */
-                            case 1:
-                            {
+                            case 1: {
                                 MQTR_set_coil_voltage_mv(MQTR_x, new_voltage);
                             }
                             break;
-                            case 2:
-                            {
+                            case 2: {
                                 MQTR_set_coil_voltage_mv(MQTR_y, new_voltage);
                             }
                             break;
-                            case 3:
-                            {
+                            case 3: {
                                 MQTR_set_coil_voltage_mv(MQTR_z, new_voltage);
                             }
                             break;
-                            default:
-                            {
+                            default: {
                                 return JSON_HANDLER_RETVAL_ERROR;
                             }
                             break;
