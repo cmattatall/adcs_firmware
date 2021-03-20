@@ -42,13 +42,13 @@ int main(void)
     while (1)
     {
 
+#if 0
         volatile int i = 0;
         while (++i < 10000)
             ;
         OBC_IF_printf("Hello World\r\n");
+#else
 
-
-#if 0 
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
             /* get command json string from OBC interface */
