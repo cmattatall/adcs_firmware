@@ -54,10 +54,11 @@ def read_from_uart(port):
         #    print("ADDED " + byte + " TO STRING \"" + string + "\"")
     return string
 
-def uart_exchange(port, msg):
+def uart_exchange(port, msg, tx_prefix = "OBC: ", rx_prefix = "ADCS: "):
+    print(tx_prefix + msg)
     write_to_pirate(port, msg)
     time.sleep(0.05)
-    print(read_from_uart(port))
+    print(rx_prefix + read_from_uart(port))
     time.sleep(0.05)
     print("\n")
 
