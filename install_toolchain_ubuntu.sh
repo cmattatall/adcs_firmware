@@ -52,17 +52,19 @@ TOOLCHAIN_INSTALL_ROOT="/opt/msp430_toolchain"
 CMAKE_INSTALL_ROOT="/usr/local/cmake"
 
 
-mkdir -p -- $CMAKE_INSTALL_ROOT
-pushd $CMAKE_INSTALL_ROOT
-wget "https://github.com/Kitware/CMake/releases/download/v3.19.5/cmake-3.19.5-Linux-x86_64.tar.gz" -P $(pwd)
-tar -xvzf $(pwd)/cmake-3.19.5-Linux-x86_64.tar.gz -C $(pwd)
-ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/cmake /usr/local/bin/cmake
-ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/ccmake /usr/local/bin/ccmake
-ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/cmake-gui /usr/local/bin/cmake-gui
-ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/cpack /usr/local/bin/cpack
-ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/ctest /usr/local/bin/ctest
-cmake --version && ctest --version && cpack --version
-popd
+
+
+#mkdir -p -- $CMAKE_INSTALL_ROOT
+#pushd $CMAKE_INSTALL_ROOT
+#wget "https://github.com/Kitware/CMake/releases/download/v3.19.5/cmake-3.19.5-Linux-x86_64.tar.gz" -P $(pwd)
+#tar -xvzf $(pwd)/cmake-3.19.5-Linux-x86_64.tar.gz -C $(pwd)
+#ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/cmake /usr/local/bin/cmake
+#ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/ccmake /usr/local/bin/ccmake
+#ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/cmake-gui /usr/local/bin/cmake-gui
+#ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/cpack /usr/local/bin/cpack
+#ln -s $(pwd)/cmake-3.19.5-Linux-x86_64/bin/ctest /usr/local/bin/ctest
+#cmake --version && ctest --version && cpack --version
+#popd
 
 
 mkdir -p -- $TOOLCHAIN_INSTALL_ROOT
@@ -104,5 +106,5 @@ find ~+ -type f -executable -exec sh -c 'ln -s {} /usr/local/bin/"$(basename {})
 popd # leave $TOOLCHAIN_INSTALL_ROOT/msp430-gcc-9.2.0.50_linux64/bin
 
 
-echo "SUBSYSTEM==\"usb\", MODE=\"0666\"" >> /etc/udev/rules.d/usb.rules
+echo    >> /etc/udev/rules.d/usb.rules
 udevadm control --reload-rules && udevadm trigger
