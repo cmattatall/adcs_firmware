@@ -41,14 +41,14 @@ int main(void)
 
     while (1)
     {
+
         volatile int i = 0;
         while (++i < 10000)
             ;
+        OBC_IF_printf("Hello World\r\n");
 
 
-        OBC_IF_printf("Hello World");
-
-#if 0
+#if 0 
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
             /* get command json string from OBC interface */
@@ -63,7 +63,6 @@ int main(void)
             }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
-
 #endif
 
 #if defined(TARGET_MCU) && !defined(DEBUG)
