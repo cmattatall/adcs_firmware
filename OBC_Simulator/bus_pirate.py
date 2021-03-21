@@ -12,14 +12,10 @@ import signal
 import sys
 import json
 
-
-ser = None
-
 def signal_handler_SIGINT(sig, frame):
     print("You pressed CTRL + C, freeing ports and exiting the script...")
     ser.close()
     assert(ser.isOpen() == False)
-    sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler_SIGINT)
 
@@ -73,10 +69,9 @@ def uart_transmit_string(port, msg):
 
 
 if __name__ == "__main__":
-    ser = serial.Serial(BUSPIRATE_PORT, 115200, timeout = 1)
+    ser = serial.Serial(BUSPIRATE_PORT, 115200, timeout = 0.05)
     assert(ser.isOpen())
     pirate_exchange(ser, '#') # reset bus pirate
-    time.sleep(1)
     
     # start config
     pirate_exchange(ser, 'm')
@@ -90,6 +85,13 @@ if __name__ == "__main__":
     pirate_exchange(ser, '4') # outmode as ascii interpretation of bytes
     pirate_exchange(ser, '{') # enable live display
 
+
+
+    while True:
+        read_from_uart(ser)
+        time.sleep(0.5)
+
+    '''
     command_json1 = {
         "a" : 2
     }
@@ -103,11 +105,4 @@ if __name__ == "__main__":
 
     uart_transmit_string(ser, json.dumps(command_json2))
     uart_transmit_string(ser, json.dumps(command_json2))
-
-    
-
-
-
-
-
-
+    '''
