@@ -116,7 +116,7 @@ class ObcBusPirateUart(ObcBusPirate):
 
     def __transmit_string(self, string, delim):
         pass
-        print("[TX]: \"" + string + "\"")
+        print("[TX]: >>>" + string + "<<<")
         delimited_string = str(string)
         if delim not in delimited_string:
             delimited_string = delimited_string + delim
@@ -163,9 +163,9 @@ class ObcBusPirateUart(ObcBusPirate):
                     tmp = tmp.replace(prefix, '')
                     byte = tmp[0]
                     received_bytes = received_bytes + byte
-            print("[RX]: >" + received_bytes + "<")
+            print("[RX]: >>>" + received_bytes + "<<<")
         else:
-            print("[RX]: >NONE<")
+            print("[RX]: >>>NONE<<<")
 
 if __name__ == "__main__":
     uart = ObcBusPirateUart()
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     uart.transmit(json.dumps(command_json2))
     uart.transmit(json.dumps(command_json2))
 
-    '''
+'''
     # CTRL + C to cancel (SIGINT)
     while True:
         uart.receive()
