@@ -53,10 +53,6 @@ int main(void)
                     "{\"error\" : \"json format\",    \"received\":\"%s\"}",
                     msg);
             }
-            else
-            {
-                OBC_IF_printf("PARSING WORKED!");
-            }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
 
