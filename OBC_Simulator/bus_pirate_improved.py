@@ -172,19 +172,16 @@ if __name__ == "__main__":
     uart.start_stream()
     time.sleep(1)
 
-    command_json1 = {
-        "fwVersion" : "read"
-    }
 
-    #uart.transmit(json.dumps(command_json1))
+    # add json stuff here (not stringified)
+    #you can actually use the object notation
+    jsons = [
+        {"fwVersion" : "read"}, 
+        {"hwVersion" : "read"},
+        {"mqtr_volts" : "read",},
+        {"mqtr_volts" : "write", "value" : [1, 2, 3]},
+        {"mqtr_volts" : "read",},
+    ]
 
-    uart.transmit("test!")
-
-
-'''
-    # CTRL + C to cancel (SIGINT)
-    while True:
-        uart.receive()
-        time.sleep(0.1)
-        pass
-'''
+    for cmd_json in jsons:
+        uart.transmit(json.dumps(cmd_json))
