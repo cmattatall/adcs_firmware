@@ -62,7 +62,7 @@ int main(void)
         if (uart_rx_delim_received)
         {
             uart_receive_bytes(caller_rxbuf, sizeof(caller_rxbuf));
-            uart_printf("%s", caller_rxbuf);
+            uart_printf("received: %s", caller_rxbuf);
             uart_rx_delim_received = 0;
         }
     }

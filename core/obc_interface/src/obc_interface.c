@@ -185,11 +185,6 @@ void OBC_IF_dataRxFlag_write(bool data_state)
 }
 
 
-int OBC_IF_print(const char *buf, uint16_t buflen)
-{
-    return ops.tx(buf, buflen);
-}
-
 /** @todo THIS FUNCTION IS SO GODDAMN UGLY BUT AT LEAST ITS WORKING - Carl */
 int OBC_IF_printf(const char *restrict fmt, ...)
 {
