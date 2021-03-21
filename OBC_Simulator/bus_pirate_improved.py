@@ -71,7 +71,6 @@ class ObcBusPirate():
 
 class ObcBusPirateUart(ObcBusPirate):
 
-    obc_adcs_uart_message_delim = '!'
 
     def __init__(self, baudrate = 9600):
         pass
@@ -92,35 +91,10 @@ class ObcBusPirateUart(ObcBusPirate):
         self.stop_stream()
         super().__del__()
 
-    def __transmit_string(self, string):
-        pass
-        delimited_string = str(string)
-        if adcs_uart_message_delim not in delimited_string:
-            delimited_string = delimited_string + adcs_uart_message_delim
-        payload_string = "\"" + delimited_string + "\""
-        self.write(payload_string)
-
-
-    def __transmit_int(self, int):
-        pass
-        raise NotImplementedError
-
-
-    def transmit(self, data):
-        pass
-        data_type = type(data)
-        if data_type == "string":
-            self.__transmit_string(data)
-        elif data_type == "int":
-            self.__transmit_int(data)
-        else:
-            raise NotImplementedError
-        self.receive()
 
     def write(self, msg):
         pass
         super().write(msg)
-        self.read()
 
 
     def read(self):
@@ -140,6 +114,42 @@ class ObcBusPirateUart(ObcBusPirate):
         self.write("}")
 
 
+    def __transmit_string(self, string, delim):
+        pass
+        print("[TX]: \"" + string + "\"")
+        delimited_string = str(string)
+        if delim not in delimited_string:
+            delimited_string = delimited_string + delim
+        
+        # bus pirate firmware does not deal with escaped double quotes
+        # so we have to bastardize our string
+        delimited_string = delimited_string.replace("\"", "\'")
+
+        # wrap payload in double quotes so bus pirate knows to flush entire str
+        payload_string = "\"" + delimited_string + "\""
+
+        # transmit string
+        self.write(payload_string)
+
+
+    def __transmit_int(self, int, delim):
+        pass
+        raise NotImplementedError
+
+
+    def transmit(self, data, delim = '!'):
+        pass
+        data_type = str(type(data))
+        if data_type == "<class 'str'>":
+            self.__transmit_string(data, delim = delim)
+        elif data_type == "<class 'int'>":
+            self.__transmit_int(data, delim = delim)
+        else:
+            raise NotImplementedError
+        
+        self.receive()
+
+
     def receive(self):
         pass
         bus_pirate_usb_receive_prefix = "READ: "
@@ -153,13 +163,39 @@ class ObcBusPirateUart(ObcBusPirate):
                     tmp = tmp.replace(prefix, '')
                     byte = tmp[0]
                     received_bytes = received_bytes + byte
-            print("[UART RX] : " + received_bytes)
-
+            print("[RX]: >" + received_bytes + "<")
+        else:
+            print("[RX]: >NONE<")
 
 if __name__ == "__main__":
     uart = ObcBusPirateUart()
     uart.start_stream()
-    
+
+
+    time.sleep(1)
+
+    '''
+    # THIS WORKS
+    uart.transmit("test")
+    uart.transmit("test")
+    uart.transmit("test")
+    uart.transmit("test")
+    '''
+
+    command_json1 = {
+        "a" : 2
+    }
+
+    command_json2  = {
+        "ab" : 1
+    }
+
+    uart.transmit(json.dumps(command_json1))
+    uart.transmit(json.dumps(command_json1))
+    uart.transmit(json.dumps(command_json2))
+    uart.transmit(json.dumps(command_json2))
+
+    '''
     # CTRL + C to cancel (SIGINT)
     while True:
         uart.receive()
@@ -167,3 +203,4 @@ if __name__ == "__main__":
         pass
 
 
+'''
