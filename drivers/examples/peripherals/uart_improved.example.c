@@ -21,10 +21,9 @@
 #include <stdint.h>
 #include <string.h>
 
-static void blocking_delay(void);
-void        uart_init(void);
-int         uart_transmit(uint8_t *msg, uint_least16_t msglen);
-
+void uart_init(void);
+int  uart_transmit(uint8_t *msg, uint_least16_t msglen);
+int  uart_receive_bytes(uint8_t *caller_buf, uint16_t caller_buflen);
 
 #define UART_BUFLEN 200u
 
@@ -36,35 +35,36 @@ static volatile uint8_t *uart_rx_outptr;
 
 static volatile int uart_rx_delim_received;
 
-
-uint8_t uart_txbuf[UART_BUFLEN];
-
+static uint8_t uart_txbuf[UART_BUFLEN];
 #define uart_printf(fmt, ...)                                                  \
     do                                                                         \
     {                                                                          \
-        memset(uart_txbuf, 0, sizeof(uart_txbuf));                             \
-        uart_transmit(uart_txbuf, sprintf(uart_txbuf, (fmt), ##__VA_ARGS__));  \
+        uint16_t cnt;                                                          \
+        cnt = snprintf(uart_txbuf, sizeof(uart_txbuf), (fmt), ##__VA_ARGS__);  \
+        if (cnt > sizeof(uart_txbuf))                                          \
+        {                                                                      \
+            cnt = sizeof(uart_txbuf);                                          \
+        }                                                                      \
+        uart_transmit(uart_txbuf, cnt);                                        \
     } while (0)
+
+uint8_t caller_rxbuf[200];
 
 
 int main(void)
 {
     WDTCTL = WDTPW | WDTHOLD; /* Stop watchdog timer */
-    P1DIR |= BIT0;            /* Set P1.0 to output direction */
-
     uart_init();
-
     __bis_SR_register(GIE);
-    uint8_t msg[] = "Hello World!!";
+
     while (1)
     {
         if (uart_rx_delim_received)
         {
-            uart_printf("received!");
+            uart_receive_bytes(caller_rxbuf, sizeof(caller_rxbuf));
+            uart_printf("%s", caller_rxbuf);
             uart_rx_delim_received = 0;
         }
-        blocking_delay();
-        P1OUT ^= BIT0;
     }
 }
 
@@ -124,8 +124,8 @@ __interrupt_vec(USCI_A0_VECTOR) void USCI_A0_ISR(void)
 
             if (*uart_rx_inptr == UART_RX_MSG_DELIM)
             {
-                uart_rx_delim_received = 1;
                 *uart_rx_inptr         = '\0';
+                uart_rx_delim_received = 1;
             }
 
             if (++uart_rx_inptr > uart_rxbuf + sizeof(uart_rxbuf))
@@ -151,11 +151,34 @@ __interrupt_vec(USCI_A0_VECTOR) void USCI_A0_ISR(void)
 }
 
 
-static void blocking_delay(void)
+int uart_receive_bytes(uint8_t *caller_buf, uint16_t caller_buflen)
 {
-    volatile uint16_t i;
-    for (i = 0; i < 20000; ++i)
+    int retval      = 0;
+    int i           = 0;
+    int delim_found = 0;
+    do
     {
-        /* just block here */
+        caller_buf[i] = *uart_rx_outptr;
+        if (caller_buf[i] == '\0')
+        {
+            delim_found = 1;
+        }
+
+        uart_rx_outptr++;
+        if (uart_rx_outptr > uart_rxbuf + sizeof(uart_rxbuf))
+        {
+            uart_rx_outptr = uart_rxbuf;
+        }
+    } while (++i < caller_buflen && !delim_found);
+
+    if (!delim_found)
+    {
+        retval = -1;
     }
+    else
+    {
+        retval = i;
+    }
+
+    return retval;
 }
