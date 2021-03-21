@@ -170,30 +170,16 @@ class ObcBusPirateUart(ObcBusPirate):
 if __name__ == "__main__":
     uart = ObcBusPirateUart()
     uart.start_stream()
-
-
     time.sleep(1)
 
-    '''
-    # THIS WORKS
-    uart.transmit("test")
-    uart.transmit("test")
-    uart.transmit("test")
-    uart.transmit("test")
-    '''
-
     command_json1 = {
-        "a" : 2
+        "fwVersion" : "read"
     }
 
-    command_json2  = {
-        "ab" : 1
-    }
+    #uart.transmit(json.dumps(command_json1))
 
-    uart.transmit(json.dumps(command_json1))
-    uart.transmit(json.dumps(command_json1))
-    uart.transmit(json.dumps(command_json2))
-    uart.transmit(json.dumps(command_json2))
+    uart.transmit("test!")
+
 
 '''
     # CTRL + C to cancel (SIGINT)
@@ -201,6 +187,4 @@ if __name__ == "__main__":
         uart.receive()
         time.sleep(0.1)
         pass
-
-
 '''

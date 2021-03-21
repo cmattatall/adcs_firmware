@@ -47,11 +47,15 @@ int main(void)
             OCB_IF_get_command_string(msg, sizeof(msg));
 
             /* Parse command json string */
-            if (0 != json_parse(msg))
+            if (0 != json_parse("{\'fwVersion\': \'read\'}"))
             {
                 OBC_IF_printf(
                     "{\"error\" : \"json format\",    \"received\":\"%s\"}",
                     msg);
+            }
+            else
+            {
+                OBC_IF_printf("PARSING WORKED!");
             }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }
