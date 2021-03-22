@@ -21,7 +21,7 @@ signal.signal(signal.SIGINT, signal_handler_SIGINT)
 
 class ObcBusPirate():
 
-    def __init__(self, chardev = "/dev/ttyUSB1", usb_baud = 115200):
+    def __init__(self, chardev = "/dev/ttyUSB0", usb_baud = 115200):
         pass
         self.min_delay = 0.1
         self.port = serial.Serial(chardev, baudrate = usb_baud, timeout = 0.1)
@@ -181,6 +181,7 @@ if __name__ == "__main__":
         {"mqtr_volts" : "read",},
         {"mqtr_volts" : "write", "value" : [1, 2, 3]},
         {"mqtr_volts" : "read",},
+        {"key" : "value"},
     ]
 
     for cmd_json in jsons:
