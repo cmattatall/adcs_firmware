@@ -86,5 +86,6 @@ static void TIMERA0_init(void)
      * indication of lockup (since if a chip hardfaults the debugger would
      * also become nonresponsive)
      */
-    TA0CCR0 = 50000;
+
+    TA0CCR0 = 10000; /*500000;*/
 }
