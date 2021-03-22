@@ -40,7 +40,7 @@
             "name": "(msp430-elf-gdb) msp430 remote debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/${input:executable}",
+            "program": "${workspaceRoot}/${input:executable}",
             "miDebuggerPath": "msp430-elf-gdb",
             "miDebuggerServerAddress": "localhost:2000",
             "miDebuggerArgs": "",
