@@ -23,17 +23,18 @@
  * P4.2 (SCL)-----+---------  SCL OF SLAVE DEVICE
  */
 
+// build/drivers/examples/ADCS_DRIVERS_ucb1_i2c_master.example.elf
+
 #include <msp430.h>
 #include <stdint.h>
 
 #define UCMODE_I2C (UCMODE_3)
 #define SLAVE_DEVICE_ADDR (0x48u);
 
-static unsigned char *PTxData; // Pointer to TX data
-static unsigned char  TXByteCtr;
-
 // data to transmit (values that are easy to see on scope)
-const unsigned char TxData[] = {0x11, 0x22, 0x33, 0x44, 0x55};
+const unsigned char   i2c_data[] = {0x11, 0x22};
+volatile unsigned int i2c_data_cnt;
+volatile char *       i2c_data_ptr;
 
 int main(void)
 {
@@ -55,20 +56,18 @@ int main(void)
 
     __bis_SR_register(GIE); // Enter LPM0, enable interrupts
     __no_operation();       /* more fixes for silicon errata, see user guide */
+
+    i2c_data_cnt = 0;
     while (1)
     {
-        while (1)
+        volatile int i;
+        for (i = 0; i < 10000; ++i)
+            ; // Delay required between bus transactions
+
+        if (i2c_data_cnt == 0)
         {
-            volatile int i;
-            for (i = 0; i < 100; ++i)
-                ; // Delay required between bus transactions
-
-            // TX array start address
-            // Place breakpoint here to see
-            // each transmit operation.
-            PTxData = TxData;
-
-            TXByteCtr = sizeof(TxData); // Load TX byte counter
+            i2c_data_ptr = i2c_data;
+            i2c_data_cnt = sizeof(i2c_data);
 
             // I2C TX, start condition
             UCB1CTL1 |= (UCTR | UCTXSTT);
@@ -94,21 +93,21 @@ __interrupt_vec(USCI_B1_VECTOR) void USCI_I2C_ISR(void)
         case 8:
             break; // Vector  8: STPIFG
         case 10:
-            break;         // Vector 10: RXIFG
-        case 12:           // Vector 12: TXIFG
-            if (TXByteCtr) // Check TX byte counter
+            break; // Vector 10: RXIFG
+        case 12:   // Vector 12: TXIFG
+            if (i2c_data_cnt)
             {
-                UCB1TXBUF = 0x0C; //*PTxData++;               // Load TX buffer
-                TXByteCtr--;      // Decrement TX byte counter
+                UCB1TXBUF = *i2c_data_ptr;
+                i2c_data_ptr++; /* advance data ptr */
+                i2c_data_cnt--; // Decrement TX byte counter
             }
             else
             {
                 UCB1CTL1 |= UCTXSTP; // I2C stop condition
                 UCB1IFG &= ~UCTXIFG; // Clear USCI_B0 TX int flag
-                __bic_SR_register_on_exit(LPM0_bits); // Exit LPM0
+                __no_operation();    /* NOP to fix silicon errata with ISR */
             }
         default:
             break;
     }
 }
-

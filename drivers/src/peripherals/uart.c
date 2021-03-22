@@ -28,10 +28,6 @@
 
 static receive_func uart_rx_cb;
 
-static uint8_t *             tx_buf;
-static volatile unsigned int tx_idx;
-static unsigned int          tx_max;
-
 void uart_init(receive_func rx)
 {
     P3SEL = BIT3 + BIT4; /* P3.4,5 = USCI_A0 TXD/RXD */
@@ -39,7 +35,7 @@ void uart_init(receive_func rx)
 
     UCA0CTL1 |= UCSSEL__SMCLK; /* SMCLK */
 
-    UCA0BR0 = 104; /* 9600 baud 8N1 See table 36-5 */ 
+    UCA0BR0 = 104; /* 9600 baud 8N1 See table 36-5 */
     UCA0BR1 = 0;
 
     UCA0MCTL &= ~UCOS16;
@@ -85,16 +81,15 @@ int uart_transmit(uint8_t *msg, uint_least16_t msglen)
 {
     CONFIG_ASSERT(msg != NULL);
     if (!(UCA0IE & UCTXIE) && !(UCA0STAT & UCBUSY))
-    {   
+    {
         unsigned int i = 0;
         do
         {
-            if(UCA0IFG & UCTXIFG)
+            if (UCA0IFG & UCTXIFG)
             {
                 UCA0TXBUF = msg[i++];
             }
-        }
-        while(i < msglen);
+        } while (i < msglen);
     }
     return 0;
 }

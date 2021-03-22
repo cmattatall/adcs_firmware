@@ -47,11 +47,32 @@ int main(void)
             OCB_IF_get_command_string(msg, sizeof(msg));
 
             /* Parse command json string */
-            if (0 != json_parse(msg))
+            JSON_PARSE_t status = json_parse(msg);
+            switch (status)
             {
-                OBC_IF_printf(
-                    "{\"error\" : \"json format\",    \"received\":\"%s\"}",
-                    msg);
+                case JSON_PARSE_format_err:
+                {
+                    OBC_IF_printf(
+                        "{\"error\" : \"json format\",    \"received\":\"%s\"}",
+                        msg);
+                }
+                break;
+                case JSON_PARSE_unsupported:
+                {
+                    OBC_IF_printf("{\"error\" : \"json unsupported\",    "
+                                  "\"received\":\"%s\"}",
+                                  msg);
+                }
+                break;
+                case JSON_PARSE_ok:
+                {
+                    /* Do nothing */
+                }
+                break;
+                default:
+                {
+                }
+                break;
             }
             OBC_IF_dataRxFlag_write(OBC_IF_DATA_RX_FLAG_CLR);
         }

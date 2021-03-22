@@ -9,14 +9,21 @@ extern "C"
 
 #include <stdint.h>
 
+typedef enum
+{
+    JSON_PARSE_ok,
+    JSON_PARSE_format_err,
+    JSON_PARSE_unsupported,
+} JSON_PARSE_t;
+
 /**
  * @brief Parse a json and execute commands based on the key : value pairs
  *
  * @param json nul-terminated string in json format
  * @param json_strlen
- * @return int 0 == success.
+ * @return one of JSON_PARSE_t
  */
-int json_parse(uint8_t *json);
+JSON_PARSE_t json_parse(uint8_t *json);
 
 #ifdef __cplusplus
 /* clang-format off */
