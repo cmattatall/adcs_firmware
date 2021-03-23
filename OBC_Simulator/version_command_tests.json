@@ -1,0 +1,7 @@
+{   
+    "commandDelaySec" : 0.1,
+    "commands" : [
+        {"fwVersion" : "read"}, 
+        {"hwVersion" : "read"}
+    ]
+}
