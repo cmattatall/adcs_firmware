@@ -1,0 +1,11 @@
+{   
+    "commandDelaySec" : 0.1,
+    "commands" : [
+        {"fwVersion" : "read"}, 
+        {"hwVersion" : "read"},
+        {"mqtr_volts" : "read"},
+        {"mqtr_volts" : "write", "value" : [1, 2, 3]},
+        {"mqtr_volts" : "read"},
+        {"key" : "value"}
+    ]
+}

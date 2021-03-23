@@ -164,25 +164,43 @@ class ObcBusPirateUart(ObcBusPirate):
                     byte = tmp[0]
                     received_bytes = received_bytes + byte
             print("[RX]: >>>" + received_bytes + "<<<")
+            print("")
         else:
             print("[RX]: >>>NONE<<<")
 
+
+def process_json_commands(filepath):
+    with open(filepath) as f:
+        try:
+            jsons = json.load(f)
+        except FileNotFoundError:
+            print(filepath + "Does not exist")
+            sys.exit(1)
+        print("executing " + filepath + " json commands...\n")
+        
+        delay = jsons.get('commandDelaySec')
+        if delay is None:
+            delay = 0.5 # default to 0.5 second delay
+
+        commands = jsons.get('commands')
+        if commands is None:
+            print(filepath + " does not have a \'commands\' key")
+            return
+        else:
+
+            uart = ObcBusPirateUart()
+            uart.start_stream()
+            time.sleep(0.5)
+
+            for cmd in commands:
+                uart.transmit(json.dumps(cmd))
+
+
 if __name__ == "__main__":
-    uart = ObcBusPirateUart()
-    uart.start_stream()
-    time.sleep(1)
-
-
-    # add json stuff here (not stringified)
-    #you can actually use the object notation
-    jsons = [
-        {"fwVersion" : "read"}, 
-        {"hwVersion" : "read"},
-        {"mqtr_volts" : "read",},
-        {"mqtr_volts" : "write", "value" : [1, 2, 3]},
-        {"mqtr_volts" : "read",},
-        {"key" : "value"},
-    ]
-
-    for cmd_json in jsons:
-        uart.transmit(json.dumps(cmd_json))
+    argc = len(sys.argv)
+    if argc > 1:
+        for i in range(1, argc):
+            process_json_commands(sys.argv[i])
+    else:
+        json_filepath = input("Enter the path to the json command file to open: ")
+        process_json_commands(json_filepath)
