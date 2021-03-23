@@ -203,5 +203,5 @@ if __name__ == "__main__":
         for i in range(1, argc):
             process_json_commands(sys.argv[i])
     else:
-        json_filepath = input("Enter the path to the json command file to open: ")
+        json_filepath = input("Enter the path to the json file with OBC commands: ")
         process_json_commands(json_filepath)
