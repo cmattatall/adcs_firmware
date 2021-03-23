@@ -178,9 +178,9 @@ def process_json_commands(filepath):
             sys.exit(1)
         print("executing " + filepath + " json commands...\n")
         
-        delay = jsons.get('commandDelaySec')
-        if delay is None:
-            delay = 0.5 # default to 0.5 second delay
+        command_delay = jsons.get('commandDelaySec')
+        if command_delay is None:
+            command_delay = 0.5 # default to 0.5 second delay
 
         commands = jsons.get('commands')
         if commands is None:
@@ -194,6 +194,7 @@ def process_json_commands(filepath):
 
             for cmd in commands:
                 uart.transmit(json.dumps(cmd))
+                time.sleep(command_delay)
 
 
 if __name__ == "__main__":
