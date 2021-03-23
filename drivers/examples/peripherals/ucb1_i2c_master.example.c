@@ -36,6 +36,7 @@ const unsigned char   i2c_data[] = {0x11, 0x22};
 volatile unsigned int i2c_data_cnt;
 volatile char *       i2c_data_ptr;
 
+
 int main(void)
 {
     WDTCTL = WDTPW | WDTHOLD; // Stop watchdog timer
@@ -77,6 +78,7 @@ int main(void)
         }
     }
 }
+
 
 __interrupt_vec(USCI_B1_VECTOR) void USCI_I2C_ISR(void)
 {
