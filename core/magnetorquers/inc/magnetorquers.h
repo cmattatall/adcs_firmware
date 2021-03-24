@@ -34,6 +34,15 @@ void MQTR_init(void);
  */
 void MQTR_set_coil_voltage_mv(MQTR_t mqtr, int voltage_mv);
 
+
+/**
+ * @brief Get coil voltage in mv for a given magnetorquer coil
+ * 
+ * @param mqtr 
+ * @return int voltage in mv
+ */
+int MQTR_get_coil_voltage_mv(MQTR_t mqtr);
+
 int MQTR_config_to_str(char *buf, int buflen);
 
 
