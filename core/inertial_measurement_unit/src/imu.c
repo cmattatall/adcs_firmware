@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
  */
+#include <stdio.h>
 
 #include "imu.h"
 
@@ -37,7 +38,6 @@ void IMU_init(void)
     bno055.delay_msec = BNO055_delay_msek;
     bno055.bus_read   = bno055_init(&bno055);
 }
-
 
 
 static s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)

@@ -261,6 +261,8 @@ static void RW_TIMER_API_timer_init(void)
 
 static void RW_TIMER_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds)
 {
+#if defined(TARGET_MCU)
+
     switch (rw)
     {
         case REAC_WHEEL_x:
@@ -302,6 +304,12 @@ static void RW_TIMER_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds)
         }
         break;
     }
+
+#else
+
+    printf("Called %s with arg %f\n", __func__, pct_ds);
+
+#endif /* #if defined(TARGET_MCU) */
 }
 
 
@@ -310,12 +318,8 @@ static int RW_TIMER_API_measure_x_current_ma(void)
     int current_ma = 50; /* for now, just a stubbed magic number */
 #if defined(TARGET_MCU)
 
+/** @todo IMPLEMENT */
 #warning NOT IMPLEMENTED YET
-
-
-#else
-
-    printf("called %s\n", __func__);
 
 #endif /* #if defined(TARGET_MCU) */
     return current_ma;
@@ -328,12 +332,9 @@ static int RW_TIMER_API_measure_y_current_ma(void)
 
 #if defined(TARGET_MCU)
 
+/** @todo IMPLEMENT */
 #warning NOT IMPLEMENTED YET
 
-
-#else
-
-    printf("called %s\n", __func__);
 
 #endif /* #if defined(TARGET_MCU) */
 
@@ -347,11 +348,8 @@ static int RW_TIMER_API_measure_z_current_ma(void)
 
 #if defined(TARGET_MCU)
 
+/** @todo IMPLEMENT */
 #warning NOT IMPLEMENTED YET
-
-#else
-
-    printf("called %s\n", __func__);
 
 #endif /* #if defined(TARGET_MCU) */
 
@@ -364,10 +362,8 @@ static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void)
 
 #if defined(TARGET_MCU)
 
+/** @todo IMPLEMENT */
 #warning WRITE THE PIN LOW FOR THE ADS7841
-
-#else
-
 
 #endif /* #if defined(TARGET_MCU) */
 }
@@ -378,9 +374,8 @@ static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void)
 
 #if defined(TARGET_MCU)
 
+/** @todo IMPLEMENT */
 #warning WRITE THE PIN High FOR THE ADS7841
-
-#else
 
 #endif /* #if defined(TARGET_MCU) */
 }

@@ -17,12 +17,10 @@
 #include <msp430.h>
 #include "timer_a.h"
 #include "pwm.h"
-
 #define MQTR_PWM_TIMER_COUNT_MODE MC__UP
+#endif /* #if defined(TARGET_MCU) */
 
 #define SMCLK_FREQ (1000000u)
-#else
-#endif /* #if defined(TARGET_MCU) */
 
 #include "magnetorquers.h"
 #include "targets.h"
@@ -126,6 +124,8 @@ static void MQTR_PWM_API_init(void)
 
 static void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
 {
+#if defined(TARGET_MCU)
+
     if (voltage_mv < -PWM_VMAX_MV_float)
     {
         voltage_mv = -PWM_VMAX_MV_float;
@@ -160,6 +160,12 @@ static void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
         }
         break;
     }
+
+#else
+
+    printf("Called %s with arg %d\n", __func__, voltage_mv);
+
+#endif /* #if defined(TARGET_MCU) */
 }
 
 

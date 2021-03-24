@@ -17,19 +17,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "attributes.h"
 #include "config_assert.h"
 
-
-#if defined(TARGET_MCU)
-#include "spi.h"
-#include "ads7841e.h"
 #include "magnetometer.h"
 #include "magnetorquers.h"
+
+#if defined(TARGET_MCU)
 #include <msp430.h>
-#else
-#include <stdio.h>
+
+#include "spi.h"
+#include "ads7841e.h"
 #endif /* #if defined(TARGET_MCU) */
 
 
