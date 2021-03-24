@@ -8,8 +8,7 @@ extern "C"
 #endif /* Start C linkage */
 
 
-
-void imu_init(void);
+void IMU_init(void);
 
 #ifdef __cplusplus
 /* clang-format off */

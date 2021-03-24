@@ -565,7 +565,7 @@ static json_handler_retval parse_current(json_handler_args args)
         /** @todo IMPLEMENT */
     }
     else if (jtok_tokcmp("mqtr", &tkns[*t]))
-    {
+    {   
 #warning NOT IMPLEMENTED YET.
         /** @todo IMPLEMENT */
     }

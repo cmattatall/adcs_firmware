@@ -17,12 +17,10 @@
 #include <msp430.h>
 #include "timer_a.h"
 #include "pwm.h"
-
 #define MQTR_PWM_TIMER_COUNT_MODE MC__UP
+#endif /* #if defined(TARGET_MCU) */
 
 #define SMCLK_FREQ (1000000u)
-#else
-#endif /* #if defined(TARGET_MCU) */
 
 #include "magnetorquers.h"
 #include "targets.h"
@@ -34,12 +32,12 @@ static int mqtr_voltage_mv[] = {
 };
 
 static uint16_t MQTR_PWM_API_timer_period_reg_val(uint16_t freq);
-static void MQTR_PWM_API_init_phy(void);
-static void MQTR_PWM_API_timer_init(uint16_t freq);
-static void MQTR_PWM_API_set_x_duty_cycle(float ds_percent);
-static void MQTR_PWM_API_set_y_duty_cycle(float ds_percent);
-static void MQTR_PWM_API_set_z_duty_cycle(float ds_percent);
-static void MQTR_PWM_API_init(void);
+static void     MQTR_PWM_API_init_phy(void);
+static void     MQTR_PWM_API_timer_init(uint16_t freq);
+static void     MQTR_PWM_API_set_x_duty_cycle(float ds_percent);
+static void     MQTR_PWM_API_set_y_duty_cycle(float ds_percent);
+static void     MQTR_PWM_API_set_z_duty_cycle(float ds_percent);
+static void     MQTR_PWM_API_init(void);
 static void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv);
 
 
@@ -73,6 +71,28 @@ void MQTR_set_coil_voltage_mv(MQTR_t mqtr, int volts_mv)
 }
 
 
+int MQTR_get_coil_voltage_mv(MQTR_t mqtr)
+{
+    int voltage_mv = 0;
+    switch (mqtr)
+    {
+        case MQTR_x:
+        case MQTR_y:
+        case MQTR_z:
+        {
+            voltage_mv = mqtr_voltage_mv[mqtr];
+        }
+        break;
+        default:
+        {
+            CONFIG_ASSERT(0);
+        }
+        break;
+    }
+    return voltage_mv;
+}
+
+
 int MQTR_config_to_str(char *buf, int buflen)
 {
     CONFIG_ASSERT(NULL != buf);
@@ -83,16 +103,12 @@ int MQTR_config_to_str(char *buf, int buflen)
 }
 
 
-
-
-
-
 /******************************************************************************/
 /******************************************************************************
  *
  *
  *       START OF THE TARGET-SPECIFIC REGISTER LEVEL STUFF. IF THIS
- *       SECTION GETS TOO BIG IT SHOULD BE MOVED INTO THE DRIVER LAYER  
+ *       SECTION GETS TOO BIG IT SHOULD BE MOVED INTO THE DRIVER LAYER
  *
  *
  ******************************************************************************/
@@ -108,6 +124,8 @@ static void MQTR_PWM_API_init(void)
 
 static void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
 {
+#if defined(TARGET_MCU)
+
     if (voltage_mv < -PWM_VMAX_MV_float)
     {
         voltage_mv = -PWM_VMAX_MV_float;
@@ -142,6 +160,12 @@ static void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv)
         }
         break;
     }
+
+#else
+
+    printf("Called %s with arg %d\n", __func__, voltage_mv);
+
+#endif /* #if defined(TARGET_MCU) */
 }
 
 
@@ -193,27 +217,27 @@ static void MQTR_PWM_API_timer_init(uint16_t pwm_freq)
 
     TA0CCR0 = MQTR_PWM_API_timer_period_reg_val(pwm_freq);
 
-    /* Config for mqtr X face F pin (pin 1.2) */
-    #warning THIS SEEMS NOT WORK ON THIS SPECIFIC PIN
-    TA0CCR1  = 0;
+/* Config for mqtr X face F pin (pin 1.2) */
+#warning THIS SEEMS NOT WORK ON THIS SPECIFIC PIN
+    TA0CCR1 = 0;
     TA0CCTL1 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
     TA0CCTL1 |= OUTMOD_TOG_SET;
     TA0CCTL1 &= ~(CAP);
 
     /* Config for mqtr X face R pin (pin 1.3) */
-    TA0CCR2  = 0;
+    TA0CCR2 = 0;
     TA0CCTL2 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
     TA0CCTL2 |= OUTMOD_TOG_SET;
     TA0CCTL2 &= ~(CAP);
 
     /* Config for mqtr Z face F pin (pin 1.4) */
-    TA0CCR3  = 0;
+    TA0CCR3 = 0;
     TA0CCTL3 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
     TA0CCTL3 |= OUTMOD_TOG_SET;
     TA0CCTL3 &= ~(CAP);
 
     /* Config for mqtr Z face R pin (pin 1.5) */
-    TA0CCR4  = 0;
+    TA0CCR4 = 0;
     TA0CCTL4 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
     TA0CCTL4 |= OUTMOD_TOG_SET;
     TA0CCTL4 &= ~(CAP);
@@ -232,12 +256,12 @@ static void MQTR_PWM_API_timer_init(uint16_t pwm_freq)
     TA1CTL |= TASSEL__SMCLK;
 
     /* Config for mqtr Y face F pin (pin 2.0) */
-    TA1CCR1  = 0;
+    TA1CCR1 = 0;
     TA1CCTL1 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
     TA1CCTL1 |= OUTMOD_TOG_SET;
 
     /* Config for mqtr Y face R pin (pin 2.1)*/
-    TA1CCR2  = 0;
+    TA1CCR2 = 0;
     TA1CCTL2 &= ~(OUTMOD0 | OUTMOD1 | OUTMOD2);
     TA1CCTL2 |= OUTMOD_TOG_SET;
 
@@ -257,8 +281,8 @@ static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
 {
 #if defined(TARGET_MCU)
 
-    uint16_t max_count; 
-    switch(TA0CTL & (MC0 | MC1))
+    uint16_t max_count;
+    switch (TA0CTL & (MC0 | MC1))
     {
         case MC__CONTINOUS:
         {
@@ -272,7 +296,7 @@ static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
         break;
         case MC__UPDOWN:
         {
-            max_count = 2*TA0CCR0;
+            max_count = 2 * TA0CCR0;
         }
         break;
         case MC__STOP:
@@ -308,10 +332,9 @@ static void MQTR_PWM_API_set_x_duty_cycle(float pct_ds)
         {
             pct_ds = PWM_MAX_DUTY_CYCLE_float;
         }
-        
+
         TA0CCR1 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
-        TA0CCR2 =  (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * max_count);
-            
+        TA0CCR2 = (uint16_t)((pct_ds / (PWM_MAX_DUTY_CYCLE_float)) * max_count);
     }
 
 #else
@@ -326,8 +349,8 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
 {
 #if defined(TARGET_MCU)
 
-    uint16_t max_count; 
-    switch(TA1CTL & (MC0 | MC1))
+    uint16_t max_count;
+    switch (TA1CTL & (MC0 | MC1))
     {
         case MC__CONTINOUS:
         {
@@ -341,7 +364,7 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
         break;
         case MC__UPDOWN:
         {
-            max_count = 2*TA0CCR0;
+            max_count = 2 * TA0CCR0;
         }
         break;
         case MC__STOP:
@@ -392,8 +415,8 @@ static void MQTR_PWM_API_set_y_duty_cycle(float pct_ds)
 static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
 {
 #if defined(TARGET_MCU)
-    uint16_t max_count; 
-    switch(TA0CTL & (MC0 | MC1))
+    uint16_t max_count;
+    switch (TA0CTL & (MC0 | MC1))
     {
         case MC__CONTINOUS:
         {
@@ -407,7 +430,7 @@ static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
         break;
         case MC__UPDOWN:
         {
-            max_count = 2*TA0CCR0;
+            max_count = 2 * TA0CCR0;
         }
         break;
         case MC__STOP:
@@ -443,10 +466,9 @@ static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
         {
             pct_ds = PWM_MAX_DUTY_CYCLE_float;
         }
-        
+
         TA0CCR4 = (uint16_t)PWM_MIN_DUTY_CYCLE_float;
         TA0CCR3 = (uint16_t)((pct_ds / PWM_MAX_DUTY_CYCLE_float) * max_count);
-
     }
 
 #else
@@ -456,11 +478,9 @@ static void MQTR_PWM_API_set_z_duty_cycle(float pct_ds)
 }
 
 
-
 static uint16_t MQTR_PWM_API_timer_period_reg_val(uint16_t freq)
 {
     uint16_t period_reg_val = 0;
-    period_reg_val = SMCLK_FREQ / freq;
+    period_reg_val          = SMCLK_FREQ / freq;
     return period_reg_val;
 }
-

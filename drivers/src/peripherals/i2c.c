@@ -4,9 +4,9 @@
  * @brief Source module to implement an i2c driver using UCB0 for msp430f5529
  * @version 0.1
  * @date 2021-02-22
- * 
+ *
  * @copyright Copyright (c) 2021 Carl Mattatall
- * 
+ *
  */
 #if !defined(TARGET_MCU)
 #error DRIVER COMPILATION SHOULD ONLY OCCUR ON CROSSCOMPILED TARGETS
@@ -27,16 +27,12 @@ void I2C0_init(void)
 
 
     UCB0CTL1 &= ~UCSWRST;
-
-
 }
-
 
 
 static void I2C0_PHY_init(void)
 {
 
-
 /** @todo IMPLEMENT */
-
+#warning NOT IMPLEMENTED YET
 }

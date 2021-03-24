@@ -8,11 +8,13 @@
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
  */
+#include <stdio.h>
 
 #include "imu.h"
 
 #if defined(TARGET_MCU)
 
+#include "i2c.h"
 #include "bno055.h"
 
 #define I2C_BUFFER_LEN 8
@@ -22,13 +24,14 @@
 static s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
 static s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
 static void BNO055_delay_msek(u32 msek);
+static void IMU_init_i2c(void);
+
 
 static struct bno055_t bno055;
 
-void imu_init(void)
+void IMU_init(void)
 {
-    /** @todo INITIALIZE I2C PERIPHERAL (PINS AND SILICON PHY) */
-
+    IMU_init_i2c();
 
     bno055.bus_read   = BNO055_I2C_bus_read;
     bno055.bus_write  = BNO055_I2C_bus_write;
@@ -93,3 +96,20 @@ static void BNO055_delay_msek(u32 msek)
 #else
 
 #endif /* #if defined(TARGET_MCU) */
+
+
+static void IMU_init_i2c(void)
+{
+
+#if defined(TARGET_MCU)
+
+/** @todo IMLEMENT */
+#warning IMPLEMENT IMU_init_i2c IN TERMS OF THE I2C API DRIVER FUNCTIONS
+
+
+#else
+
+    printf("Called %s\n", __func__);
+
+#endif /* #if defined(TARGET_MCU) */
+}

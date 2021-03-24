@@ -94,8 +94,6 @@ target_compile_options(${LIB} PRIVATE "-Wshadow")
 
 
 
-
-
 ################################################################################
 # LINK AGAINST THE NECESSARY LIBRARIES 
 ################################################################################
@@ -105,7 +103,7 @@ else()
     target_link_libraries(${LIB} PRIVATE ADCS_DRIVERS)
 endif(NOT CMAKE_CROSSCOMPILING)
 
-
+target_link_libraries(${LIB} PRIVATE ADCS_MAGNETORQUERS)
 
 ################################################################################
 # TEST CONFIGURATION
