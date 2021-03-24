@@ -14,6 +14,7 @@
  * @todo IMPLEMENT RESET FUNCTION
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -54,10 +55,22 @@ static void MAGTOM_init_phy(void);
 static MAGTOM_measurement_t MAGTOM_get_measurement(void);
 
 
+static bool phy_initialized = false;
+
+
+void MAGTOM_init(void)
+{
+    MAGTOM_init_phy();
+    phy_initialized = true;
+}
+
+
 void MAGTOM_reset(void)
 {
 #if defined(TARGET_MCU)
     /* Issue reset command to IMU */
+
+/** @todo RESET THE MAGNETOMETER */
 #warning NOT IMPLEMENTED YET
 #else
     printf("Called %s\n", __func__);
@@ -116,7 +129,11 @@ static MAGTOM_measurement_t MAGTOM_get_measurement(void)
     while (++blocking_delay < UINT16_MAX)
         ;
 
-    MAGTOM_init_phy();
+    /* Prevent caller API error (normally they have to call init first) */
+    if (!phy_initialized)
+    {
+        MAGTOM_init_phy();
+    }
 
 #if defined(TARGET_MCU)
 

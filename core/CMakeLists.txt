@@ -52,6 +52,11 @@ target_link_libraries(${EXE} PRIVATE ADCS_JSONS)
 target_link_libraries(${EXE} PRIVATE ADCS_OBC_INTERFACE)
 target_link_libraries(${EXE} PRIVATE ADCS_MAGNETORQUERS)
 target_link_libraries(${EXE} PRIVATE ADCS_MAGNETOMETERS)
+target_link_libraries(${EXE} PRIVATE ADCS_REACTIONWHEELS)
+target_link_libraries(${EXE} PRIVATE ADCS_IMU)
+
+
+
 
 
 

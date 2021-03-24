@@ -16,6 +16,7 @@
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
+#include "ads7841e.h"
 #include "timer_a.h"
 #include "pwm.h"
 #else
@@ -52,6 +53,9 @@ static void RW_TIMER_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds);
 static int RW_TIMER_API_measure_x_current_ma(void);
 static int RW_TIMER_API_measure_y_current_ma(void);
 static int RW_TIMER_API_measure_z_current_ma(void);
+
+static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void);
+static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void);
 
 
 void RW_init(void)
@@ -352,4 +356,31 @@ static int RW_TIMER_API_measure_z_current_ma(void)
 #endif /* #if defined(TARGET_MCU) */
 
     return current_ma;
+}
+
+
+static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void)
+{
+
+#if defined(TARGET_MCU)
+
+#warning WRITE THE PIN LOW FOR THE ADS7841
+
+#else
+
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void)
+{
+
+#if defined(TARGET_MCU)
+
+#warning WRITE THE PIN High FOR THE ADS7841
+
+#else
+
+#endif /* #if defined(TARGET_MCU) */
 }

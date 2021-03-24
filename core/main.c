@@ -8,6 +8,8 @@
 #include "timer_a.h"
 #include "magnetorquers.h"
 #include "magnetometer.h"
+#include "reaction_wheels.h"
+#include "imu.h"
 #else
 #include <errno.h>
 #endif /* #if defined(TARGET_MCU) */
@@ -15,7 +17,9 @@
 #include "obc_interface.h"
 #include "jsons.h"
 
-/* NOTE THESE 2 HEADERS ARE JUST TEMPORARY STUFF  */
+
+static void pulldown_unused_floating_pins(void);
+
 
 static uint8_t msg[128];
 
@@ -30,10 +34,11 @@ int main(void)
 #endif /* #if defined(DEBUG) */
 
     OBC_IF_config(OBC_IF_PHY_CFG_UART);
-
+    IMU_init();
+    MAGTOM_init();
+    RW_init();
     MQTR_init();
-
-
+    pulldown_unused_floating_pins();
     enable_interrupts();
 
 #else
@@ -41,7 +46,7 @@ int main(void)
 #endif /* #if defined(TARGET_MCU) */
 
 
-    while (1)
+    for (;;)
     {
         if (OBC_IF_dataRxFlag_read() == OBC_IF_DATA_RX_FLAG_SET)
         {
@@ -83,4 +88,12 @@ int main(void)
         watchdog_kick();
 #endif /* #if defined(TARGET_MCU) && !defined(DEBUG)*/
     }
+}
+
+
+static void pulldown_unused_floating_pins(void)
+{
+#warning IMPLEMENT THIS
+    /** @todo ON FINAL BOARD MAKE SURE ALL FLOATING PINS ARE PULLED DOWN
+     * INTERNALLY TO PREVENT CHARGE BUILDUP IN ORBIT */
 }
