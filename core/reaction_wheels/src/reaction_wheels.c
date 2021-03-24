@@ -14,9 +14,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "ads7841e.h"
+
 #if defined(TARGET_MCU)
 #include <msp430.h>
-#include "ads7841e.h"
 #include "timer_a.h"
 #include "pwm.h"
 #else
@@ -27,6 +28,16 @@
 #define TIMER_CM_CAP_RISE ((TIMER_CM_MSK) & (CM_1))
 #define TIMER_CM_CAP_FALL ((TIMER_CM_MSK) & (CM_2))
 #define TIMER_CM_CAP_EDGE ((TIMER_CM_MSK) & (CM_3))
+
+/* Current measurement channels */
+/** @todo DON'T FORGET THIS */
+#warning FIGURE OUT WHICH CHANNELS CORRESPOND TO WHICH REACTION WHEEL FACES
+#warning FIGURE OUT WHICH CHANNELS CORRESPOND TO WHICH REACTION WHEEL FACES
+#warning FIGURE OUT WHICH CHANNELS CORRESPOND TO WHICH REACTION WHEEL FACES
+#define REAC_WHEEL_ADS7841_CHANNEL_x ADS7841_CHANNEL_SGL_1
+#define REAC_WHEEL_ADS7841_CHANNEL_y ADS7841_CHANNEL_SGL_2
+#define REAC_WHEEL_ADS7841_CHANNEL_z ADS7841_CHANNEL_SGL_3
+
 
 #include "reaction_wheels.h"
 #include "targets.h"
@@ -318,8 +329,15 @@ static int RW_TIMER_API_measure_x_current_ma(void)
     int current_ma = 50; /* for now, just a stubbed magic number */
 #if defined(TARGET_MCU)
 
-/** @todo IMPLEMENT */
-#warning NOT IMPLEMENTED YET
+    ADS7841_driver_init(RW_ADS7841_CURRENT_MEASUREMENT_PHY_init,
+                        RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit,
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
+
+/** @todo */
+#warning TODO: PERFORM ADC CONVERSION AND CHANGE THE VOLTAGE VALUE TO A CURRENT VALUE IN SOFTWARE
+
+
+    ADS7841_driver_deinit();
 
 #endif /* #if defined(TARGET_MCU) */
     return current_ma;
@@ -332,8 +350,14 @@ static int RW_TIMER_API_measure_y_current_ma(void)
 
 #if defined(TARGET_MCU)
 
-/** @todo IMPLEMENT */
-#warning NOT IMPLEMENTED YET
+    ADS7841_driver_init(RW_ADS7841_CURRENT_MEASUREMENT_PHY_init,
+                        RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit,
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
+/** @todo */
+#warning TODO: PERFORM ADC CONVERSION AND CHANGE THE VOLTAGE VALUE TO A CURRENT VALUE IN SOFTWARE
+
+
+    ADS7841_driver_deinit();
 
 
 #endif /* #if defined(TARGET_MCU) */
@@ -348,8 +372,14 @@ static int RW_TIMER_API_measure_z_current_ma(void)
 
 #if defined(TARGET_MCU)
 
-/** @todo IMPLEMENT */
-#warning NOT IMPLEMENTED YET
+    ADS7841_driver_init(RW_ADS7841_CURRENT_MEASUREMENT_PHY_init,
+                        RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit,
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
+
+/** @todo */
+#warning TODO: PERFORM ADC CONVERSION AND CHANGE THE VOLTAGE VALUE TO A CURRENT VALUE IN SOFTWARE
+
+    ADS7841_driver_deinit();
 
 #endif /* #if defined(TARGET_MCU) */
 
@@ -363,7 +393,7 @@ static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void)
 #if defined(TARGET_MCU)
 
 /** @todo IMPLEMENT */
-#warning WRITE THE PIN LOW FOR THE ADS7841
+#warning WRITE THE PIN LOW FOR THE ADS7841 THAT CONNECTS TO THE REACTION WHEEL CURRENT MEASUREMENT CIRCUITRY
 
 #endif /* #if defined(TARGET_MCU) */
 }
@@ -375,7 +405,7 @@ static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void)
 #if defined(TARGET_MCU)
 
 /** @todo IMPLEMENT */
-#warning WRITE THE PIN High FOR THE ADS7841
+#warning WRITE THE PIN High FOR THE ADS7841 THAT CONNECTS TO THE REACTION WHEEL CURRENT MEASUREMENT CIRCUITRY
 
 #endif /* #if defined(TARGET_MCU) */
 }
