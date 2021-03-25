@@ -14,7 +14,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "targets.h"
 #include "ads7841e.h"
+#include "reaction_wheels.h"
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
@@ -39,8 +41,10 @@
 #define REAC_WHEEL_ADS7841_CHANNEL_z ADS7841_CHANNEL_SGL_3
 
 
-#include "reaction_wheels.h"
-#include "targets.h"
+/** @todo DON'T FORGET THIS */
+#warning THIS CONSTANT NEEDS TO BE UPDATED BASED ON EMPIRICAL MEASUREMENTS OF THE CIRCUITRY
+#define REACWHEEL_CURRENT_SENSE_MA_PER_MV (0.5f)
+
 
 #warning RW_RPH_PER_PWM_MV NEEDS TO BE UPDATED TO CORRECT CONVERSION FACTOR
 /** @todo THIS NEEDS TO BE UPDATED TO THE CORRECT CONVERSION FACTOR */
@@ -54,6 +58,8 @@ static int rw_speed_rph[] = {
 };
 static int RW_rph_to_mv(int rph);
 static int RW_mv_to_rph(int mv);
+
+static int RW_current_sense_mv_to_ma(int mv);
 
 static void RW_TIMER_API_init(void);
 static void RW_TIMER_API_init_phy(void);
@@ -326,15 +332,15 @@ static void RW_TIMER_API_set_duty_cycle(REAC_WHEEL_t rw, float pct_ds)
 
 static int RW_TIMER_API_measure_x_current_ma(void)
 {
-    int current_ma = 50; /* for now, just a stubbed magic number */
+    int current_ma = 0;
 #if defined(TARGET_MCU)
 
     ADS7841_driver_init(RW_ADS7841_CURRENT_MEASUREMENT_PHY_init,
                         RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit,
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
 
-/** @todo */
-#warning TODO: PERFORM ADC CONVERSION AND CHANGE THE VOLTAGE VALUE TO A CURRENT VALUE IN SOFTWARE
+    uint16_t adc_val = ADS7841_measure_channel(REAC_WHEEL_ADS7841_CHANNEL_x);
+    current_ma       = RW_current_sense_mv_to_ma(adc_val);
 
 
     ADS7841_driver_deinit();
@@ -346,19 +352,18 @@ static int RW_TIMER_API_measure_x_current_ma(void)
 
 static int RW_TIMER_API_measure_y_current_ma(void)
 {
-    int current_ma = 50; /* for now, just a stubbed magic number */
+    int current_ma = 0;
 
 #if defined(TARGET_MCU)
 
     ADS7841_driver_init(RW_ADS7841_CURRENT_MEASUREMENT_PHY_init,
                         RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit,
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
-/** @todo */
-#warning TODO: PERFORM ADC CONVERSION AND CHANGE THE VOLTAGE VALUE TO A CURRENT VALUE IN SOFTWARE
 
+    uint16_t adc_val = ADS7841_measure_channel(REAC_WHEEL_ADS7841_CHANNEL_y);
+    current_ma       = RW_current_sense_mv_to_ma(adc_val);
 
     ADS7841_driver_deinit();
-
 
 #endif /* #if defined(TARGET_MCU) */
 
@@ -368,7 +373,7 @@ static int RW_TIMER_API_measure_y_current_ma(void)
 
 static int RW_TIMER_API_measure_z_current_ma(void)
 {
-    int current_ma = 50; /* for now, just a stubbed magic number */
+    int current_ma = 0;
 
 #if defined(TARGET_MCU)
 
@@ -376,8 +381,8 @@ static int RW_TIMER_API_measure_z_current_ma(void)
                         RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit,
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
 
-/** @todo */
-#warning TODO: PERFORM ADC CONVERSION AND CHANGE THE VOLTAGE VALUE TO A CURRENT VALUE IN SOFTWARE
+    uint16_t adc_val = ADS7841_measure_channel(REAC_WHEEL_ADS7841_CHANNEL_z);
+    current_ma       = RW_current_sense_mv_to_ma(adc_val);
 
     ADS7841_driver_deinit();
 
@@ -392,8 +397,9 @@ static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void)
 
 #if defined(TARGET_MCU)
 
-/** @todo IMPLEMENT */
-#warning WRITE THE PIN LOW FOR THE ADS7841 THAT CONNECTS TO THE REACTION WHEEL CURRENT MEASUREMENT CIRCUITRY
+    /* P5.0 */
+    P5DIR |= BIT0;
+    P5OUT ^= ~BIT0; /* Active Low */
 
 #endif /* #if defined(TARGET_MCU) */
 }
@@ -404,8 +410,15 @@ static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void)
 
 #if defined(TARGET_MCU)
 
-/** @todo IMPLEMENT */
-#warning WRITE THE PIN High FOR THE ADS7841 THAT CONNECTS TO THE REACTION WHEEL CURRENT MEASUREMENT CIRCUITRY
+    /* P5.0 */
+    P5DIR |= BIT0;
+    P5DIR |= BIT0;
 
 #endif /* #if defined(TARGET_MCU) */
+}
+
+
+static int RW_current_sense_mv_to_ma(int mv)
+{
+    return mv * REACWHEEL_CURRENT_SENSE_MA_PER_MV;
 }
