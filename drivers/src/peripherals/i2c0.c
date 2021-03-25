@@ -15,6 +15,8 @@
 #endif /* !defined(TARGET_MCU) */
 
 #include <string.h>
+#include <stdlib.h>
+
 
 #include <msp430.h>
 
@@ -22,6 +24,7 @@
 
 static volatile uint8_t  I2C0_i2c_txbuf[32];
 static volatile uint8_t *I2C0_i2c_txbuf_ptr;
+static volatile uint16_t I2C0_i2c_txcnt;
 
 static volatile uint8_t  I2C0_i2c_rxbuf[32];
 static volatile uint8_t *I2C0_i2c_rxbuf_inptr;
@@ -44,27 +47,41 @@ void I2C0_init(void)
 }
 
 
-void I2C0_write_bytes(uint8_t dev_addr, uint8_t *bytes, uint16_t byte_count)
-{
+int I2C0_write_bytes(uint8_t dev_addr, uint8_t *bytes, uint16_t byte_count)
+{   
+    int retval = 0;
     if (bytes != NULL)
     {
         /* First byte in transmit buffer is device address */
         I2C0_i2c_txbuf_ptr  = I2C0_i2c_txbuf;
         *I2C0_i2c_txbuf_ptr = dev_addr;
-        I2C0_i2c_txbuf++;
+        I2C0_i2c_txbuf_ptr++;
 
         /* Rest of data comes next */
-        uint16_t bcnt = byte_count;
+        uint16_t bcnt = sizeof(dev_addr) + byte_count;
+
         if (bcnt > sizeof(I2C0_i2c_txbuf))
         {
-            bcnt = I2C0_i2c_txbuf;
+            retval =  -1;
         }
-        strncpy((char *)I2C0_i2c_txbuf_ptr, bytes, bcnt);
+        else
+        {
+            strncpy((char *)I2C0_i2c_txbuf_ptr, (char*)bytes, bcnt);
 
-        /** @todo IMPLEMENT THE STUFF THAT ACTUALLY TRANSMITS, CALLER DATA IS
-         * JUST LOADED RIGHT NOW*/
+            I2C0_i2c_txcnt = bcnt;
+
+            /** @todo IMPLEMENT THE STUFF THAT ACTUALLY TRANSMITS, CALLER DATA
+             * IS JUST LOADED RIGHT NOW*/
 #warning TODO: NOT FULLY IMPLEMENTED YET
+
+            retval = bcnt;
+        }
     }
+    else
+    {
+        retval = 0;
+    }
+    return retval;
 }
 
 
@@ -76,7 +93,7 @@ int I2C0_read_bytes(uint8_t *caller_buf, uint16_t caller_buflen)
     }
     else
     {
-        int bcnt = 0;
+        unsigned int bcnt = 0;
         while (I2C0_i2c_rxbuf_outptr != I2C0_i2c_rxbuf_inptr)
         {
             caller_buf[bcnt] = *I2C0_i2c_rxbuf_outptr;
@@ -91,6 +108,11 @@ int I2C0_read_bytes(uint8_t *caller_buf, uint16_t caller_buflen)
             if (bcnt > sizeof(I2C0_i2c_rxbuf))
             {
                 bcnt = -1;
+                break;
+            }
+
+            if(bcnt == caller_buflen)
+            {
                 break;
             }
         }
@@ -128,11 +150,11 @@ __interrupt_vec(USCI_B0_VECTOR) void USCI_I2C_ISR(void)
         break;   // Vector 10: RXIFG
         case 12: // Vector 12: TXIFG
         {
-            if (i2c_data_cnt)
+            if (I2C0_i2c_txcnt)
             {
-                UCB0TXBUF = *i2c_data_ptr;
-                i2c_data_ptr++; /* advance data ptr */
-                i2c_data_cnt--; // Decrement TX byte counter
+                UCB0TXBUF = *I2C0_i2c_txbuf_ptr;
+                I2C0_i2c_txbuf_ptr++; /* advance data ptr */
+                I2C0_i2c_txcnt--;     // Decrement TX byte counter
             }
             else
             {

@@ -43,25 +43,10 @@
  * width integer types fffffss...
  * #TEXASINSTRUMENTSISGARBAGE
  */
-static int8_t BNO055_I2C_bus_read_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                          uint8_t *reg_data, uint8_t cnt);
-static int8_t BNO055_I2C_bus_write_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                           uint8_t *reg_data, uint8_t cnt);
-static void   BNO055_delay_msek_wrapper(uint32_t msek);
-static void   IMU_init_i2c_wrapper(void);
+
 
 #if defined(TARGET_MCU)
 
-/** @note These are the actual driver stubs required by the bosch source code
- * for BNO055 its function pointers use these bullshit custom typedefs
- * for integer width instead of C99 standard ones in stdint.h.
- *
- * So... I have to call them from a wrapper and hide the function defs inside
- * conditional compilation because otherwise I'm forced to
- * link against the bosch driver even when doing a native build (just so I can
- * have access to the typedef for u8/s8/u16/s16/u32/s32 in this source module)
- *
- */
 static struct bno055_t bno055;
 
 static s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
@@ -105,57 +90,10 @@ void IMU_init(void)
 
 static void IMU_init_i2c(void)
 {
-
-/** @todo IMLEMENT */
-#warning IMPLEMENT IMU_init_i2c IN TERMS OF THE I2C API DRIVER FUNCTIONS
-}
-
-
-static int8_t BNO055_I2C_bus_read_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                          uint8_t *reg_data, uint8_t cnt)
-{
 #if defined(TARGET_MCU)
 
-    return BNO055_I2C_bus_read(dev_addr, reg_addr, reg_data, cnt);
-
-#else
-
-    return 0;
-
-#endif /* #if defined(TARGET_MCU) */
-}
-
-
-static int8_t BNO055_I2C_bus_write_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                           uint8_t *reg_data, uint8_t cnt)
-{
-#if defined(TARGET_MCU)
-
-    return BNO055_I2C_bus_write(dev_addr, reg_addr, reg_data, cnt);
-
-#else
-
-    return 0;
-
-#endif /* #if defined(TARGET_MCU) */
-}
-
-
-static void BNO055_delay_msek_wrapper(uint32_t msek)
-{
-#if defined(TARGET_MCU)
-
-    BNO055_delay_msek(msek);
-
-#endif /* #if defined(TARGET_MCU) */
-}
-
-
-static void IMU_init_i2c_wrapper(void)
-{
-#if defined(TARGET_MCU)
-
-    IMU_init_i2c();
+    /* We use I2C1 (using UCB1) for i2c with IMU */
+    I2C1_init();
 
 #endif /* #if defined(TARGET_MCU) */
 }
@@ -201,9 +139,22 @@ s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 {
     s32 BNO055_iERROR = BNO055_INIT_VALUE;
 
-/** @todo */
-#warning THIS NEEDS TO BE IMLPEMENTED
 
+    char txbuf[50]; /* just hard coding this for now */
+    txbuf[0] = reg_addr;
+
+    unsigned int bcnt = sizeof(reg_addr) + cnt;
+    if (bcnt > sizeof(txbuf))
+    {
+        bcnt = sizeof(txbuf);
+    }
+    strncpy(&txbuf[1], (char *)reg_data, bcnt);
+
+    int write_status = I2C1_write_bytes((uint8_t)dev_addr, txbuf, bcnt);
+    if (write_status != 0 && write_status != -1)
+    {
+        BNO055_iERROR = BNO055_SUCCESS;
+    }
 
     /* SEE SECTION 4.6 OF DATASHEET */
 #if 0
