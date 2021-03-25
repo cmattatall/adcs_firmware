@@ -125,7 +125,7 @@ static MAGTOM_measurement_t MAGTOM_get_measurement(void)
     /** @todo This is a hacky delay to allow coils to de-energize.
      * In future firmware revs this can be replaced by a timer expiration
      * + callback */
-    volatile int blocking_delay = 0;
+    volatile uint16_t blocking_delay = 0;
     while (++blocking_delay < UINT16_MAX)
         ;
 

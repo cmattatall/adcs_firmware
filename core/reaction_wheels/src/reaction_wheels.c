@@ -15,10 +15,10 @@
 #include <stdio.h>
 
 #include "targets.h"
-#include "ads7841e.h"
 #include "reaction_wheels.h"
 
 #if defined(TARGET_MCU)
+#include "ads7841e.h"
 #include <msp430.h>
 #include "timer_a.h"
 #include "pwm.h"
@@ -71,8 +71,8 @@ static int RW_TIMER_API_measure_x_current_ma(void);
 static int RW_TIMER_API_measure_y_current_ma(void);
 static int RW_TIMER_API_measure_z_current_ma(void);
 
-static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void);
-static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void);
+static void RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void);
+static void RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void);
 
 
 void RW_init(void)
@@ -392,20 +392,20 @@ static int RW_TIMER_API_measure_z_current_ma(void)
 }
 
 
-static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void)
+static void RW_ADS7841_CURRENT_MEASUREMENT_PHY_init(void)
 {
 
 #if defined(TARGET_MCU)
 
     /* P5.0 */
     P5DIR |= BIT0;
-    P5OUT ^= ~BIT0; /* Active Low */
+    P5OUT ^= ~BIT0; /* ADS7841 chip select is active low */
 
 #endif /* #if defined(TARGET_MCU) */
 }
 
 
-static int RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void)
+static void RW_ADS7841_CURRENT_MEASUREMENT_PHY_deinit(void)
 {
 
 #if defined(TARGET_MCU)
