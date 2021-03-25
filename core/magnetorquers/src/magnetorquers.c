@@ -15,6 +15,7 @@
 
 #if defined(TARGET_MCU)
 #include <msp430.h>
+#include "ads7841e.h"
 #include "timer_a.h"
 #include "pwm.h"
 #define MQTR_PWM_TIMER_COUNT_MODE MC__UP
@@ -24,6 +25,16 @@
 
 #include "magnetorquers.h"
 #include "targets.h"
+
+/** @todo DON'T FORGET THIS */
+#warning TODO: THIS NEEDS TO BE UPDATED BASED ON THE HARDWARE CONVERSION FACTOR IN CURRENT SENSING CIRCUITRY
+#define MQTR_CURRENT_SENSE_MA_PER_MV (0.5f)
+
+/** @todo DON'T FORGET THIS */
+#warning TODO: THESE NEED TO BE UPDATED BASED ON THE HARDWARE MAPPINGS
+#define MQTR_CURRENT_SEN_CHANNEL_X ADS7841_CHANNEL_SGL_1
+#define MQTR_CURRENT_SEN_CHANNEL_Y ADS7841_CHANNEL_SGL_2
+#define MQTR_CURRENT_SEN_CHANNEL_Z ADS7841_CHANNEL_SGL_3
 
 static int mqtr_voltage_mv[] = {
     [MQTR_x] = 0,
@@ -38,7 +49,11 @@ static void     MQTR_PWM_API_set_x_duty_cycle(float ds_percent);
 static void     MQTR_PWM_API_set_y_duty_cycle(float ds_percent);
 static void     MQTR_PWM_API_set_z_duty_cycle(float ds_percent);
 static void     MQTR_PWM_API_init(void);
+
 static void MQTR_PWM_API_set_coil_voltage_mv(MQTR_t mqtr, int16_t voltage_mv);
+static void MQTR_current_sense_ads7841_cs_init(void);
+static void MQTR_current_sense_ads7841_cs_deinit(void);
+static int  MQTR_current_sense_adc_mv_to_ma(int mv);
 
 
 void MQTR_init(void)
@@ -100,6 +115,52 @@ int MQTR_config_to_str(char *buf, int buflen)
         snprintf(buf, buflen, "[ %d, %d, %d ]", mqtr_voltage_mv[MQTR_x],
                  mqtr_voltage_mv[MQTR_y], mqtr_voltage_mv[MQTR_z]);
     return (required_len < buflen) ? 0 : 1;
+}
+
+
+int MQTR_get_current_ma(MQTR_t mqtr)
+{
+    int      current_ma = 0;
+    uint16_t adc_val    = 0;
+
+#if defined(TARGET_MCU)
+    ADS7841_driver_init(MQTR_current_sense_ads7841_cs_init,
+                        MQTR_current_sense_ads7841_cs_deinit,
+                        ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
+    switch (mqtr)
+    {
+        case MQTR_x:
+        {
+            adc_val = ADS7841_measure_channel(MQTR_CURRENT_SEN_CHANNEL_X);
+        }
+        break;
+        case MQTR_y:
+        {
+            adc_val = ADS7841_measure_channel(MQTR_CURRENT_SEN_CHANNEL_Y);
+        }
+        break;
+        case MQTR_z:
+        {
+            adc_val = ADS7841_measure_channel(MQTR_CURRENT_SEN_CHANNEL_Z);
+        }
+        break;
+        default:
+        {
+        }
+        break;
+    }
+    current_ma = MQTR_current_sense_adc_mv_to_ma(adc_val);
+    ADS7841_driver_deinit();
+
+
+#else
+
+    printf("Called %s with arg %d. Returning %d\n", __func__, mqtr, current_ma);
+
+#endif /* #if defined(TARGET_MCU) */
+
+
+    return current_ma;
 }
 
 
@@ -483,4 +544,32 @@ static uint16_t MQTR_PWM_API_timer_period_reg_val(uint16_t freq)
     uint16_t period_reg_val = 0;
     period_reg_val          = SMCLK_FREQ / freq;
     return period_reg_val;
+}
+
+
+static void MQTR_current_sense_ads7841_cs_init(void)
+{
+#if defined(TARGET_MCU)
+
+    P5DIR |= BIT1;
+    P5OUT &= ~BIT1; /* ADS7841 is active low */
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static void MQTR_current_sense_ads7841_cs_deinit(void)
+{
+#if defined(TARGET_MCU)
+
+    P5DIR |= BIT1;
+    P5OUT |= BIT1; /* ADS7841 is active low */
+
+#endif /* #if defined(TARGET_MCU) */
+}
+
+
+static int MQTR_current_sense_adc_mv_to_ma(int mv)
+{
+    return mv * MQTR_CURRENT_SENSE_MA_PER_MV;
 }
