@@ -626,8 +626,14 @@ static json_handler_retval parse_current(json_handler_args args)
     *t += 1; /* Advance to first key of json */
     if (jtok_tokcmp("rw", &tkns[*t]))
     {
-#warning NOT IMPLEMENTED YET.
-        /** @todo IMPLEMENT */
+        /** @note not sure why this is here because {"rw_current":"read"}
+         * does the same thing... - Carl
+         */
+        int current_ma_x = RW_measure_current_ma(REAC_WHEEL_x);
+        int current_ma_y = RW_measure_current_ma(REAC_WHEEL_y);
+        int current_ma_z = RW_measure_current_ma(REAC_WHEEL_z);
+        OBC_IF_printf("{\"rw_current\": [ %d, %d, %d]}", current_ma_x,
+                      current_ma_y, current_ma_z);
     }
     else if (jtok_tokcmp("mqtr", &tkns[*t]))
     {
