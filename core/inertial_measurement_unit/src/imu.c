@@ -8,6 +8,10 @@
  * @copyright Copyright (c) 2021 Carl Mattatall
  *
  * @note this entire source module is ugly as sin...
+ *
+ * @todo for now we can just use CC to hide direct register
+ * writes and have native build succeed, but in future an I2C API really
+ * should be written so core application is portable to other devices.
  */
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +21,10 @@
 #include "imu.h"
 
 #if defined(TARGET_MCU)
+
+/** @note THIS AND ALL REGISTER LEVEL MANIPS SHOULD BE REFACTORED AWAY INTO
+ * DRIVER LEVEL API CALLS IN THE FUTURE */
+#include <msp430.h>
 
 #include "i2c.h"
 #include "bno055.h"
@@ -29,17 +37,13 @@
 #define BNO055_I2C_BUS_WRITE_ARRAY_INDEX ((u8)1)
 
 
-/* This is why stdint.h is a thing... I shouldn't have to
- * wrap your customized platform-specific typedefs for fixed width
- * integer types fffffss
+/*
+ * This is why stdint.h is a thing...
+ * I shouldn't have to wrap your customized platform-specific typedefs for fixed
+ * width integer types fffffss...
  * #TEXASINSTRUMENTSISGARBAGE
  */
-static int8_t BNO055_I2C_bus_read_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                          uint8_t *reg_data, uint8_t cnt);
-static int8_t BNO055_I2C_bus_write_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                           uint8_t *reg_data, uint8_t cnt);
-static void   BNO055_delay_msek_wrapper(uint32_t msek);
-static void   IMU_init_i2c_wrapper(void);
+
 
 #if defined(TARGET_MCU)
 
@@ -57,6 +61,9 @@ static void IMU_init_i2c(void);
 int IMU_measurements_to_string(char *buf, unsigned int buflen)
 {
     CONFIG_ASSERT(buf != NULL);
+
+    /** @todo IMLEMENT */
+#warning IMPLEMENT IMU_init_i2c IN TERMS OF THE I2C API DRIVER FUNCTIONS
 
     return 0;
 }
@@ -83,57 +90,10 @@ void IMU_init(void)
 
 static void IMU_init_i2c(void)
 {
-
-/** @todo IMLEMENT */
-#warning IMPLEMENT IMU_init_i2c IN TERMS OF THE I2C API DRIVER FUNCTIONS
-}
-
-
-static int8_t BNO055_I2C_bus_read_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                          uint8_t *reg_data, uint8_t cnt)
-{
 #if defined(TARGET_MCU)
 
-    return BNO055_I2C_bus_read(dev_addr, reg_addr, reg_data, cnt);
-
-#else
-
-    return 0;
-
-#endif /* #if defined(TARGET_MCU) */
-}
-
-
-static int8_t BNO055_I2C_bus_write_wrapper(uint8_t dev_addr, uint8_t reg_addr,
-                                           uint8_t *reg_data, uint8_t cnt)
-{
-#if defined(TARGET_MCU)
-
-    return BNO055_I2C_bus_write(dev_addr, reg_addr, reg_data, cnt);
-
-#else
-
-    return 0;
-
-#endif /* #if defined(TARGET_MCU) */
-}
-
-
-static void BNO055_delay_msek_wrapper(uint32_t msek)
-{
-#if defined(TARGET_MCU)
-
-    BNO055_delay_msek(msek);
-
-#endif /* #if defined(TARGET_MCU) */
-}
-
-
-static void IMU_init_i2c_wrapper(void)
-{
-#if defined(TARGET_MCU)
-
-    IMU_init_i2c();
+    /* We use I2C1 (using UCB1) for i2c with IMU */
+    I2C1_init();
 
 #endif /* #if defined(TARGET_MCU) */
 }
@@ -144,6 +104,10 @@ static void IMU_init_i2c_wrapper(void)
 
 static s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 {
+
+    /** @todo */
+#warning THIS NEEDS TO BE IMLPEMENTED
+
     s32 BNO055_iERROR = BNO055_INIT_VALUE;
 #if 0
     u8  array[I2C_BUFFER_LEN] = {BNO055_INIT_VALUE};
@@ -175,6 +139,23 @@ s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 {
     s32 BNO055_iERROR = BNO055_INIT_VALUE;
 
+
+    char txbuf[50]; /* just hard coding this for now */
+    txbuf[0] = reg_addr;
+
+    unsigned int bcnt = sizeof(reg_addr) + cnt;
+    if (bcnt > sizeof(txbuf))
+    {
+        bcnt = sizeof(txbuf);
+    }
+    strncpy(&txbuf[1], (char *)reg_data, bcnt);
+
+    int write_status = I2C1_write_bytes((uint8_t)dev_addr, txbuf, bcnt);
+    if (write_status != 0 && write_status != -1)
+    {
+        BNO055_iERROR = BNO055_SUCCESS;
+    }
+
     /* SEE SECTION 4.6 OF DATASHEET */
 #if 0
     u8  array[I2C_BUFFER_LEN];
@@ -193,6 +174,8 @@ s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 
 static void BNO055_delay_msek(u32 msek)
 {
+/** @todo */
+#warning THIS NEEDS TO BE IMLPEMENTED
     /*Here you can write your own delay routine*/
 }
 
