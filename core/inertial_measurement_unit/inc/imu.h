@@ -10,6 +10,8 @@ extern "C"
 
 void IMU_init(void);
 
+int IMU_measurements_to_string(char *buf, unsigned int buflen);
+
 #ifdef __cplusplus
 /* clang-format off */
 }

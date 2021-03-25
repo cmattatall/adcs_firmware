@@ -25,6 +25,7 @@
 #include "magnetorquers.h"
 #include "sun_sensors.h"
 #include "magnetometer.h"
+#include "imu.h"
 
 #define BASE_10 10
 #define JSON_TKN_CNT 20
@@ -446,52 +447,101 @@ static json_handler_retval parse_sunSen(json_handler_args args)
         {
             *t += 1; /* Advance to value for "face" key */
 
+            int err = 0;
             /** @note admittedly this could be refactored to use a table
              * of some sort */
             memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
             if (jtok_tokcmp("x+", &tkns[*t]))
             {
-                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
-                                          SUNSEN_FACE_x_pos);
-                OBC_IF_printf("{ \"sunSen\" : \"x+\", \"lux\" : %s}",
-                              tmp_chrbuf);
+                err = SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                                SUNSEN_FACE_x_pos);
+                if (err)
+                {
+                    OBC_IF_printf("{\"error\" : \"sunsen %s measurement\"}",
+                                  "x+");
+                }
+                else
+                {
+                    OBC_IF_printf("{ \"sunSen\" : \"x+\", \"lux\" : %s}",
+                                  tmp_chrbuf);
+                }
             }
             else if (jtok_tokcmp("x-", &tkns[*t]))
             {
-                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
-                                          SUNSEN_FACE_x_neg);
-                OBC_IF_printf("{ \"sunSen\" : \"x-\", \"lux\" : %s}",
-                              tmp_chrbuf);
+                err = SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                                SUNSEN_FACE_x_neg);
+                if (err)
+                {
+                    OBC_IF_printf("{\"error\" : \"sunsen %s measurement\"}",
+                                  "x-");
+                }
+                else
+                {
+                    OBC_IF_printf("{ \"sunSen\" : \"x-\", \"lux\" : %s}",
+                                  tmp_chrbuf);
+                }
             }
             else if (jtok_tokcmp("y+", &tkns[*t]))
             {
-                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
-                                          SUNSEN_FACE_y_pos);
-                OBC_IF_printf("{ \"sunSen\" : \"y+\", \"lux\" : %s}",
-                              tmp_chrbuf);
+                err = SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                                SUNSEN_FACE_y_pos);
+                if (err)
+                {
+                    OBC_IF_printf("{\"error\" : \"sunsen %s measurement\"}",
+                                  "y+");
+                }
+                else
+                {
+                    OBC_IF_printf("{ \"sunSen\" : \"y+\", \"lux\" : %s}",
+                                  tmp_chrbuf);
+                }
             }
             else if (jtok_tokcmp("y-", &tkns[*t]))
             {
-                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
-                                          SUNSEN_FACE_y_neg);
-                OBC_IF_printf("{ \"sunSen\" : \"y-\", \"lux\" : %s}",
-                              tmp_chrbuf);
+                err = SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                                SUNSEN_FACE_y_neg);
+                if (err)
+                {
+                    OBC_IF_printf("{\"error\" : \"sunsen %s measurement\"}",
+                                  "y-");
+                }
+                else
+                {
+                    OBC_IF_printf("{ \"sunSen\" : \"y-\", \"lux\" : %s}",
+                                  tmp_chrbuf);
+                }
             }
             else if (jtok_tokcmp("z+", &tkns[*t]))
             {
-                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
-                                          SUNSEN_FACE_z_pos);
-                OBC_IF_printf(
-                    "{ \"sunSen\" : \"z+\", \"lux\" : %s , \"temp\" : %d}",
-                    tmp_chrbuf, SUNSEN_get_z_pos_temp());
+                err = SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                                SUNSEN_FACE_z_pos);
+                if (err)
+                {
+                    OBC_IF_printf("{\"error\" : \"sunsen %s measurement\"}",
+                                  "z+");
+                }
+                else
+                {
+                    OBC_IF_printf(
+                        "{ \"sunSen\" : \"z+\", \"lux\" : %s , \"temp\" : %d}",
+                        tmp_chrbuf, SUNSEN_get_z_pos_temp());
+                }
             }
             else if (jtok_tokcmp("z-", &tkns[*t]))
             {
-                SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
-                                          SUNSEN_FACE_z_neg);
-                OBC_IF_printf(
-                    "{ \"sunSen\" : \"z-\", \"lux\" : %s, \"temp\" :%d}",
-                    tmp_chrbuf, SUNSEN_get_z_neg_temp());
+                err = SUNSEN_face_lux_to_string(tmp_chrbuf, sizeof(tmp_chrbuf),
+                                                SUNSEN_FACE_z_neg);
+                if (err)
+                {
+                    OBC_IF_printf("{\"error\" : \"sunsen %s measurement\"}",
+                                  "z-");
+                }
+                else
+                {
+                    OBC_IF_printf(
+                        "{ \"sunSen\" : \"z-\", \"lux\" : %s, \"temp\" :%d}",
+                        tmp_chrbuf, SUNSEN_get_z_neg_temp());
+                }
             }
             else
             {
@@ -519,8 +569,15 @@ static json_handler_retval parse_magSen(json_handler_args args)
     if (jtok_tokcmp("read", &tkns[*t]))
     {
         memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
-        MAGTOM_measurement_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
-        OBC_IF_printf("{ \"magSen\" : %s}", tmp_chrbuf);
+        int err = MAGTOM_measurement_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
+        if (err)
+        {
+            OBC_IF_printf("{ \"error\" : \"mqtr measurement\"}", tmp_chrbuf);
+        }
+        else
+        {
+            OBC_IF_printf("{ \"magSen\" : %s}", tmp_chrbuf);
+        }
     }
     else if (jtok_tokcmp("reset", &tkns[*t]))
     {
@@ -543,8 +600,16 @@ static json_handler_retval parse_imu(json_handler_args args)
     *t += 1; /* Advance to first key of json */
     if (jtok_tokcmp("read", &tkns[*t]))
     {
-#warning NOT IMPLEMENTED YET.
-        /** @todo IMPLEMENT */
+        memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
+        int error = IMU_measurements_to_string(tmp_chrbuf, sizeof(tmp_chrbuf));
+        if (error)
+        {
+            OBC_IF_printf("{\"error\" : \"imu measurement\"}", tmp_chrbuf);
+        }
+        else
+        {
+            OBC_IF_printf("{\"imu\" : %s}", tmp_chrbuf);
+        }
     }
     else
     {
@@ -565,7 +630,7 @@ static json_handler_retval parse_current(json_handler_args args)
         /** @todo IMPLEMENT */
     }
     else if (jtok_tokcmp("mqtr", &tkns[*t]))
-    {   
+    {
 #warning NOT IMPLEMENTED YET.
         /** @todo IMPLEMENT */
     }

@@ -148,6 +148,7 @@ int RW_measure_current_ma(REAC_WHEEL_t wheel)
 #else
 
     printf("Called %s with arg %d\n", __func__, wheel);
+    return 0;
 
 #endif /* #if defined(TARGET_MCU) */
 }
@@ -341,7 +342,6 @@ static int RW_TIMER_API_measure_x_current_ma(void)
 
     uint16_t adc_val = ADS7841_measure_channel(REAC_WHEEL_ADS7841_CHANNEL_x);
     current_ma       = RW_current_sense_mv_to_ma(adc_val);
-
 
     ADS7841_driver_deinit();
 

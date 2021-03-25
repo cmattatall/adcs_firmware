@@ -9,7 +9,10 @@
  *
  */
 #include <stdio.h>
+#include <string.h>
+#include <stdint.h>
 
+#include "targets.h"
 #include "imu.h"
 
 #if defined(TARGET_MCU)
@@ -86,6 +89,15 @@ s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
     }
 #endif
     return (s8)BNO055_iERROR;
+}
+
+
+/* format from interface document : {"imu" : [ +5, +2, -3] } */
+int IMU_measurements_to_string(char *buf, unsigned int buflen)
+{
+    CONFIG_ASSERT(buf != NULL);
+
+    return 0;
 }
 
 
