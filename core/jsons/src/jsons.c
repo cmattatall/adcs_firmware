@@ -624,21 +624,28 @@ static json_handler_retval parse_current(json_handler_args args)
     token_index_t *t = (token_index_t *)args;
     CONFIG_ASSERT(*t < JSON_TKN_CNT);
     *t += 1; /* Advance to first key of json */
+
+    int current_ma_x;
+    int current_ma_y;
+    int current_ma_z;
     if (jtok_tokcmp("rw", &tkns[*t]))
     {
         /** @note not sure why this is here because {"rw_current":"read"}
          * does the same thing... - Carl
          */
-        int current_ma_x = RW_measure_current_ma(REAC_WHEEL_x);
-        int current_ma_y = RW_measure_current_ma(REAC_WHEEL_y);
-        int current_ma_z = RW_measure_current_ma(REAC_WHEEL_z);
-        OBC_IF_printf("{\"rw_current\": [ %d, %d, %d]}", current_ma_x,
-                      current_ma_y, current_ma_z);
+        current_ma_x = RW_measure_current_ma(REAC_WHEEL_x);
+        current_ma_y = RW_measure_current_ma(REAC_WHEEL_y);
+        current_ma_z = RW_measure_current_ma(REAC_WHEEL_z);
+        OBC_IF_printf("{\"current\": \"rw\", \"measured\": [ %d, %d, %d]}",
+                      current_ma_x, current_ma_y, current_ma_z);
     }
     else if (jtok_tokcmp("mqtr", &tkns[*t]))
     {
-#warning NOT IMPLEMENTED YET.
-        /** @todo IMPLEMENT */
+        current_ma_x = MQTR_get_current_ma(MQTR_x);
+        current_ma_y = MQTR_get_current_ma(MQTR_y);
+        current_ma_z = MQTR_get_current_ma(MQTR_z);
+        OBC_IF_printf("{\"current\": \"mqtr\", \"measured\": [ %d, %d, %d]}",
+                      current_ma_x, current_ma_y, current_ma_z);
     }
     else
     {

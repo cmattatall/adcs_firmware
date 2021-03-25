@@ -57,7 +57,6 @@ static int rw_speed_rph[] = {
     [REAC_WHEEL_z] = 0,
 };
 static int RW_rph_to_mv(int rph);
-static int RW_mv_to_rph(int mv);
 
 static int RW_current_sense_mv_to_ma(int mv);
 
@@ -157,12 +156,6 @@ int RW_measure_current_ma(REAC_WHEEL_t wheel)
 static int RW_rph_to_mv(int rph)
 {
     return (int)(rph / ((float)RW_RPH_PER_PWM_MV));
-}
-
-
-static int RW_mv_to_rph(int mv)
-{
-    return (int)(RW_RPH_PER_PWM_MV * mv);
 }
 
 /******************************************************************************/

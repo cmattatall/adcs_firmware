@@ -122,6 +122,8 @@ int MQTR_get_current_ma(MQTR_t mqtr)
 {
     int      current_ma = 0;
     uint16_t adc_val    = 0;
+
+#if defined(TARGET_MCU)
     ADS7841_driver_init(MQTR_current_sense_ads7841_cs_init,
                         MQTR_current_sense_ads7841_cs_deinit,
                         ADS7841_PWRMODE_stayOn, ADS7841_BITRES_12);
@@ -149,6 +151,15 @@ int MQTR_get_current_ma(MQTR_t mqtr)
     }
     current_ma = MQTR_current_sense_adc_mv_to_ma(adc_val);
     ADS7841_driver_deinit();
+
+
+#else
+
+    printf("Called %s with arg %d. Returning %d\n", __func__, mqtr, current_ma);
+
+#endif /* #if defined(TARGET_MCU) */
+
+
     return current_ma;
 }
 
