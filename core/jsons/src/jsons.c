@@ -96,43 +96,36 @@ JSON_PARSE_t json_parse(uint8_t *json)
         token_index_t t; /* token index */
         token_index_t k; /* key index for json table */
         t = 0;
-        if (isValidJson(tkns, JSON_TKN_CNT))
+        /* Go through command table and check if we have a registered
+         * command for the key */
+        t++;
+
+        int k_max = sizeof(json_parse_table) / sizeof(*json_parse_table);
+        for (k = 0; k < k_max; k++)
         {
-            /* Go through command table and check if we have a registered
-             * command for the key */
-            t++;
-
-            int k_max = sizeof(json_parse_table) / sizeof(*json_parse_table);
-            for (k = 0; k < k_max; k++)
+            /*
+             * If we have a command for the current key,
+             * execute the command handler
+             */
+            if (jtok_tokcmp(json_parse_table[k].key, &tkns[t]))
             {
-                /*
-                 * If we have a command for the current key,
-                 * execute the command handler
-                 */
-                if (jtok_tokcmp(json_parse_table[k].key, &tkns[t]))
+                if (NULL != json_parse_table[k].handler)
                 {
-                    if (NULL != json_parse_table[k].handler)
+                    json_handler_retval retval;
+                    retval = json_parse_table[k].handler(&t);
+                    if (retval == JSON_HANDLER_RETVAL_ERROR)
                     {
-                        json_handler_retval retval;
-                        retval = json_parse_table[k].handler(&t);
-                        if (retval == JSON_HANDLER_RETVAL_ERROR)
-                        {
-                            json_parse_status = -1;
-                        }
+                        json_parse_status = -1;
                     }
-                    break;
                 }
-            }
-
-            /* No match with supported json keys */
-            if (k >= k_max)
-            {
-                json_parse_status = JSON_PARSE_unsupported;
+                break;
             }
         }
-        else
+
+        /* No match with supported json keys */
+        if (k >= k_max)
         {
-            json_parse_status = JSON_PARSE_format_err;
+            json_parse_status = JSON_PARSE_unsupported;
         }
     }
 
@@ -213,23 +206,19 @@ static json_handler_retval parse_rw_speed(json_handler_args args)
                         i++;
                         switch (i)
                         {
-                            case 1:
-                            {
+                            case 1: {
                                 RW_set_speed_rph(REAC_WHEEL_x, new_speed);
                             }
                             break;
-                            case 2:
-                            {
+                            case 2: {
                                 RW_set_speed_rph(REAC_WHEEL_y, new_speed);
                             }
                             break;
-                            case 3:
-                            {
+                            case 3: {
                                 RW_set_speed_rph(REAC_WHEEL_z, new_speed);
                             }
                             break;
-                            default:
-                            {
+                            default: {
                                 return JSON_HANDLER_RETVAL_ERROR;
                             }
                             break;
@@ -246,7 +235,7 @@ static json_handler_retval parse_rw_speed(json_handler_args args)
                     memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
 
                     *t = tkn->sibling;
-                } while (*t != NO_SIBLING_IDX);
+                } while (*t != JTOK_NO_SIBLING_IDX);
 
 
                 if (i != NUM_REACTION_WHEELS)
@@ -357,23 +346,19 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                              * I had to build this entire codebase by myself
                              * in ~3 months and theres almost a million LOC
                              */
-                            case 1:
-                            {
+                            case 1: {
                                 MQTR_set_coil_voltage_mv(MQTR_x, new_voltage);
                             }
                             break;
-                            case 2:
-                            {
+                            case 2: {
                                 MQTR_set_coil_voltage_mv(MQTR_y, new_voltage);
                             }
                             break;
-                            case 3:
-                            {
+                            case 3: {
                                 MQTR_set_coil_voltage_mv(MQTR_z, new_voltage);
                             }
                             break;
-                            default:
-                            {
+                            default: {
                                 return JSON_HANDLER_RETVAL_ERROR;
                             }
                             break;
@@ -390,7 +375,7 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                     memset(tmp_chrbuf, 0, sizeof(tmp_chrbuf));
 
                     *t = tkn->sibling;
-                } while (*t != NO_SIBLING_IDX);
+                } while (*t != JTOK_NO_SIBLING_IDX);
 
 
                 if (i != NUM_REACTION_WHEELS)
