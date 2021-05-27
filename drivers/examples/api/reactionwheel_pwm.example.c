@@ -11,9 +11,10 @@
  *
  *
  * PINOUT:
- * P2.3 == RW_X_SPEED_CTRL
- * P2.4 == RW_Y_SPEED_CTRL
- * P2.5 == RW_Z_SPEED_CTRL
+ * ####P2.3 == RW_X_SPEED_CTRL Unusable
+ * P3.5 == RW_X_SPEED_CTRL (TB0.5)
+ * P2.4 == RW_Y_SPEED_CTRL (TA2.1)
+ * P2.5 == RW_Z_SPEED_CTRL (TA2.2)
  */
 
 #if defined(TARGET_MCU)
