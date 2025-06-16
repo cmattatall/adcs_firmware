@@ -30,10 +30,11 @@
 #define BASE_10 10
 #define JSON_TKN_CNT 20
 #define JSON_HANDLER_RETVAL_ERROR NULL
+#define NO_SIBLING_IDX 0xFFFF
 
 typedef int token_index_t;
 
-typedef void *         json_handler_retval;
+typedef void          *json_handler_retval;
 typedef token_index_t *json_handler_args;
 typedef json_handler_retval (*json_handler)(json_handler_args);
 
@@ -96,7 +97,10 @@ JSON_PARSE_t json_parse(uint8_t *json)
         token_index_t t; /* token index */
         token_index_t k; /* key index for json table */
         t = 0;
-        if (isValidJson(tkns, JSON_TKN_CNT))
+
+        const bool isValidJson = true;
+        if (isValidJson)
+        // if (isValidJson(tkns, JSON_TKN_CNT))
         {
             /* Go through command table and check if we have a registered
              * command for the key */
@@ -197,7 +201,7 @@ static json_handler_retval parse_rw_speed(json_handler_args args)
                 *t += 1; /* Advance token index to the first element of arr */
                 const jtok_tkn_t *tkn;
                 unsigned int      i           = 0;
-                token_index_t *   arr_tkn_idx = t;
+                token_index_t    *arr_tkn_idx = t;
 
                 /* Traverse sibling tree of array elements */
                 do
@@ -213,23 +217,19 @@ static json_handler_retval parse_rw_speed(json_handler_args args)
                         i++;
                         switch (i)
                         {
-                            case 1:
-                            {
+                            case 1: {
                                 RW_set_speed_rph(REAC_WHEEL_x, new_speed);
                             }
                             break;
-                            case 2:
-                            {
+                            case 2: {
                                 RW_set_speed_rph(REAC_WHEEL_y, new_speed);
                             }
                             break;
-                            case 3:
-                            {
+                            case 3: {
                                 RW_set_speed_rph(REAC_WHEEL_z, new_speed);
                             }
                             break;
-                            default:
-                            {
+                            default: {
                                 return JSON_HANDLER_RETVAL_ERROR;
                             }
                             break;
@@ -336,7 +336,7 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                 *t += 1; /* Advance token index to the first element of arr */
                 const jtok_tkn_t *tkn;
                 unsigned int      i           = 0;
-                token_index_t *   arr_tkn_idx = t;
+                token_index_t    *arr_tkn_idx = t;
 
                 /* Traverse sibling tree of array elements */
                 do
@@ -357,23 +357,19 @@ static json_handler_retval parse_mqtr_volts(json_handler_args args)
                              * I had to build this entire codebase by myself
                              * in ~3 months and theres almost a million LOC
                              */
-                            case 1:
-                            {
+                            case 1: {
                                 MQTR_set_coil_voltage_mv(MQTR_x, new_voltage);
                             }
                             break;
-                            case 2:
-                            {
+                            case 2: {
                                 MQTR_set_coil_voltage_mv(MQTR_y, new_voltage);
                             }
                             break;
-                            case 3:
-                            {
+                            case 3: {
                                 MQTR_set_coil_voltage_mv(MQTR_z, new_voltage);
                             }
                             break;
-                            default:
-                            {
+                            default: {
                                 return JSON_HANDLER_RETVAL_ERROR;
                             }
                             break;

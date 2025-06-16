@@ -18,12 +18,13 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#if defined(linux) || defined(__unix__)
+#if defined(linux) || defined(__unix__) || defined(__APPLE__)
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
 #include <termios.h>
-#endif /* defined(linux) || defined(__unix__) */
+#endif /* defined(linux) || defined(__unix__) || defined(__APPLE__) */
+
 
 #include "targets.h"
 #include "obc_emulator.h"
@@ -48,7 +49,7 @@ int OBC_EMU_tx(uint8_t *buf, uint_least16_t buflen)
 
 void OBC_EMU_start(void)
 {
-#if defined(linux) || defined(__unix__)
+#if defined(linux) || defined(__unix__) || defined(__APPLE__)
     /* Configure terminal to read raw, unbuffered input */
     struct termios new_tio;
     tcgetattr(STDIN_FILENO, &new_tio);
@@ -57,7 +58,7 @@ void OBC_EMU_start(void)
     tcsetattr(STDIN_FILENO, SET_ATTR_NOW, &new_tio);
 #elif defined(_WIN32) || defined(WIN32)
 
-#endif /* defined(linux) || defined(__unix__) */
+#endif /* defined(linux) || defined(__unix__) || defined(__APPLE__) */
     char msg[250];
     sprintf(msg,
             "OBC UART EMULATOR\n"
